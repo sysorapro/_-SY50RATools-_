@@ -34,7 +34,7 @@ body:before{
   background-size:36px 36px;
 }
 .container{width:min(1120px,92%);margin:auto}
-header{padding:54px 0 26px;text-align:center}
+header{padding:82px 0 26px;text-align:center}
 .logo{
   width:76px;height:76px;margin:0 auto 20px;border-radius:22px;
   display:grid;place-items:center;font-weight:900;font-size:24px;
@@ -76,10 +76,26 @@ h1{margin:0;font-size:clamp(38px,6vw,64px);letter-spacing:-2px}
 footer{padding:0 0 35px;text-align:center;color:#718198;font-size:13px}
 
 .controls{
-  position:fixed;top:22px;right:24px;z-index:20;
-  display:flex;gap:8px;padding:7px;border:1px solid var(--border);
-  border-radius:16px;background:rgba(10,24,40,.72);backdrop-filter:blur(16px);
-  box-shadow:0 12px 35px rgba(0,0,0,.22)
+  position:fixed !important;
+  top:0 !important;
+  left:0 !important;
+  right:0 !important;
+  width:100% !important;
+  height:58px !important;
+  z-index:2147483647 !important;
+  display:flex !important;
+  justify-content:flex-end !important;
+  align-items:center !important;
+  gap:6px !important;
+  padding:7px 24px !important;
+  margin:0 !important;
+  border:0 !important;
+  border-bottom:1px solid var(--border) !important;
+  border-radius:0 !important;
+  background:rgba(10,24,40,.97) !important;
+  backdrop-filter:blur(20px) !important;
+  -webkit-backdrop-filter:blur(20px) !important;
+  box-shadow:0 5px 20px rgba(0,0,0,.20) !important;
 }
 .control-btn{
   border:0;background:transparent;color:var(--muted);cursor:pointer;
@@ -93,7 +109,7 @@ footer{padding:0 0 35px;text-align:center;color:#718198;font-size:13px}
   --shadow:0 24px 70px rgba(33,58,91,.14)
 }
 [data-theme="light"] body{}
-[data-theme="light"] .controls{background:rgba(255,255,255,.78)}
+[data-theme="light"] .controls{background:rgba(255,255,255,.98) !important;box-shadow:0 5px 20px rgba(33,58,91,.12) !important}
 [data-theme="light"] .card{background:var(--card)}
 [data-theme="light"] .open{color:#fff}
 
@@ -109,8 +125,8 @@ footer{padding:0 0 35px;text-align:center;color:#718198;font-size:13px}
 </div>
 <main class="container">
 <header>
-  <div class="logo">S.P.T</div>
-  <h1 data-en="Sysora Pro Tools" data-ar="أدوات Sysora Pro">Sysora Pro Tools</h1>
+  <div class="logo">S5</div>
+  <h1 data-en="SY50RA Tools" data-ar="أدوات SY50RA">SY50RA Tools</h1>
   <p class="subtitle" data-en="A professional workspace for the tools I use every day." data-ar="مساحة احترافية تجمع الأدوات التي أستخدمها يوميًا.">A professional workspace for the tools I use every day.</p>
 </header>
 
@@ -144,7 +160,7 @@ footer{padding:0 0 35px;text-align:center;color:#718198;font-size:13px}
   </article>
 </section>
 
-<footer><span data-en="Sysora Pro Tools • All Tools In One Place" data-ar="Sysora Pro Tools • كل الأدوات في مكان واحد">Sysora Pro Tools • All Tools In One Place</span></footer>
+<footer><span data-en="SY50RA Tools • All tools in one place" data-ar="SY50RA Tools • كل الأدوات في مكان واحد">SY50RA Tools • All tools in one place</span></footer>
 </main>
 
 <script>
