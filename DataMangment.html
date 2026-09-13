@@ -575,7 +575,21 @@ function parseCSV(t){
 function ce(v){v=String(v??'');return /[",\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
 function csv(rows,h){return h.join(',')+'\r\n'+rows.map(r=>h.map(k=>ce(r[k])).join(',')).join('\r\n')+'\r\n'}
 async function get(path){let u=`https://api.github.com/repos/${encodeURIComponent(cfg().owner)}/${encodeURIComponent(cfg().repo)}/contents/${path}?ref=${encodeURIComponent(cfg().branch)}`;let r=await fetch(u,{headers:H()});if(!r.ok)throw Error(await r.text());let j=await r.json();return{rows:parseCSV(dec(j.content)),sha:j.sha}}
-async function put(path,rows,h,sha,message){let u=`https://api.github.com/repos/${encodeURIComponent(cfg().owner)}/${encodeURIComponent(cfg().repo)}/contents/${path}`;let r=await fetch(u,{method:'PUT',headers:{...H(),'Content-Type':'application/json'},body:JSON.stringify({message,content:enc(csv(rows,h)),branch:cfg().branch,sha})});if(!r.ok)throw Error(await r.text());return r.json()}
+async function put(path,rows,h,sha,message){
+  const u=`https://api.github.com/repos/${encodeURIComponent(cfg().owner)}/${encodeURIComponent(cfg().repo)}/contents/${path}`;
+  async function send(currentSha){
+    const r=await fetch(u,{method:'PUT',headers:{...H(),'Content-Type':'application/json'},body:JSON.stringify({message,content:enc(csv(rows,h)),branch:cfg().branch,sha:currentSha})});
+    if(r.ok)return r.json();
+    const text=await r.text();
+    const e=new Error(text); e.status=r.status; throw e;
+  }
+  try{return await send(sha)}catch(e){
+    if(e.status!==409)throw e;
+    // SHA قديم: نقرأ آخر نسخة من GitHub ثم نعيد المحاولة مرة واحدة.
+    const latest=await get(path);
+    return await send(latest.sha);
+  }
+}
 async function testConnection(){try{let r=await fetch(`https://api.github.com/repos/${cfg().owner}/${cfg().repo}`,{headers:H()});if(!r.ok)throw Error(await r.text());show('connStatus','تم الاتصال بـ GitHub بنجاح','ok')}catch(e){show('connStatus','فشل الاتصال: '+e.message,'err')}}
 async function loadFile(){try{let x=await get(FILE);fr=x.rows;fsha=x.sha;renderFile();show('actionStatus','تم تحميل FileUploade.csv — '+fr.length+' سجل','ok')}catch(e){show('actionStatus','خطأ: '+e.message,'err')}}
 async function loadUsers(){try{let x=await get(USERS);ur=x.rows;usha=x.sha;renderUsers();show('actionStatus','تم تحميل users.csv — '+ur.length+' مستخدم','ok')}catch(e){show('actionStatus','خطأ: '+e.message,'err')}}
