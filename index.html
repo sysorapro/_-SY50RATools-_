@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SY50RA Tools</title>
+<meta name="description" content="SY50RA Tools — a collection of productivity tools.">
+<style>
+:root{
+  --bg:#07111f;
+  --bg2:#0d1b2e;
+  --card:rgba(18,34,56,.72);
+  --border:rgba(255,255,255,.10);
+  --text:#f4f7fb;
+  --muted:#9eacc0;
+  --accent:#55a7ff;
+  --accent2:#7c5cff;
+  --shadow:0 24px 70px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; min-height:100vh; color:var(--text);
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  background:
+    radial-gradient(circle at 15% 10%,rgba(85,167,255,.18),transparent 28%),
+    radial-gradient(circle at 85% 15%,rgba(124,92,255,.16),transparent 30%),
+    linear-gradient(135deg,var(--bg),var(--bg2));
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:36px 36px;
+}
+.container{width:min(1120px,92%);margin:auto}
+header{padding:54px 0 26px;text-align:center}
+.logo{
+  width:76px;height:76px;margin:0 auto 20px;border-radius:22px;
+  display:grid;place-items:center;font-weight:900;font-size:24px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  box-shadow:0 16px 45px rgba(85,167,255,.25);
+}
+h1{margin:0;font-size:clamp(38px,6vw,64px);letter-spacing:-2px}
+.subtitle{margin:13px auto 0;color:var(--muted);font-size:17px;max-width:650px;line-height:1.6}
+.tools{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:22px;padding:38px 0 70px;
+}
+.card{
+  position:relative;overflow:hidden;min-height:225px;padding:30px;
+  border:1px solid var(--border);border-radius:26px;background:var(--card);
+  backdrop-filter:blur(18px);box-shadow:var(--shadow);
+  transition:.28s ease;display:flex;flex-direction:column;
+}
+.card:after{
+  content:"";position:absolute;width:170px;height:170px;right:-70px;top:-70px;
+  border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  opacity:.10;filter:blur(4px);
+}
+.card:hover{transform:translateY(-7px);border-color:rgba(125,180,255,.34)}
+.icon{
+  width:52px;height:52px;border-radius:16px;display:grid;place-items:center;
+  font-size:24px;background:rgba(85,167,255,.11);border:1px solid rgba(85,167,255,.18);
+  margin-bottom:22px;
+}
+.card h2{margin:0 0 10px;font-size:22px}
+.card p{margin:0;color:var(--muted);line-height:1.55;font-size:14px;flex:1}
+.open{
+  margin-top:25px;width:max-content;text-decoration:none;color:white;
+  padding:11px 18px;border-radius:12px;font-weight:700;font-size:14px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  box-shadow:0 9px 25px rgba(85,167,255,.18);transition:.2s;
+}
+.open:hover{filter:brightness(1.1);transform:translateX(2px)}
+footer{padding:0 0 35px;text-align:center;color:#718198;font-size:13px}
+
+.controls{
+  position:fixed;top:22px;right:24px;z-index:20;
+  display:flex;gap:8px;padding:7px;border:1px solid var(--border);
+  border-radius:16px;background:rgba(10,24,40,.72);backdrop-filter:blur(16px);
+  box-shadow:0 12px 35px rgba(0,0,0,.22)
+}
+.control-btn{
+  border:0;background:transparent;color:var(--muted);cursor:pointer;
+  padding:9px 12px;border-radius:11px;font-weight:700;font-size:13px;
+  transition:.2s
+}
+.control-btn:hover,.control-btn.active{background:rgba(255,255,255,.10);color:var(--text)}
+[data-theme="light"]{
+  --bg:#f3f7fc;--bg2:#e8eef7;--card:rgba(255,255,255,.78);
+  --border:rgba(18,35,58,.12);--text:#102033;--muted:#607086;
+  --shadow:0 24px 70px rgba(33,58,91,.14)
+}
+[data-theme="light"] body{}
+[data-theme="light"] .controls{background:rgba(255,255,255,.78)}
+[data-theme="light"] .card{background:var(--card)}
+[data-theme="light"] .open{color:#fff}
+
+@media(max-width:700px){.tools{grid-template-columns:1fr}.card{min-height:205px}header{padding-top:35px}}
+</style>
+</head>
+<body>
+
+<div class="controls" aria-label="Page controls">
+  <button class="control-btn active" id="enBtn" onclick="setLanguage('en')">EN</button>
+  <button class="control-btn" id="arBtn" onclick="setLanguage('ar')">عربي</button>
+  <button class="control-btn" id="themeBtn" onclick="toggleTheme()">☀️ / 🌙</button>
+</div>
+<main class="container">
+<header>
+  <div class="logo">S5</div>
+  <h1 data-en="SY50RA Tools" data-ar="أدوات SY50RA">SY50RA Tools</h1>
+  <p class="subtitle" data-en="A professional workspace for the tools I use every day." data-ar="مساحة احترافية تجمع الأدوات التي أستخدمها يوميًا.">A professional workspace for the tools I use every day.</p>
+</header>
+
+<section class="tools" aria-label="Tools">
+  <article class="card">
+    <div class="icon">📦</div>
+    <h2><span data-en="Items Management" data-ar="إدارة الأصناف">Items Management</span></h2>
+    <p><span data-en="Manage and work with item information through a dedicated workspace." data-ar="إدارة والعمل على بيانات الأصناف من خلال مساحة عمل مخصصة.">Manage and work with item information through a dedicated workspace.</span></p>
+    <a class="open" href="ItemsMangment.html"><span data-en="Open Tool&nbsp; →" data-ar="فتح الأداة&nbsp; →">Open Tool&nbsp; →</span></a>
+  </article>
+
+  <article class="card">
+    <div class="icon">◫</div>
+    <h2><span data-en="Data Mangment" data-ar="إدارة البيانات">Data Mangment</span></h2>
+    <p><span data-en="Organize, process, and manage your operational data in one place." data-ar="تنظيم ومعالجة وإدارة بياناتك التشغيلية في مكان واحد.">Organize, process, and manage your operational data in one place.</span></p>
+    <a class="open" href="DataMangment.html"><span data-en="Open Tool&nbsp; →" data-ar="فتح الأداة&nbsp; →">Open Tool&nbsp; →</span></a>
+  </article>
+
+  <article class="card">
+    <div class="icon">🔐</div>
+    <h2><span data-en="GitHub Token Encryptor" data-ar="تشفير GitHub Token">GitHub Token Encryptor</span></h2>
+    <p><span data-en="Protect GitHub token data with a simple encryption utility." data-ar="حماية بيانات GitHub Token باستخدام أداة تشفير بسيطة.">Protect GitHub token data with a simple encryption utility.</span></p>
+    <a class="open" href="GitHub_Token_Encryptor.html"><span data-en="Open Tool&nbsp; →" data-ar="فتح الأداة&nbsp; →">Open Tool&nbsp; →</span></a>
+  </article>
+
+  <article class="card">
+    <div class="icon">▦</div>
+    <h2><span data-en="Items &amp; Shelf Barcode Generator" data-ar="مولد باركود الأصناف والأرفف">Items &amp; Shelf Barcode Generator</span></h2>
+    <p><span data-en="Generate barcodes for items and shelves quickly and efficiently." data-ar="إنشاء باركود للأصناف والأرفف بسرعة وكفاءة.">Generate barcodes for items and shelves quickly and efficiently.</span></p>
+    <a class="open" href="Items-Shelf%20Barcode%20Generator.html"><span data-en="Open Tool&nbsp; →" data-ar="فتح الأداة&nbsp; →">Open Tool&nbsp; →</span></a>
+  </article>
+</section>
+
+<footer><span data-en="SY50RA Tools • All tools in one place" data-ar="SY50RA Tools • كل الأدوات في مكان واحد">SY50RA Tools • All tools in one place</span></footer>
+</main>
+
+<script>
+const savedTheme = localStorage.getItem('sy50ra-theme') || 'dark';
+document.documentElement.setAttribute('data-theme', savedTheme);
+
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('sy50ra-theme', next);
+}
+
+function setLanguage(lang){
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-en][data-ar]').forEach(el=>{
+    el.innerHTML = el.getAttribute('data-' + lang);
+  });
+  document.getElementById('enBtn').classList.toggle('active', lang === 'en');
+  document.getElementById('arBtn').classList.toggle('active', lang === 'ar');
+  localStorage.setItem('sy50ra-lang', lang);
+}
+setLanguage(localStorage.getItem('sy50ra-lang') || 'en');
+</script>
+
+</body>
+</html>
