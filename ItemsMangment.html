@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" id="htmlRoot">
+
+<html dir="rtl" id="htmlRoot" lang="ar">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title id="pageTitleTag">إدارة الملفات — Warehouse Scanner (Sysora)</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title id="pageTitleTag">Items Management — SY50RA Tools</title>
 <style>
   :root{
     --bg:#F5F6FA; --surface:#FFFFFF; --surface-2:#F0F1F5; --border:#DDE1EA;
@@ -63,179 +64,127 @@
   .tag.new{ background:#EAF7F0; color:var(--mint-fg); }
   .tag.update{ background:#FFF3E0; color:var(--amber-fg); }
   summary{ cursor:pointer; font-size:12.5px; color:var(--muted); }
-
-  .file-switch{ display:flex; gap:4px; margin:-4px -4px 16px; border-bottom:1.5px solid var(--border); overflow-x:auto; }
-  .file-switch .file-btn{ background:none; border:none; padding:11px 16px; font-size:13px; font-weight:800; color:var(--muted); border-bottom:2.5px solid transparent; margin-bottom:-1.5px; border-radius:0; white-space:nowrap; }
-  .file-switch .file-btn.active{ color:var(--amber-fg); border-bottom-color:var(--amber); }
-  .file-panel{ display:none; }
-  .file-panel.active{ display:block; }
-  .fu-tabs{ display:flex; gap:4px; margin:-4px -4px 16px; border-bottom:1.5px solid var(--border); overflow-x:auto; }
-  .fu-tab-btn{ background:none; border:none; padding:10px 12px; font-size:12px; font-weight:700; color:var(--muted); border-bottom:2.5px solid transparent; margin-bottom:-1.5px; white-space:nowrap; }
-  .fu-tab-btn.active{ color:var(--amber-fg); border-bottom-color:var(--amber); }
-  .fu-panel{ display:none; }
-  .fu-panel.active{ display:block; }
-  #fuPasteTable, #fuPreviewTable{ width:100%; border-collapse:collapse; font-size:11.5px; min-width:1250px; }
   #fuPasteTable th, #fuPreviewTable th{ background:var(--surface-2); padding:6px; font-weight:700; color:var(--muted); font-size:10.5px; border-bottom:1.5px solid var(--border); position:sticky; top:0; z-index:1; }
   #fuPasteTable td, #fuPreviewTable td{ border-bottom:1px solid var(--border); padding:3px; }
   #fuPasteTable input{ width:100%; border:1px solid transparent; background:transparent; padding:6px; border-radius:6px; font-size:11.5px; color:var(--text); font-family:inherit; }
   #fuPasteTable input:focus{ outline:none; border-color:var(--amber); background:var(--surface-2); }
   .wide-table{ overflow:auto; border:1px solid var(--border); border-radius:9px; margin-top:12px; }
   .batch-id{ font-family:ui-monospace,SFMono-Regular,Consolas,monospace; font-weight:800; letter-spacing:.08em; }
+
+/* SY50RA Tools visual system */
+:root{--bg:#07111f;--surface:rgba(18,34,56,.72);--surface-2:rgba(255,255,255,.055);--border:rgba(255,255,255,.10);--text:#F4F7FB;--muted:#9EACC0;--amber:#55A7FF;--amber-fg:#FFFFFF;--mint:#7CE0B1;--mint-fg:#0F6B45;--red:#FF7B75;--red-fg:#FFD8D5;--accent2:#7C5CFF;}
+html[data-theme="light"]{--bg:#F3F7FC;--surface:rgba(255,255,255,.82);--surface-2:#EEF3F9;--border:rgba(18,35,58,.12);--text:#102033;--muted:#607086;--amber:#55A7FF;--amber-fg:#FFFFFF;--mint:#3DDC97;--mint-fg:#0F6B45;--red:#E8615D;--red-fg:#B03B37;}
+body{background:radial-gradient(circle at 15% 10%,rgba(85,167,255,.18),transparent 28%),radial-gradient(circle at 85% 15%,rgba(124,92,255,.16),transparent 30%),linear-gradient(135deg,var(--bg),#0D1B2E);font-family:Inter,'Tajawal','Segoe UI',Arial,sans-serif;}
+html[data-theme="light"] body{background:radial-gradient(circle at 15% 10%,rgba(85,167,255,.12),transparent 28%),radial-gradient(circle at 85% 15%,rgba(124,92,255,.10),transparent 30%),linear-gradient(135deg,#F3F7FC,#E8EEF7);}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:24px;margin-bottom:20px;box-shadow:0 24px 70px rgba(0,0,0,.20);backdrop-filter:blur(18px);}
+button{border-radius:12px;transition:.2s ease;}
+.btn-primary{background:linear-gradient(135deg,var(--amber),var(--accent2));color:#fff;border:0;box-shadow:0 9px 25px rgba(85,167,255,.18);}
+.btn-secondary{background:var(--surface-2);border:1px solid var(--border);color:var(--text);}
+.btn-primary:hover,.btn-secondary:hover{transform:translateY(-2px);filter:brightness(1.05);}
+input[type=text],input[type=password],input[type=file]{background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:12px;}
+input:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(85,167,255,.12);}
+.tab-btn{color:var(--muted);}
+.tab-btn.active{color:var(--text);border-bottom-color:var(--amber);}
+
+/* Homepage-style controls */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;}
+.page-controls{display:flex;gap:8px;padding:7px;border:1px solid var(--border);border-radius:16px;background:rgba(10,24,40,.72);backdrop-filter:blur(16px);box-shadow:0 12px 35px rgba(0,0,0,.22);flex-shrink:0;}
+.control-btn{border:0;background:transparent;color:var(--muted);cursor:pointer;padding:9px 12px;border-radius:11px;font-weight:700;font-size:13px;transition:.2s;}
+.control-btn:hover,.control-btn.active{background:rgba(255,255,255,.10);color:var(--text);}
+html[data-theme="light"] .page-controls{background:rgba(255,255,255,.78);}
+@media(max-width:700px){.topbar{align-items:flex-start;flex-direction:column;}.page-controls{align-self:flex-end;}}
+
 </style>
 </head>
 <body>
-
-  <div class="topbar">
-    <h1 data-i18n="h1">📦 إدارة الملفات</h1>
-    <button class="langBtn" onclick="toggleLang()" id="langBtn">EN</button>
-  </div>
-  <div class="sub" data-i18n="subTitle">أداة إدارة ملفات Warehouse Scanner — تقدر تدير items.csv و FileUploade.csv من نفس الصفحة.</div>
-
-  <div class="card">
-    <button class="collapse-toggle" id="ghSectionToggle" onclick="toggleGhSection()">
-      <h2 data-i18n="githubSectionTitle" style="margin:0;">⚙️ الاتصال بـ GitHub</h2>
-      <span class="collapse-arrow" id="ghSectionArrow">▾</span>
-    </button>
-    <div id="ghSectionBody">
-      <label data-i18n="ownerLabel">اسم المستخدم/المنظمة (Owner)</label>
-      <input type="text" id="ghOwner" value="sysorapro" placeholder="sysorapro">
-      <div class="row">
-        <div>
-          <label data-i18n="repoLabel">اسم الريبو (Repo)</label>
-          <input type="text" id="ghRepo" value="warehouse-scanner-" placeholder="warehouse-scanner-">
-        </div>
-        <div>
-          <label data-i18n="branchLabel">الفرع (Branch)</label>
-          <input type="text" id="ghBranch" value="main" placeholder="main">
-        </div>
-      </div>
-      <label data-i18n="pathLabel">مسار الملف</label>
-      <input type="text" id="ghPath" value="items.csv" placeholder="items.csv">
-      <label data-i18n="tokenLabel">مفتاح الوصول (Personal Access Token)</label>
-      <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
-      <div class="hint" data-i18n="tokenHint">
+<div class="topbar">
+<h1 data-i18n="h1">📦 إدارة الملفات</h1>
+<div class="page-controls" aria-label="Page controls">
+  <button class="control-btn" id="enBtn" type="button" onclick="setLanguage('en')">EN</button>
+  <button class="control-btn" id="arBtn" type="button" onclick="setLanguage('ar')">عربي</button>
+  <button class="control-btn" id="themeBtn" type="button" onclick="toggleTheme()">☀️ / 🌙</button>
+</div>
+</div>
+<div class="sub" data-i18n="subTitle">إدارة الأصناف من خلال SY50RA Tools.</div>
+<div class="card">
+<button class="collapse-toggle" id="ghSectionToggle" onclick="toggleGhSection()">
+<h2 data-i18n="githubSectionTitle" style="margin:0;">⚙️ الاتصال بـ GitHub</h2>
+<span class="collapse-arrow" id="ghSectionArrow">▾</span>
+</button>
+<div id="ghSectionBody">
+<label data-i18n="ownerLabel">اسم المستخدم/المنظمة (Owner)</label>
+<input id="ghOwner" placeholder="sysorapro" type="text" value="sysorapro"/>
+<div class="row">
+<div>
+<label data-i18n="repoLabel">اسم الريبو (Repo)</label>
+<input id="ghRepo" placeholder="warehouse-scanner-" type="text" value="warehouse-scanner-"/>
+</div>
+<div>
+<label data-i18n="branchLabel">الفرع (Branch)</label>
+<input id="ghBranch" placeholder="main" type="text" value="main"/>
+</div>
+</div>
+<label data-i18n="pathLabel">مسار الملف</label>
+<input id="ghPath" placeholder="items.csv" type="text" value="items.csv"/>
+<label data-i18n="tokenLabel">مفتاح الوصول (Personal Access Token)</label>
+<input autocomplete="off" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" type="password"/>
+<div class="hint" data-i18n="tokenHint">
         المفتاح ده زي كلمة سر — من GitHub: Settings ← Developer settings ← Personal access tokens ← Fine-grained tokens.
         اعمل توكن جديد بصلاحية Contents: Read and write على الريبو ده بس (مش على كل حساباتك)، وحط له تاريخ انتهاء معقول.
         متشاركوش مع حد، ومتحطوش في أي مكان تاني غير هنا.
       </div>
-      <div class="check-row">
-        <input type="checkbox" id="rememberToken">
-        <label style="margin:0;" for="rememberToken" data-i18n="rememberLabel">احفظ الإعدادات دي على الجهاز ده بس (اختياري)</label>
-      </div>
-      <button class="btn-secondary" onclick="testConnection()" data-i18n="testConnBtn">🔌 اختبار الاتصال</button>
-      <div class="status" id="connStatus"></div>
-    </div>
-  </div>
+<div class="check-row">
+<input id="rememberToken" type="checkbox"/>
+<label data-i18n="rememberLabel" for="rememberToken" style="margin:0;">احفظ الإعدادات دي على الجهاز ده بس (اختياري)</label>
+</div>
+<button class="btn-secondary" data-i18n="testConnBtn" onclick="testConnection()">🔌 اختبار الاتصال</button>
+<div class="status" id="connStatus"></div>
+</div>
+</div>
+<div class="card">
 
-  <div class="card">
-    <div class="file-switch">
-      <button class="file-btn active" data-file="items" onclick="switchFile('items')">📦 items.csv</button>
-      <button class="file-btn" data-file="fileupload" onclick="switchFile('fileupload')">📤 FileUploade.csv</button>
-    </div>
 
-    <div class="file-panel active" data-file-panel="items">
-      <div class="tabs">
-        <button class="tab-btn active" data-tab="single" onclick="switchTab('single')" data-i18n="tabSingle">➕ صنف واحد</button>
-        <button class="tab-btn" data-tab="paste" onclick="switchTab('paste')" data-i18n="tabPaste">📋 لصق من إكسل</button>
-        <button class="tab-btn" data-tab="file" onclick="switchTab('file')" data-i18n="tabFile">📄 رفع ملف</button>
-      </div>
+<div class="tabs">
+<button class="tab-btn active" data-i18n="tabSingle" data-tab="single" onclick="switchTab('single')">➕ صنف واحد</button>
+<button class="tab-btn" data-i18n="tabPaste" data-tab="paste" onclick="switchTab('paste')">📋 لصق من إكسل</button>
+<button class="tab-btn" data-i18n="tabFile" data-tab="file" onclick="switchTab('file')">📄 رفع ملف</button>
+</div>
+<div class="tab-panel active" data-panel="single">
+<label data-i18n="gtinLabel">GTIN</label>
+<input data-i18n-ph="singleGtinPh" id="singleGtin" placeholder="مثال: 6221031000015" type="text"/>
+<label data-i18n="itemCodeLabel">كود الصنف (ItemCode)</label>
+<input data-i18n-ph="singleCodePh" id="singleCode" placeholder="مثال: 2705348" type="text"/>
+<label data-i18n="itemNameLabel">اسم الصنف (ItemName)</label>
+<input data-i18n-ph="singleNamePh" id="singleName" placeholder="مثال: GAUZE HEALTHY SUPER BANDAGE 5CM" type="text"/>
+<div class="hint" data-i18n="singleHint">لو الفاصلة (,) اتكتبت في الاسم غلط، هيتم استبدالها بمسافة تلقائيًا — عشان التطبيق الأساسي بيقرا الملف بطريقة بسيطة ومبتفهمش الفواصل جوه النص.</div>
+<button class="btn-primary" data-i18n="addSingleBtn" id="addSingleBtn" onclick="addSingleItem()">💾 إضافة ورفع على GitHub</button>
+<div class="status" id="singleStatus"></div>
+</div>
+<div class="tab-panel" data-panel="paste">
+<div class="hint" data-i18n="pasteHint">انسخ الأعمدة (GTIN، كود الصنف، اسم الصنف) من إكسل، اضغط في أي خانة تحت، والصق (Ctrl+V) — هتتوزع تلقائي على الصفوف والأعمدة. تقدر تضيف أسطر يدويًا برضو.</div>
+<div id="pasteTableWrap" style="overflow-x:auto; margin-top:12px;">
+<table id="pasteTable">
+<thead><tr><th style="width:26px;">#</th><th data-i18n="gtinLabel">GTIN</th><th data-i18n="colItemCode">كود الصنف</th><th data-i18n="colItemName">اسم الصنف</th><th style="width:26px;"></th></tr></thead>
+<tbody id="pasteTableBody"></tbody>
+</table>
+</div>
+<label data-i18n="rowCountLabel" style="margin-top:14px;">عدد السطور المطلوبة</label>
+<input data-i18n-ph="rowCountPh" id="pasteRowCountInput" inputmode="numeric" placeholder="مثال: 50" type="text"/>
+<button class="btn-secondary" data-i18n="createRowsBtn" onclick="setPasteRowCount()" style="margin-top:8px;">🔢 إنشاء السطور</button>
+<div class="row" style="margin-top:10px;"><button class="btn-secondary" data-i18n="addRowBtn" onclick="addPasteRow()" style="margin-top:0;">➕ سطر جديد</button><button class="btn-secondary" data-i18n="clearAllBtn" onclick="clearPasteTable()" style="margin-top:0;">🗑 مسح الكل</button></div>
+<button class="btn-primary" data-i18n="previewSaveBtn" id="pasteSaveBtn" onclick="previewPasteTable()">💾 معاينة وحفظ</button>
+<div id="pastePreviewWrap" style="display:none;"><div class="hint" id="pasteSummary" style="margin-top:12px; font-weight:700; color:var(--text);"></div><div class="preview" id="pastePreview"></div><button class="btn-primary" data-i18n="confirmSaveBtn" id="pasteConfirmBtn" onclick="commitPasteTable()">✅ تأكيد الحفظ على GitHub</button></div>
+<div class="status" id="pasteStatus"></div>
+</div>
+<div class="tab-panel" data-panel="file">
+<div class="hint" data-i18n="fileHint">الملف المرفوع لازم يكون بنفس الترتيب: GTIN,ItemCode,ItemName (مع سطر عنوان في الأول). أي GTIN موجود بالفعل هيتحدّث ببياناته الجديدة، وأي GTIN جديد هيتضاف — الملف الأصلي مش بيتمسح أو يتستبدل خالص.</div>
+<label data-i18n="chooseFileLabel" style="margin-top:12px;">اختر ملف CSV</label><input accept=".csv,text/csv" id="mergeFile" onchange="previewMergeFile()" type="file"/>
+<div id="mergePreviewWrap" style="display:none;"><div class="hint" id="mergeSummary" style="margin-top:12px; font-weight:700; color:var(--text);"></div><div class="preview" id="mergePreview"></div><button class="btn-primary" data-i18n="confirmMergeBtn" id="mergeBtn" onclick="commitMerge()">💾 تأكيد الدمج ورفع على GitHub</button></div>
+<div class="status" id="mergeStatus"></div>
+</div>
 
-      <div class="tab-panel active" data-panel="single">
-        <label data-i18n="gtinLabel">GTIN</label>
-        <input type="text" id="singleGtin" placeholder="مثال: 6221031000015" data-i18n-ph="singleGtinPh">
-        <label data-i18n="itemCodeLabel">كود الصنف (ItemCode)</label>
-        <input type="text" id="singleCode" placeholder="مثال: 2705348" data-i18n-ph="singleCodePh">
-        <label data-i18n="itemNameLabel">اسم الصنف (ItemName)</label>
-        <input type="text" id="singleName" placeholder="مثال: GAUZE HEALTHY SUPER BANDAGE 5CM" data-i18n-ph="singleNamePh">
-        <div class="hint" data-i18n="singleHint">لو الفاصلة (,) اتكتبت في الاسم غلط، هيتم استبدالها بمسافة تلقائيًا — عشان التطبيق الأساسي بيقرا الملف بطريقة بسيطة ومبتفهمش الفواصل جوه النص.</div>
-        <button class="btn-primary" id="addSingleBtn" onclick="addSingleItem()" data-i18n="addSingleBtn">💾 إضافة ورفع على GitHub</button>
-        <div class="status" id="singleStatus"></div>
-      </div>
 
-      <div class="tab-panel" data-panel="paste">
-        <div class="hint" data-i18n="pasteHint">انسخ الأعمدة (GTIN، كود الصنف، اسم الصنف) من إكسل، اضغط في أي خانة تحت، والصق (Ctrl+V) — هتتوزع تلقائي على الصفوف والأعمدة. تقدر تضيف أسطر يدويًا برضو.</div>
-        <div id="pasteTableWrap" style="overflow-x:auto; margin-top:12px;">
-          <table id="pasteTable">
-            <thead><tr><th style="width:26px;">#</th><th data-i18n="gtinLabel">GTIN</th><th data-i18n="colItemCode">كود الصنف</th><th data-i18n="colItemName">اسم الصنف</th><th style="width:26px;"></th></tr></thead>
-            <tbody id="pasteTableBody"></tbody>
-          </table>
-        </div>
-        <label style="margin-top:14px;" data-i18n="rowCountLabel">عدد السطور المطلوبة</label>
-        <input type="text" inputmode="numeric" id="pasteRowCountInput" placeholder="مثال: 50" data-i18n-ph="rowCountPh">
-        <button class="btn-secondary" style="margin-top:8px;" onclick="setPasteRowCount()" data-i18n="createRowsBtn">🔢 إنشاء السطور</button>
-        <div class="row" style="margin-top:10px;"><button class="btn-secondary" style="margin-top:0;" onclick="addPasteRow()" data-i18n="addRowBtn">➕ سطر جديد</button><button class="btn-secondary" style="margin-top:0;" onclick="clearPasteTable()" data-i18n="clearAllBtn">🗑 مسح الكل</button></div>
-        <button class="btn-primary" id="pasteSaveBtn" onclick="previewPasteTable()" data-i18n="previewSaveBtn">💾 معاينة وحفظ</button>
-        <div id="pastePreviewWrap" style="display:none;"><div class="hint" id="pasteSummary" style="margin-top:12px; font-weight:700; color:var(--text);"></div><div class="preview" id="pastePreview"></div><button class="btn-primary" id="pasteConfirmBtn" onclick="commitPasteTable()" data-i18n="confirmSaveBtn">✅ تأكيد الحفظ على GitHub</button></div>
-        <div class="status" id="pasteStatus"></div>
-      </div>
-
-      <div class="tab-panel" data-panel="file">
-        <div class="hint" data-i18n="fileHint">الملف المرفوع لازم يكون بنفس الترتيب: GTIN,ItemCode,ItemName (مع سطر عنوان في الأول). أي GTIN موجود بالفعل هيتحدّث ببياناته الجديدة، وأي GTIN جديد هيتضاف — الملف الأصلي مش بيتمسح أو يتستبدل خالص.</div>
-        <label style="margin-top:12px;" data-i18n="chooseFileLabel">اختر ملف CSV</label><input type="file" id="mergeFile" accept=".csv,text/csv" onchange="previewMergeFile()">
-        <div id="mergePreviewWrap" style="display:none;"><div class="hint" id="mergeSummary" style="margin-top:12px; font-weight:700; color:var(--text);"></div><div class="preview" id="mergePreview"></div><button class="btn-primary" id="mergeBtn" onclick="commitMerge()" data-i18n="confirmMergeBtn">💾 تأكيد الدمج ورفع على GitHub</button></div>
-        <div class="status" id="mergeStatus"></div>
-      </div>
-    </div>
-
-    <div class="file-panel" data-file-panel="fileupload">
-      <div class="hint" data-i18n="fuMainHint">ملف FileUploade.csv مستقل عن items.csv. في كل رمية تكتب PersonalName مرة واحدة، وSheetNo. يتولد تلقائيًا كرمز فريد من 10 أحرف وأرقام ويُستخدم لكل صف في نفس الرمية.</div>
-      <div class="fu-tabs">
-        <button class="fu-tab-btn active" data-fu-tab="single" onclick="switchFuTab('single')" data-i18n="fuTabSingle">➕ سجل واحد</button>
-        <button class="fu-tab-btn" data-fu-tab="paste" onclick="switchFuTab('paste')" data-i18n="fuTabPaste">📋 لصق من إكسل</button>
-        <button class="fu-tab-btn" data-fu-tab="file" onclick="switchFuTab('file')" data-i18n="fuTabFile">📄 رفع ملف</button>
-      </div>
-
-      <div class="fu-panel active" data-fu-panel="single">
-        <div class="row">
-          <div><label data-i18n="fuSheetNo">SheetNo.</label><input id="fuSingleSheetNo" type="text" readonly placeholder="يتم توليده تلقائيًا"></div>
-          <div><label data-i18n="fuPersonalName">PersonalName — اسم المسؤول</label><input id="fuSinglePersonalName" type="text"></div>
-        </div>
-        <div class="row">
-          <div><label data-i18n="fuItemCode">Item Code</label><input id="fuSingleItemCode" type="text"></div>
-          <div><label data-i18n="fuItemName">Item Name</label><input id="fuSingleItemName" type="text"></div>
-        </div>
-        <div class="row">
-          <div><label>Shelf Code</label><input id="fuSingleShelfCode" type="text"></div>
-          <div><label>WhN</label><input id="fuSingleWhN" type="text"></div>
-        </div>
-        <div class="row"><div><label>Typ</label><input id="fuSingleTyp" type="text"></div><div><label>BT</label><input id="fuSingleBT" type="text"></div></div>
-        <div class="row"><div><label>Stock Indicator</label><input id="fuSingleStockIndicator" type="text"></div><div><label>Stock Removal</label><input id="fuSingleStockRemoval" type="text"></div></div>
-        <div class="row"><div><label>Stock Placement</label><input id="fuSingleStockPlacement" type="text"></div><div><label>Sto Location</label><input id="fuSingleStoLocation" type="text"></div></div>
-        <div class="row"><div><label>Group No</label><input id="fuSingleGroupNo" type="text"></div><div><label>Group Name</label><input id="fuSingleGroupName" type="text"></div></div>
-        <label>Sec</label><input id="fuSingleSec" type="text">
-        <div class="hint">SheetNo. يتم إنشاؤه تلقائيًا كرمز فريد من 10 أحرف وأرقام.</div>
-        <button class="btn-primary" id="fuSingleSaveBtn" onclick="saveFuSingle()" data-i18n="fuSaveSingle">💾 إضافة ورفع</button>
-        <div class="status" id="fuSingleStatus"></div>
-      </div>
-
-      <div class="fu-panel" data-fu-panel="paste">
-        <div class="hint" data-i18n="fuPasteHint">انسخ البيانات من Excel والصقها مباشرة. SheetNo. يتولد تلقائيًا مرة واحدة لكل رمية، وPersonalName يتم إدخاله مرة واحدة لكل رمية.</div>
-        <div class="row" style="margin-top:10px;">
-          <div><label>SheetNo. — تلقائي</label><input id="fuPasteSheetNo" type="text" readonly placeholder="سيتم توليده تلقائيًا"></div>
-          <div><label>PersonalName — اسم المسؤول</label><input id="fuPastePersonalName" type="text" placeholder="اسم المسؤول"></div>
-        </div>
-        <div class="hint" style="margin-top:8px;">الصق من Excel داخل الجدول بالترتيب: Item Code, Item Name, Shelf Code, WhN, Typ, BT, Stock Indicator, Stock Removal, Stock Placement, Sto Location, Group No, Group Name, Sec. لا تلصق SheetNo أو PersonalName؛ البرنامج يولدهما/يضيفهما تلقائيًا.</div>
-        <div class="wide-table">
-          <table id="fuPasteTable"><thead><tr><th>#</th><th>Item Code</th><th>Item Name</th><th>Shelf Code</th><th>WhN</th><th>Typ</th><th>BT</th><th>Stock Indicator</th><th>Stock Removal</th><th>Stock Placement</th><th>Sto Location</th><th>Group No</th><th>Group Name</th><th>Sec</th><th></th></tr></thead><tbody id="fuPasteBody"></tbody></table>
-        </div>
-        <label style="margin-top:14px;" data-i18n="fuRowsLabel">عدد السطور المطلوبة</label><input type="text" inputmode="numeric" id="fuRowCount" placeholder="مثال: 100">
-        <button class="btn-secondary" style="margin-top:8px;" onclick="setFuRowCount()" data-i18n="createRowsBtn">🔢 إنشاء السطور</button>
-        <div class="row" style="margin-top:10px;"><button class="btn-secondary" style="margin-top:0;" onclick="addFuPasteRow()">➕ سطر جديد</button><button class="btn-secondary" style="margin-top:0;" onclick="clearFuPasteTable()">🗑 مسح الكل</button></div>
-        <button class="btn-primary" id="fuPasteSaveBtn" onclick="previewFuPaste()" data-i18n="fuPreviewSave">💾 معاينة وحفظ</button>
-        <div id="fuPastePreviewWrap" style="display:none;"><div class="hint" id="fuPasteSummary"></div><div class="preview" id="fuPastePreview"></div><button class="btn-primary" id="fuPasteConfirmBtn" onclick="commitFuPaste()" data-i18n="fuConfirmSave">✅ تأكيد الرفع</button></div>
-        <div class="status" id="fuPasteStatus"></div>
-      </div>
-
-      <div class="fu-panel" data-fu-panel="file">
-        <div class="hint" data-i18n="fuFileHint">ارفع ملف CSV يحتوي على بيانات الأصناف فقط. SheetNo. يتولد تلقائيًا وPersonalName يكتب مرة واحدة لكل رمية.</div>
-        <div class="row" style="margin-top:10px;"><div><label>SheetNo. — تلقائي</label><input id="fuFileSheetNo" type="text" readonly></div><div><label>PersonalName — اسم المسؤول</label><input id="fuFilePersonalName" type="text"></div></div>
-        <label style="margin-top:12px;" data-i18n="chooseFileLabel">اختر ملف CSV</label><input type="file" id="fuMergeFile" accept=".csv,text/csv" onchange="previewFuFile()">
-        <div id="fuFilePreviewWrap" style="display:none;"><div class="hint" id="fuFileSummary"></div><div class="preview" id="fuFilePreview"></div><button class="btn-primary" id="fuFileConfirmBtn" onclick="commitFuFile()" data-i18n="fuConfirmSave">✅ تأكيد الرفع</button></div>
-        <div class="status" id="fuFileStatus"></div>
-      </div>
-    </div>
-  </div>
-
+</div>
 <script>
 const SETTINGS_KEY = 'adminItemsToolSettings';
 const LANG_KEY = 'adminItemsToolLang';
@@ -244,7 +193,7 @@ const i18n = {
   ar: {
     pageTitle: 'إدارة ملف الأصناف — Warehouse Scanner (Sysora)',
     h1: '📦 إدارة ملف الأصناف',
-    subTitle: 'أداة إدارة ملفات Warehouse Scanner — تقدر تدير items.csv و FileUploade.csv من نفس الصفحة.',
+    subTitle: 'إدارة الأصناف من خلال SY50RA Tools.',
     githubSectionTitle: '⚙️ الاتصال بـ GitHub',
     ownerLabel: 'اسم المستخدم/المنظمة (Owner)',
     repoLabel: 'اسم الريبو (Repo)',
@@ -257,7 +206,6 @@ const i18n = {
     tabSingle: '➕ صنف واحد',
     tabPaste: '📋 لصق من إكسل',
     tabFile: '📄 رفع ملف',
-    fuMainHint: 'ملف FileUploade.csv مستقل عن items.csv. في كل رمية تكتب PersonalName مرة واحدة، وSheetNo. يتولد تلقائيًا كرمز فريد من 10 أحرف وأرقام ويُستخدم لكل صف في نفس الرمية.',
     fuTabSingle: '➕ سجل واحد', fuTabPaste: '📋 لصق من إكسل', fuTabFile: '📄 رفع ملف',
     fuSheetNo: 'SheetNo.', fuPersonalName: 'PersonalName — اسم المسؤول', fuItemCode: 'Item Code', fuItemName: 'Item Name',
     fuSaveSingle: '💾 إضافة ورفع', fuPasteHint: 'انسخ من Excel بداية من Item Code وحتى Empty فقط. PersonalName يُكتب مرة واحدة، وSheetNo. يتولد تلقائيًا مرة واحدة لكل رمية.',
@@ -322,9 +270,9 @@ const i18n = {
     errConflict: '❌ الملف اتغيّر على GitHub بعد المعاينة — اعمل معاينة تاني وجرّب من الأول.',
   },
   en: {
-    pageTitle: 'Item List Admin — Warehouse Scanner (Sysora)',
+    pageTitle: 'Items Management — SY50RA Tools (Sysora)',
     h1: '📦 Item List Admin',
-    subTitle: 'A standalone Warehouse Scanner file manager — manage both items.csv and FileUploade.csv from one page.',
+    subTitle: 'Items Management — part of the SY50RA Tools workspace.',
     githubSectionTitle: '⚙️ GitHub Connection',
     ownerLabel: 'Username/Organization (Owner)',
     repoLabel: 'Repository (Repo)',
@@ -337,7 +285,6 @@ const i18n = {
     tabSingle: '➕ Single Item',
     tabPaste: '📋 Paste from Excel',
     tabFile: '📄 Upload File',
-    fuMainHint: 'FileUploade.csv is separate from items.csv. Each upload gets an automatic unique 10-character alphanumeric Empty value, shared by all rows in that upload.',
     fuTabSingle: '➕ Single Record', fuTabPaste: '📋 Paste from Excel', fuTabFile: '📄 Upload File',
     fuSheetNo: 'SheetNo.', fuPersonalName: 'PersonalName — Responsible', fuItemCode: 'Item Code', fuItemName: 'Item Name',
     fuSaveSingle: '💾 Add & Upload', fuPasteHint: 'Paste the columns from Excel. You do not need to enter Empty; the program creates one unique 10-character value per upload and applies it to all rows.',
@@ -425,13 +372,15 @@ function applyLang(){
     const key = el.getAttribute('data-i18n-ph');
     if (i18n[lang][key] !== undefined) el.placeholder = t(key);
   });
-  document.getElementById('langBtn').textContent = (lang === 'ar') ? 'EN' : 'AR';
+  document.getElementById('enBtn').classList.toggle('active', lang === 'en');
+  document.getElementById('arBtn').classList.toggle('active', lang === 'ar');
 }
-function toggleLang(){
-  lang = (lang === 'ar') ? 'en' : 'ar';
+function setLanguage(nextLang){
+  lang = nextLang === 'ar' ? 'ar' : 'en';
   try{ localStorage.setItem(LANG_KEY, lang); }catch(e){}
   applyLang();
 }
+function toggleLang(){ setLanguage(lang === 'ar' ? 'en' : 'ar'); }
 applyLang();
 
 function els(){
@@ -571,6 +520,8 @@ function serializeItemsCSV(current){
   }
   return lines.join('\r\n') + '\r\n';
 }
+
+function escapeHtmlAdmin(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 // ---- Tabs ----
 function switchTab(name){
@@ -1027,115 +978,9 @@ async function commitMerge(){
 }
 
 
-// ---- FileUploade.csv manager ----
-const FU_PATH = 'FileUploade.csv';
-const FU_HEADERS = ['SheetNo.','PersonalName','Item Code','Item Name','Shelf Code','WhN','Typ','BT','Stock Indicator','Stock Removal','Stock Placement','Sto Location','Group No','Group Name','Sec','Empty'];
-const FU_PASTE_HEADERS = FU_HEADERS.slice(2); // Item Code ... Empty
-let fuPasteCount = 0, pendingFuPaste = null, pendingFuPasteCurrent = null, pendingFuPasteSha = null;
-let pendingFuFileRows = null, pendingFuFileCurrent = null, pendingFuFileSha = null;
 
-function switchFile(name){
-  document.querySelectorAll('.file-btn').forEach(b => b.classList.toggle('active', b.dataset.file === name));
-  document.querySelectorAll('.file-panel').forEach(p => p.classList.toggle('active', p.dataset.filePanel === name));
-  const path = document.getElementById('ghPath');
-  if (path) path.value = name === 'items' ? 'items.csv' : FU_PATH;
-}
-function switchFuTab(name){
-  document.querySelectorAll('.fu-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.fuTab === name));
-  document.querySelectorAll('.fu-panel').forEach(p => p.classList.toggle('active', p.dataset.fuPanel === name));
-  if(name === 'paste') prepareFuPasteBatch();
-}
-function generateFuSheetNo(existingText){
-  const used = new Set((existingText||'').split(/\r?\n/).slice(1).map(x => x.split(',')[0]?.trim()).filter(Boolean));
-  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let id='';
-  do { id=''; for(let i=0;i<10;i++) id += chars[Math.floor(Math.random()*chars.length)]; } while(used.has(id));
-  return id;
-}
-function fuRow(values={}){
-  fuPasteCount++;
-  const tr=document.createElement('tr');
-  const vals=FU_PASTE_HEADERS.map(h => values[h] || '');
-  tr.innerHTML='<td style="text-align:center;color:var(--muted);">'+fuPasteCount+'</td>'+FU_PASTE_HEADERS.map((h,i)=>'<td><input class="fu-cell" data-col="'+i+'" value="'+escapeHtmlAdmin(vals[i])+'"></td>').join('')+'<td><button type="button" class="rowDelBtn" onclick="this.closest(\'tr\').remove()">🗑</button></td>';
-  document.getElementById('fuPasteBody').appendChild(tr); return tr;
-}
-function addFuPasteRow(){fuRow();}
-function clearFuPasteTable(){document.getElementById('fuPasteBody').innerHTML='';fuPasteCount=0;for(let i=0;i<4;i++)addFuPasteRow();document.getElementById('fuPastePreviewWrap').style.display='none';pendingFuPaste=null;pendingFuPasteCurrent=null;pendingFuPasteSha=null;}
-function setFuRowCount(){const n=parseInt(document.getElementById('fuRowCount').value,10);if(!n||n<1){setStatus('fuPasteStatus','err','اكتب عدد صحيح أكبر من صفر.');return;}if(n>5000){setStatus('fuPasteStatus','err','الحد الأقصى 5000 سطر في المرة الواحدة.');return;}document.getElementById('fuPasteBody').innerHTML='';fuPasteCount=0;for(let i=0;i<n;i++)addFuPasteRow();setStatus('fuPasteStatus','info','تم إنشاء '+n+' سطر.');}
-document.getElementById('fuPasteBody').addEventListener('paste', function(e){
-  const active=document.activeElement;
-  if(!active || !active.classList.contains('fu-cell')) return;
-  const text=(e.clipboardData||window.clipboardData).getData('text');
-  if(!text) return;
-  e.preventDefault();
-  const grid=text.replace(/\r/g,'').split('\n').filter((r,i,a)=>!(i===a.length-1 && r==='')).map(r=>r.split('\t'));
-  const startTr=active.closest('tr');
-  const trs=()=>Array.from(document.querySelectorAll('#fuPasteBody tr'));
-  const startRow=trs().indexOf(startTr);
-  const startCol=parseInt(active.dataset.col,10);
-  grid.forEach((vals,ri)=>{
-    let rows=trs(); let idx=startRow+ri;
-    while(idx>=rows.length){addFuPasteRow();rows=trs();}
-    vals.forEach((v,ci)=>{
-      const col=startCol+ci; if(col>=FU_PASTE_HEADERS.length) return;
-      const input=rows[idx].querySelector('[data-col="'+col+'"]');
-      if(input) input.value=v.trim();
-    });
-  });
-});
-function collectFuRows(){return Array.from(document.querySelectorAll('#fuPasteBody tr')).map(tr=>{const o={};FU_PASTE_HEADERS.forEach((h,i)=>o[h]=tr.querySelector('[data-col="'+i+'"]').value.trim());return o;}).filter(r=>FU_PASTE_HEADERS.slice(0,13).some(h=>r[h]));}
-function sanitizeFu(v){return String(v??'').replace(/,/g,' ').replace(/[\r\n]+/g,' ').trim();}
-function parseFuCSV(text){const lines=text.split(/\r?\n/).filter(x=>x.trim());if(!lines.length)return[];const hdr=lines[0].split(',').map(x=>x.trim().toLowerCase());const idx={};FU_HEADERS.forEach(h=>idx[h.toLowerCase()]=hdr.indexOf(h.toLowerCase()));return lines.slice(1).map(line=>{const p=line.split(',');const o={};FU_HEADERS.forEach(h=>{const j=idx[h.toLowerCase()];o[h]=j>=0?(p[j]||'').trim():'';});return o;}).filter(r=>FU_HEADERS.slice(0,15).some(h=>r[h]));}
-function serializeFuCSV(rows){return FU_HEADERS.join(',')+'\r\n'+rows.map(r=>FU_HEADERS.map(h=>sanitizeFu(r[h])).join(',')).join('\r\n')+'\r\n';}
-function fuCurrentRows(text){return parseFuCSV(text);}
-async function getFuCurrent(){const cfg=ghConfig();cfg.path=FU_PATH;const x=await ghGetFile(cfg);document.getElementById('ghPath').value=FU_PATH;return x;}
-async function saveFuRows(rows, sha, message, statusId, btn){const cfg=ghConfig();cfg.path=FU_PATH;setStatus(statusId,'info',t('savingToGithub'));await ghPutFileWithProgress(cfg,serializeFuCSV(rows),sha,message,(loaded,total)=>{if(total)setStatus(statusId,'info',t('savingToGithubPct',Math.round(loaded/total*100),(loaded/1024/1024).toFixed(1),(total/1024/1024).toFixed(1)));});saveSettingsIfRequested();}
-function fillFuBatch(rows,sheetNo,personalName){return rows.map(r=>({...r,'SheetNo.':sheetNo,PersonalName:personalName}));}
-async function prepareFuPasteBatch(){
-  try{
-    const {text}=await getFuCurrent();
-    const el=document.getElementById('fuPasteSheetNo');
-    if(el && !el.value) el.value=generateFuSheetNo(text);
-  }catch(e){}
-}
-async function saveFuSingle(){
-  const btn=document.getElementById('fuSingleSaveBtn');btn.disabled=true;
-  try{
-    const {text,sha}=await getFuCurrent();
-    const r={};
-    const map={PersonalName:'fuSinglePersonalName','Item Code':'fuSingleItemCode','Item Name':'fuSingleItemName','Shelf Code':'fuSingleShelfCode',WhN:'fuSingleWhN',Typ:'fuSingleTyp',BT:'fuSingleBT','Stock Indicator':'fuSingleStockIndicator','Stock Removal':'fuSingleStockRemoval','Stock Placement':'fuSingleStockPlacement','Sto Location':'fuSingleStoLocation','Group No':'fuSingleGroupNo','Group Name':'fuSingleGroupName',Sec:'fuSingleSec',Empty:'fuSingleEmpty'};
-    Object.entries(map).forEach(([h,id])=>{const el=document.getElementById(id);if(el)r[h]=el.value.trim();});
-    if(!r['Item Code']&&!r['Item Name']){setStatus('fuSingleStatus','err','اكتب على الأقل Item Code أو Item Name.');return;}
-    const sheetNo=generateFuSheetNo(text); r['SheetNo.']=sheetNo;
-    await saveFuRows([...fuCurrentRows(text),r],sha,'Add FileUploade record '+sheetNo,'fuSingleStatus',btn);
-    document.getElementById('fuSingleSheetNo').value=sheetNo;setStatus('fuSingleStatus','ok','تمت الإضافة بنجاح. SheetNo. = '+sheetNo);
-  }catch(e){setStatus('fuSingleStatus','err',t('errGeneric',e.message));}finally{btn.disabled=false;}
-}
-async function previewFuPaste(){
-  const rows=collectFuRows();
-  const personalName=document.getElementById('fuPastePersonalName').value.trim();
-  if(!rows.length){setStatus('fuPasteStatus','err','اكتب صفًا واحدًا على الأقل.');return;}
-  if(!personalName){setStatus('fuPasteStatus','err','اكتب PersonalName مرة واحدة للرمية.');return;}
-  try{
-    setStatus('fuPasteStatus','info',t('comparingWithGithub'));
-    const {text,sha}=await getFuCurrent();
-    const sheetNo=document.getElementById('fuPasteSheetNo').value.trim() || generateFuSheetNo(text);
-    document.getElementById('fuPasteSheetNo').value=sheetNo;
-    const finalRows=fillFuBatch(rows,sheetNo,personalName);
-    pendingFuPaste={rows:finalRows,id:sheetNo};pendingFuPasteCurrent=fuCurrentRows(text);pendingFuPasteSha=sha;
-    document.getElementById('fuPasteSummary').textContent='سيتم رفع '+rows.length+' صف. SheetNo. للرمية = '+sheetNo+' | PersonalName = '+personalName;
-    document.getElementById('fuPastePreview').innerHTML='<table id="fuPreviewTable"><thead><tr>'+FU_HEADERS.map(h=>'<th>'+escapeHtmlAdmin(h)+'</th>').join('')+'</tr></thead><tbody>'+finalRows.slice(0,100).map(r=>'<tr>'+FU_HEADERS.map(h=>'<td>'+escapeHtmlAdmin(r[h])+'</td>').join('')+'</tr>').join('')+'</tbody></table>'+(finalRows.length>100?'<div class="hint" style="padding:6px 8px;">يتم عرض أول 100 صف فقط في المعاينة.</div>':'');
-    document.getElementById('fuPastePreviewWrap').style.display='block';setStatus('fuPasteStatus','info','راجع المعاينة ثم أكد الرفع.');
-  }catch(e){setStatus('fuPasteStatus','err',t('errGeneric',e.message));}
-}
-async function commitFuPaste(){if(!pendingFuPaste)return;const btn=document.getElementById('fuPasteConfirmBtn');btn.disabled=true;try{await saveFuRows([...pendingFuPasteCurrent,...pendingFuPaste.rows],pendingFuPasteSha,'Append '+pendingFuPaste.rows.length+' FileUploade records ('+pendingFuPaste.id+')','fuPasteStatus',btn);setStatus('fuPasteStatus','ok','تم الرفع بنجاح. SheetNo. = '+pendingFuPaste.id);clearFuPasteTable();document.getElementById('fuPastePersonalName').value='';document.getElementById('fuPasteSheetNo').value='';}catch(e){setStatus('fuPasteStatus','err',t('errGeneric',e.message));}finally{btn.disabled=false;}}
-async function previewFuFile(){const f=document.getElementById('fuMergeFile').files[0];const wrap=document.getElementById('fuFilePreviewWrap');if(!f){wrap.style.display='none';return;}const text=await f.text();const rows=parseFuCSV(text);if(!rows.length){setStatus('fuFileStatus','err','الملف فارغ أو الأعمدة غير صحيحة.');wrap.style.display='none';return;}try{setStatus('fuFileStatus','info',t('comparingWithGithub'));const cur=await getFuCurrent();const id=generateFuSheetNo(cur.text);const personalName=prompt('اكتب PersonalName للرمية:','')||'';if(!personalName.trim()){setStatus('fuFileStatus','err','يجب كتابة PersonalName.');wrap.style.display='none';return;}const finalRows=fillFuBatch(rows,id,personalName.trim());pendingFuFileRows=finalRows;pendingFuFileCurrent=fuCurrentRows(cur.text);pendingFuFileSha=cur.sha;document.getElementById('fuFileSummary').textContent='سيتم رفع '+rows.length+' صف. SheetNo. = '+id+' | PersonalName = '+personalName.trim();document.getElementById('fuFilePreview').innerHTML='<table id="fuPreviewTable"><thead><tr>'+FU_HEADERS.map(h=>'<th>'+escapeHtmlAdmin(h)+'</th>').join('')+'</tr></thead><tbody>'+finalRows.slice(0,100).map(r=>'<tr>'+FU_HEADERS.map(h=>'<td>'+escapeHtmlAdmin(r[h])+'</td>').join('')+'</tr>').join('')+'</tbody></table>'+(finalRows.length>100?'<div class="hint" style="padding:6px 8px;">يتم عرض أول 100 صف فقط في المعاينة.</div>':'');wrap.style.display='block';setStatus('fuFileStatus','info','راجع المعاينة ثم أكد الرفع.');}catch(e){setStatus('fuFileStatus','err',t('errGeneric',e.message));wrap.style.display='none';}}
-async function commitFuFile(){if(!pendingFuFileRows)return;const btn=document.getElementById('fuFileConfirmBtn');btn.disabled=true;try{await saveFuRows([...pendingFuFileCurrent,...pendingFuFileRows],pendingFuFileSha,'Append '+pendingFuFileRows.length+' FileUploade records ('+pendingFuFileRows[0]['SheetNo.']+')','fuFileStatus',btn);setStatus('fuFileStatus','ok','تم الرفع بنجاح. SheetNo. = '+pendingFuFileRows[0]['SheetNo.']);document.getElementById('fuFilePreviewWrap').style.display='none';document.getElementById('fuMergeFile').value='';pendingFuFileRows=null;pendingFuFileCurrent=null;pendingFuFileSha=null;}catch(e){setStatus('fuFileStatus','err',t('errGeneric',e.message));}finally{btn.disabled=false;}}
-clearFuPasteTable();
-
-function escapeHtmlAdmin(s){
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
+function toggleTheme(){const next=document.documentElement.getAttribute('data-theme')==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',next);localStorage.setItem('sy50ra-theme',next);}
+document.documentElement.setAttribute('data-theme',localStorage.getItem('sy50ra-theme')||'dark');
 </script>
 </body>
 </html>

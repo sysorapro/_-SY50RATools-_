@@ -15,9 +15,169 @@
   .result{display:none;margin-top:20px}
   .ok{color:#166534;font-weight:700}
   .small{font-size:13px;color:#6b7280;line-height:1.6}
+
+/* ============================================================
+   SY50RA Tools — Homepage Visual Theme
+   Visual-only layer. Existing functionality is untouched.
+   ============================================================ */
+:root{
+  --bg:#07111f;
+  --bg2:#0d1b2e;
+  --card:rgba(18,34,56,.72);
+  --border:rgba(255,255,255,.10);
+  --text:#f4f7fb;
+  --muted:#9eacc0;
+  --accent:#55a7ff;
+  --accent2:#7c5cff;
+  --shadow:0 24px 70px rgba(0,0,0,.35);
+}
+html[data-theme="light"]{
+  --bg:#f3f7fc;
+  --bg2:#e8eef7;
+  --card:rgba(255,255,255,.78);
+  --border:rgba(18,35,58,.12);
+  --text:#102033;
+  --muted:#607086;
+  --accent:#327fd8;
+  --accent2:#6750d8;
+  --shadow:0 24px 70px rgba(33,58,91,.14);
+}
+html,body{min-height:100%;background:
+  radial-gradient(circle at 15% 10%,rgba(85,167,255,.18),transparent 28%),
+  radial-gradient(circle at 85% 15%,rgba(124,92,255,.16),transparent 30%),
+  linear-gradient(135deg,var(--bg),var(--bg2));
+  color:var(--text);
+}
+body{
+  position:relative;
+  padding:0;
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:36px 36px;
+}
+.box{
+  position:relative;z-index:1;
+  width:min(720px,calc(100% - 32px));
+  max-width:none;
+  margin:78px auto 40px;
+  padding:30px;
+  border:1px solid var(--border);
+  border-radius:26px;
+  background:var(--card);
+  backdrop-filter:blur(18px);
+  box-shadow:var(--shadow);
+}
+h1{margin:0 0 18px;color:var(--text);font-size:28px;font-weight:900}
+.note{
+  background:rgba(85,167,255,.08);
+  border:1px solid rgba(85,167,255,.16);
+  padding:14px 16px;
+  border-radius:15px;
+  line-height:1.8;
+  color:var(--text);
+}
+label{display:block;font-weight:800;margin:18px 0 8px;color:var(--text)}
+input,textarea{
+  width:100%;box-sizing:border-box;
+  padding:13px 14px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  font-size:15px;
+  color:var(--text);
+  background:rgba(7,17,31,.34);
+  outline:none;
+  transition:.2s;
+}
+html[data-theme="light"] input,
+html[data-theme="light"] textarea{background:rgba(255,255,255,.72)}
+input:focus,textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(85,167,255,.12);
+}
+textarea{
+  min-height:90px;
+  font-family:Consolas,monospace;
+  direction:ltr;text-align:left;
+}
+button:not(.control-btn){
+  margin-top:16px;
+  padding:12px 18px;
+  border:0;border-radius:13px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+  transition:.22s;
+}
+button:not(.control-btn):hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 24px rgba(0,0,0,.18);
+}
+.result{
+  display:none;margin-top:22px;
+  padding-top:18px;
+  border-top:1px solid var(--border);
+}
+.ok{color:#35d39b;font-weight:800}
+.small{font-size:13px;color:var(--muted);line-height:1.7}
+
+.page-controls{
+  position:fixed;
+  top:22px;
+  right:24px;
+  z-index:20;
+  display:flex;
+  gap:8px;
+  padding:7px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:rgba(10,24,40,.72);
+  backdrop-filter:blur(16px);
+  box-shadow:0 12px 35px rgba(0,0,0,.22);
+}
+html[data-theme="light"] .page-controls{background:rgba(255,255,255,.78)}
+.control-btn{
+  margin:0!important;
+  border:0!important;
+  background:transparent!important;
+  color:var(--muted)!important;
+  box-shadow:none!important;
+  transform:none!important;
+  cursor:pointer;
+  padding:9px 12px!important;
+  border-radius:11px!important;
+  font-weight:700!important;
+  font-size:13px!important;
+  transition:.2s;
+}
+.control-btn:hover,.control-btn.active{
+  background:rgba(255,255,255,.10)!important;
+  color:var(--text)!important;
+}
+html[data-theme="light"] .control-btn:hover,
+html[data-theme="light"] .control-btn.active{
+  background:rgba(18,35,58,.08)!important;
+}
+@media(max-width:700px){
+  .box{width:min(100% - 20px,720px);margin:90px auto 25px;padding:22px}
+  .page-controls{top:14px;right:10px}
+  h1{font-size:23px}
+}
+
 </style>
 </head>
 <body>
+
+<div class="page-controls" aria-label="Page controls">
+  <button class="control-btn" id="enBtn" type="button" onclick="setLanguage('en')">EN</button>
+  <button class="control-btn" id="arBtn" type="button" onclick="setLanguage('ar')">عربي</button>
+  <button class="control-btn" id="themeBtn" type="button" onclick="togglePageTheme()">☀️ / 🌙</button>
+</div>
+
 <div class="box">
   <h1>GitHub Token Encryptor</h1>
   <div class="note">
@@ -107,6 +267,46 @@ async function encryptToken(){
     alert('حدث خطأ أثناء التشفير: '+e.message);
   }
 }
+
+/* SY50RA Tools page preferences — independent of encryption logic */
+(function(){
+  const savedLang = localStorage.getItem('sysora_language') || 'ar';
+  const savedTheme = localStorage.getItem('sysora_theme') || 'dark';
+
+  function applyPageTheme(){
+    document.documentElement.setAttribute('data-theme', savedThemeState);
+    const b=document.getElementById('themeBtn');
+    if(b) b.textContent = savedThemeState === 'dark' ? '☀️' : '🌙';
+  }
+
+  function applyPageLanguage(){
+    document.documentElement.lang = pageLangState;
+    document.documentElement.dir = pageLangState === 'ar' ? 'rtl' : 'ltr';
+    const en=document.getElementById('enBtn');
+    const ar=document.getElementById('arBtn');
+    if(en) en.classList.toggle('active', pageLangState === 'en');
+    if(ar) ar.classList.toggle('active', pageLangState === 'ar');
+  }
+
+  let pageLangState=savedLang==='en'?'en':'ar';
+  let savedThemeState=savedTheme==='light'?'light':'dark';
+
+  window.setLanguage=function(nextLang){
+    pageLangState=nextLang==='en'?'en':'ar';
+    localStorage.setItem('sysora_language',pageLangState);
+    applyPageLanguage();
+  };
+
+  window.togglePageTheme=function(){
+    savedThemeState=savedThemeState==='dark'?'light':'dark';
+    localStorage.setItem('sysora_theme',savedThemeState);
+    applyPageTheme();
+  };
+
+  applyPageLanguage();
+  applyPageTheme();
+})();
+
 </script>
 </body>
 </html>
