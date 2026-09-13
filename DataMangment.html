@@ -575,21 +575,7 @@ function parseCSV(t){
 function ce(v){v=String(v??'');return /[",\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
 function csv(rows,h){return h.join(',')+'\r\n'+rows.map(r=>h.map(k=>ce(r[k])).join(',')).join('\r\n')+'\r\n'}
 async function get(path){let u=`https://api.github.com/repos/${encodeURIComponent(cfg().owner)}/${encodeURIComponent(cfg().repo)}/contents/${path}?ref=${encodeURIComponent(cfg().branch)}`;let r=await fetch(u,{headers:H()});if(!r.ok)throw Error(await r.text());let j=await r.json();return{rows:parseCSV(dec(j.content)),sha:j.sha}}
-async function put(path,rows,h,sha,message){
-  const u=`https://api.github.com/repos/${encodeURIComponent(cfg().owner)}/${encodeURIComponent(cfg().repo)}/contents/${path}`;
-  async function send(currentSha){
-    const r=await fetch(u,{method:'PUT',headers:{...H(),'Content-Type':'application/json'},body:JSON.stringify({message,content:enc(csv(rows,h)),branch:cfg().branch,sha:currentSha})});
-    if(r.ok)return r.json();
-    const text=await r.text();
-    const e=new Error(text); e.status=r.status; throw e;
-  }
-  try{return await send(sha)}catch(e){
-    if(e.status!==409)throw e;
-    // SHA قديم: نقرأ آخر نسخة من GitHub ثم نعيد المحاولة مرة واحدة.
-    const latest=await get(path);
-    return await send(latest.sha);
-  }
-}
+async function put(path,rows,h,sha,message){let u=`https://api.github.com/repos/${encodeURIComponent(cfg().owner)}/${encodeURIComponent(cfg().repo)}/contents/${path}`;let r=await fetch(u,{method:'PUT',headers:{...H(),'Content-Type':'application/json'},body:JSON.stringify({message,content:enc(csv(rows,h)),branch:cfg().branch,sha})});if(!r.ok)throw Error(await r.text());return r.json()}
 async function testConnection(){try{let r=await fetch(`https://api.github.com/repos/${cfg().owner}/${cfg().repo}`,{headers:H()});if(!r.ok)throw Error(await r.text());show('connStatus','تم الاتصال بـ GitHub بنجاح','ok')}catch(e){show('connStatus','فشل الاتصال: '+e.message,'err')}}
 async function loadFile(){try{let x=await get(FILE);fr=x.rows;fsha=x.sha;renderFile();show('actionStatus','تم تحميل FileUploade.csv — '+fr.length+' سجل','ok')}catch(e){show('actionStatus','خطأ: '+e.message,'err')}}
 async function loadUsers(){try{let x=await get(USERS);ur=x.rows;usha=x.sha;renderUsers();show('actionStatus','تم تحميل users.csv — '+ur.length+' مستخدم','ok')}catch(e){show('actionStatus','خطأ: '+e.message,'err')}}
@@ -598,7 +584,7 @@ function refreshGeneratedSheetNo(){const x=generateSheetNo();const a=document.ge
 function addFile(){let o={};o.Department=fDepartment.value.trim();o['SheetNo.']=fSheetNo.value.trim()||generateSheetNo();o.SheetName=fSheetName.value.trim();o['Item Code']=fItemCode.value.trim();o['Item Name']=fItemName.value.trim();o['Trans.Status']=fStatus.value.trim();o.PersonalName=fPersonal.value.trim();o['Trans.Date']=fDate.value.trim();o['Trans.Time']=fTime.value.trim();if(!o.Department)return alert('Department مطلوب');if(!o.SheetName)return alert('SheetName مطلوب');if(!o['Item Code'])return alert('Item Code مطلوب');fr.push(o);saveFile('إضافة سجل إلى FileUploade.csv','fileAddStatus')}
 async function saveFile(m,s){try{let x=await put(FILE,fr,FH,fsha,m);fsha=x.content.sha;show(s,'تم الحفظ على GitHub بنجاح','ok');refreshGeneratedSheetNo()}catch(e){show(s,'خطأ: '+e.message,'err')}}
 function addUser(){let ids=['uUser','uEmployee','uDepartment','uJob','uPassword','uStatus','uType'],o={};UH.forEach((h,i)=>o[h]=document.getElementById(ids[i]).value.trim());o.Password='00000';document.getElementById('uPassword').value='00000';if(!o.UserName)return alert('UserName مطلوب');ur.push(o);saveUsers('إضافة مستخدم إلى users.csv','userAddStatus')}
-async function saveUsers(m,s){try{let x=await put(USERS,ur,UH,usha,m);usha=x.content.sha;show(s,'تم الحفظ على GitHub بنجاح','ok')}catch(e){show(s,'خطأ: '+e.message,'err')}}
+async function saveUsers(m,s){try{const latest=await get(USERS);const latestRows=latest.rows||[];const newUser=ur[ur.length-1];if(!newUser)throw Error('بيانات المستخدم غير موجودة');const key=v=>String(v??'').trim().toLowerCase();const idx=latestRows.findIndex(r=>key(r.UserName)===key(newUser.UserName));if(idx>=0)latestRows[idx]=newUser;else latestRows.push(newUser);const x=await put(USERS,latestRows,UH,latest.sha,m);ur=latestRows;usha=x.content.sha;renderUsers();show(s,'تم الحفظ على GitHub بنجاح','ok')}catch(e){show(s,'خطأ: '+e.message,'err')}}
 function addPasteRow(data={}){let tr=document.createElement('tr');let n=document.querySelectorAll('#pasteBody tr').length+1;const PH=['Item Code','Item Name','Trans.Status','PersonalName','Trans.Date','Trans.Time'];tr.innerHTML='<td>'+n+'</td>'+PH.map(h=>'<td><input data-h="'+h.replace(/"/g,'&quot;')+'" value="'+String(data[h]||'').replace(/"/g,'&quot;')+'"></td>').join('')+'<td><button class="rowDelBtn" onclick="this.closest(\'tr\').remove()">✕</button></td>';document.getElementById('pasteBody').appendChild(tr)}
 document.getElementById('pasteTable').addEventListener('paste',e=>{let txt=e.clipboardData.getData('text/plain');if(!txt.includes('\t'))return;e.preventDefault();clearPaste();txt.trim().split(/\r?\n/).forEach(line=>{let c=line.split('\t'),o={};['Item Code','Item Name','Trans.Status','PersonalName','Trans.Date','Trans.Time'].forEach((h,i)=>o[h]=(c[i]||'').trim());addPasteRow(o)})})
 function clearPaste(){document.getElementById('pasteBody').innerHTML=''}
