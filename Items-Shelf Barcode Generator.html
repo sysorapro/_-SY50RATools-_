@@ -516,17 +516,27 @@ html[data-theme="light"] .size-option{
 }
 
 </style>
+
+<style id="side-controls-3dots">
+.side-control-handle{position:fixed;top:40%;right:0;z-index:99999;width:28px;height:58px;border-radius:13px 0 0 13px;border:1px solid rgba(255,255,255,.12);background:rgba(10,24,40,.82);color:var(--text,#f4f7fb);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;line-height:1;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.25);backdrop-filter:blur(14px);user-select:none;touch-action:none;transition:background .2s ease,box-shadow .2s ease,transform .2s ease}
+.side-control-panel{position:fixed;top:40%;right:36px;z-index:99998;display:flex;gap:6px;padding:6px;border:1px solid var(--border,rgba(255,255,255,.1));border-radius:14px;background:rgba(10,24,40,.82);backdrop-filter:blur(16px);box-shadow:0 12px 35px rgba(0,0,0,.25);opacity:0;visibility:hidden;pointer-events:none;transform:translateX(8px);transition:.18s ease}
+.side-control-panel.controls-open{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(0)}
+.side-control-panel .control-btn{border:0;background:transparent;color:var(--muted,#9eacc0);cursor:pointer;padding:9px 12px;border-radius:11px;font-weight:700;font-size:13px;transition:.2s}
+.side-control-panel .control-btn:hover,.side-control-panel .control-btn.active{background:rgba(255,255,255,.10);color:var(--text,#f4f7fb)}
+[data-theme="light"] .side-control-handle,[data-theme="light"] .side-control-panel{background:rgba(255,255,255,.88);border-color:rgba(18,35,58,.12);color:var(--text,#102033)}
+</style>
 </head>
 <body>
+<div id="sideControlHandle" class="side-control-handle" aria-label="Controls" title="Click to open • Long press and drag to move">⋮</div>
+<div id="sideControlPanel" class="side-control-panel" aria-label="Page controls">
+  <button class="control-btn" id="enBtn" type="button" onclick="setLanguage('en')">EN</button>
+  <button class="control-btn" id="arBtn" type="button" onclick="setLanguage('ar')">عربي</button>
+  <button class="control-btn" id="themeBtn" type="button" onclick="toggleTheme()">☀️ / 🌙</button>
+</div>
+
 
 <div class="wrap">
   <header>
-    <div class="header-toggles page-controls" aria-label="Page controls">
-      <button class="control-btn" id="enBtn" type="button" onclick="setLanguage('en')">EN</button>
-      <button class="control-btn" id="arBtn" type="button" onclick="setLanguage('ar')">عربي</button>
-      <button class="control-btn" id="themeToggleBtn" type="button" onclick="toggleTheme()" title="Dark / Light">☀️ / 🌙</button>
-      <button id="langToggleBtn" type="button" onclick="toggleLang()" style="display:none!important" aria-hidden="true">EN</button>
-    </div>
     <h1 data-i18n="headerTitle">🏷️ مولّد باركود الأرفف</h1>
     <p data-i18n="headerSubtitle">اطبع أو صدّر لابل باركود لكود رف واحد، أو لكل أرفف المستودع دفعة واحدة</p>
   </header>
@@ -1771,6 +1781,25 @@ async function downloadItemsBulkPDF(){
 applyLang();
 applyTheme();
 initLabelSizeUI();
+</script>
+
+<script id="side-controls-3dots-js">
+(function(){
+ const h=document.getElementById('sideControlHandle'),p=document.getElementById('sideControlPanel'); if(!h||!p)return;
+ const saved=JSON.parse(localStorage.getItem('sy50ra-controls-position')||'null');
+ if(saved&&Number.isFinite(saved.top)&&Number.isFinite(saved.right)){h.style.top=saved.top+'px';h.style.right=saved.right+'px';}
+ function panelPos(){const r=h.getBoundingClientRect();p.style.top=Math.max(8,Math.min(window.innerHeight-p.offsetHeight-8,r.top))+'px';p.style.right=Math.max(8,window.innerWidth-r.left+8)+'px';}
+ function close(){p.classList.remove('controls-open')}
+ h.addEventListener('click',function(){if(dragged){dragged=false;return;}panelPos();p.classList.toggle('controls-open')});
+ p.querySelectorAll('.control-btn').forEach(b=>b.addEventListener('click',()=>setTimeout(close,80)));
+ document.addEventListener('click',e=>{if(!h.contains(e.target)&&!p.contains(e.target))close()});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')close()}); window.addEventListener('resize',()=>{if(p.classList.contains('controls-open'))panelPos()});
+ let timer=null,dragging=false,dragged=false,sx=0,sy=0,st=0,sr=0;
+ function start(e){if(e.button!==undefined&&e.button!==0)return;const pt=e.touches?e.touches[0]:e;sx=pt.clientX;sy=pt.clientY;const r=h.getBoundingClientRect();st=r.top;sr=innerWidth-r.right;dragged=false;clearTimeout(timer);timer=setTimeout(()=>{dragging=true;close();h.style.transition='none'},500)}
+ function move(e){const pt=e.touches?e.touches[0]:e,dx=pt.clientX-sx,dy=pt.clientY-sy;if(!dragging){if(Math.hypot(dx,dy)>8)clearTimeout(timer);return}e.preventDefault();dragged=true;let top=Math.max(8,Math.min(innerHeight-h.offsetHeight-8,st+dy));let right=Math.max(8,Math.min(innerWidth-h.offsetWidth-8,sr-dx));h.style.top=top+'px';h.style.right=right+'px'}
+ function end(){clearTimeout(timer);if(dragging){dragging=false;h.style.transition='background .2s ease,box-shadow .2s ease';localStorage.setItem('sy50ra-controls-position',JSON.stringify({top:parseFloat(h.style.top),right:parseFloat(h.style.right)}))}}
+ h.addEventListener('mousedown',start);addEventListener('mousemove',move,{passive:false});addEventListener('mouseup',end);h.addEventListener('touchstart',start,{passive:true});addEventListener('touchmove',move,{passive:false});addEventListener('touchend',end);addEventListener('touchcancel',end);
+})();
 </script>
 </body>
 </html>
