@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitleTag">إدارة الملفات — Warehouse Scanner (Sysora)</title>
+<style>
+  :root{
+    --bg:#F5F6FA; --surface:#FFFFFF; --surface-2:#F0F1F5; --border:#DDE1EA;
+    --text:#1A1F2B; --muted:#6B7280; --amber:#E8A33D; --amber-fg:#8F5A17;
+    --mint:#3DDC97; --mint-fg:#0F6B45; --red:#E8615D; --red-fg:#B03B37;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--text); font-family:'Tajawal','Segoe UI',Arial,sans-serif; padding:18px; max-width:1440px; margin:0 auto; }
+  .topbar{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  h1{ font-size:19px; margin:6px 0 2px; }
+  .langBtn{ background:var(--surface); border:1.5px solid var(--border); color:var(--amber-fg); border-radius:9px; padding:7px 12px; font-weight:800; font-size:12.5px; flex-shrink:0; margin-top:4px; }
+  .sub{ color:var(--muted); font-size:13px; margin-bottom:18px; }
+  .card{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:16px; }
+  .card h2{ font-size:14.5px; margin:0 0 12px; color:var(--muted); display:flex; align-items:center; gap:8px; }
+  .collapse-toggle{ width:100%; background:none; border:none; padding:0; display:flex; align-items:center; justify-content:space-between; cursor:pointer; margin-bottom:12px; }
+  .collapse-toggle h2{ margin-bottom:0; }
+  .collapse-arrow{ color:var(--muted); font-size:14px; transition:transform .2s ease; flex-shrink:0; }
+  .collapse-arrow.closed{ transform:rotate(-90deg); }
+  #ghSectionBody.closed{ display:none; }
+  .tabs{ display:flex; gap:4px; margin:-4px -4px 16px; border-bottom:1.5px solid var(--border); overflow-x:auto; }
+  .tab-btn{ background:none; border:none; padding:11px 14px; font-size:12.5px; font-weight:700; color:var(--muted); border-bottom:2.5px solid transparent; margin-bottom:-1.5px; border-radius:0; white-space:nowrap; }
+  .tab-btn.active{ color:var(--amber-fg); border-bottom-color:var(--amber); }
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; }
+  label{ display:block; font-size:12.5px; color:var(--muted); margin:10px 0 5px; }
+  label:first-of-type{ margin-top:0; }
+  input[type=text], input[type=password], input[type=file]{
+    width:100%; padding:10px 12px; border:1.5px solid var(--border); border-radius:9px;
+    background:var(--surface-2); color:var(--text); font-size:13.5px; font-family:inherit;
+  }
+  input:focus{ outline:none; border-color:var(--amber); }
+  .row{ display:flex; gap:10px; }
+  .row > div{ flex:1; }
+  .check-row{ display:flex; align-items:center; gap:8px; margin-top:10px; font-size:12.5px; color:var(--muted); }
+  .check-row input{ width:auto; }
+  button{ font-family:inherit; cursor:pointer; border:none; border-radius:10px; padding:11px 16px; font-weight:700; font-size:13.5px; }
+  .btn-primary{ background:var(--amber); color:#1a1204; width:100%; margin-top:14px; }
+  .btn-secondary{ background:var(--surface-2); border:1.5px solid var(--border); color:var(--text); width:100%; margin-top:14px; }
+  .btn-primary:disabled, .btn-secondary:disabled{ opacity:.5; cursor:not-allowed; }
+  .hint{ font-size:11.5px; color:var(--muted); margin-top:6px; line-height:1.6; }
+  .status{ margin-top:12px; padding:10px 12px; border-radius:9px; font-size:12.5px; display:none; line-height:1.7; white-space:pre-wrap; }
+  .status.show{ display:block; }
+  .status.ok{ background:#EAF7F0; border:1px solid var(--mint); color:var(--mint-fg); }
+  .status.err{ background:#FBEDEC; border:1px solid var(--red); color:var(--red-fg); }
+  .status.info{ background:var(--surface-2); border:1px solid var(--border); color:var(--muted); }
+  .preview{ margin-top:10px; max-height:220px; overflow-y:auto; border:1px solid var(--border); border-radius:9px; font-size:12px; }
+  .preview table{ width:100%; border-collapse:collapse; }
+  .preview th, .preview td{ padding:6px 8px; border-bottom:1px solid var(--border); text-align:right; }
+  .preview th{ background:var(--surface-2); position:sticky; top:0; }
+  #pasteTable{ width:100%; border-collapse:collapse; font-size:12.5px; min-width:480px; }
+  #pasteTable th{ background:var(--surface-2); padding:6px 6px; font-weight:700; color:var(--muted); font-size:11.5px; border-bottom:1.5px solid var(--border); }
+  #pasteTable td{ border-bottom:1px solid var(--border); padding:3px; }
+  #pasteTable input{ width:100%; border:1px solid transparent; background:transparent; padding:6px 7px; border-radius:6px; font-size:12.5px; color:var(--text); font-family:inherit; }
+  #pasteTable input:focus{ outline:none; border-color:var(--amber); background:var(--surface-2); }
+  #pasteTable .rowDelBtn{ background:none; border:none; color:var(--red); cursor:pointer; font-size:13px; padding:4px; }
+  .tag{ display:inline-block; padding:1px 7px; border-radius:6px; font-size:10.5px; font-weight:700; margin-inline-start:6px; }
+  .tag.new{ background:#EAF7F0; color:var(--mint-fg); }
+  .tag.update{ background:#FFF3E0; color:var(--amber-fg); }
+  summary{ cursor:pointer; font-size:12.5px; color:var(--muted); }
+
+  .file-switch{ display:flex; gap:4px; margin:-4px -4px 16px; border-bottom:1.5px solid var(--border); overflow-x:auto; }
+  .file-switch .file-btn{ background:none; border:none; padding:11px 16px; font-size:13px; font-weight:800; color:var(--muted); border-bottom:2.5px solid transparent; margin-bottom:-1.5px; border-radius:0; white-space:nowrap; }
+  .file-switch .file-btn.active{ color:var(--amber-fg); border-bottom-color:var(--amber); }
+  .file-panel{ display:none; }
+  .file-panel.active{ display:block; }
+  .fu-tabs{ display:flex; gap:4px; margin:-4px -4px 16px; border-bottom:1.5px solid var(--border); overflow-x:auto; }
+  .fu-tab-btn{ background:none; border:none; padding:10px 12px; font-size:12px; font-weight:700; color:var(--muted); border-bottom:2.5px solid transparent; margin-bottom:-1.5px; white-space:nowrap; }
+  .fu-tab-btn.active{ color:var(--amber-fg); border-bottom-color:var(--amber); }
+  .fu-panel{ display:none; }
+  .fu-panel.active{ display:block; }
+  #fuPasteTable, #fuPreviewTable{ width:100%; border-collapse:collapse; font-size:11.5px; min-width:1250px; }
+  #fuPasteTable th, #fuPreviewTable th{ background:var(--surface-2); padding:6px; font-weight:700; color:var(--muted); font-size:10.5px; border-bottom:1.5px solid var(--border); position:sticky; top:0; z-index:1; }
+  #fuPasteTable td, #fuPreviewTable td{ border-bottom:1px solid var(--border); padding:3px; }
+  #fuPasteTable input{ width:100%; border:1px solid transparent; background:transparent; padding:6px; border-radius:6px; font-size:11.5px; color:var(--text); font-family:inherit; }
+  #fuPasteTable input:focus{ outline:none; border-color:var(--amber); background:var(--surface-2); }
+  .wide-table{ overflow:auto; border:1px solid var(--border); border-radius:9px; margin-top:12px; }
+  .batch-id{ font-family:ui-monospace,SFMono-Regular,Consolas,monospace; font-weight:800; letter-spacing:.08em; }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <h1 data-i18n="h1">📦 إدارة الملفات</h1>
+    <button class="langBtn" onclick="toggleLang()" id="langBtn">EN</button>
+  </div>
+  <div class="sub" data-i18n="subTitle">أداة إدارة ملفات Warehouse Scanner — تقدر تدير items.csv و FileUploade.csv من نفس الصفحة.</div>
+
+  <div class="card">
+    <button class="collapse-toggle" id="ghSectionToggle" onclick="toggleGhSection()">
+      <h2 data-i18n="githubSectionTitle" style="margin:0;">⚙️ الاتصال بـ GitHub</h2>
+      <span class="collapse-arrow" id="ghSectionArrow">▾</span>
+    </button>
+    <div id="ghSectionBody">
+      <label data-i18n="ownerLabel">اسم المستخدم/المنظمة (Owner)</label>
+      <input type="text" id="ghOwner" value="sysorapro" placeholder="sysorapro">
+      <div class="row">
+        <div>
+          <label data-i18n="repoLabel">اسم الريبو (Repo)</label>
+          <input type="text" id="ghRepo" value="warehouse-scanner-" placeholder="warehouse-scanner-">
+        </div>
+        <div>
+          <label data-i18n="branchLabel">الفرع (Branch)</label>
+          <input type="text" id="ghBranch" value="main" placeholder="main">
+        </div>
+      </div>
+      <label data-i18n="pathLabel">مسار الملف</label>
+      <input type="text" id="ghPath" value="items.csv" placeholder="items.csv">
+      <label data-i18n="tokenLabel">مفتاح الوصول (Personal Access Token)</label>
+      <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+      <div class="hint" data-i18n="tokenHint">
+        المفتاح ده زي كلمة سر — من GitHub: Settings ← Developer settings ← Personal access tokens ← Fine-grained tokens.
+        اعمل توكن جديد بصلاحية Contents: Read and write على الريبو ده بس (مش على كل حساباتك)، وحط له تاريخ انتهاء معقول.
+        متشاركوش مع حد، ومتحطوش في أي مكان تاني غير هنا.
+      </div>
+      <div class="check-row">
+        <input type="checkbox" id="rememberToken">
+        <label style="margin:0;" for="rememberToken" data-i18n="rememberLabel">احفظ الإعدادات دي على الجهاز ده بس (اختياري)</label>
+      </div>
+      <button class="btn-secondary" onclick="testConnection()" data-i18n="testConnBtn">🔌 اختبار الاتصال</button>
+      <div class="status" id="connStatus"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="file-switch">
+      <button class="file-btn active" data-file="items" onclick="switchFile('items')">📦 items.csv</button>
+      <button class="file-btn" data-file="fileupload" onclick="switchFile('fileupload')">📤 FileUploade.csv</button>
+    </div>
+
+    <div class="file-panel active" data-file-panel="items">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="single" onclick="switchTab('single')" data-i18n="tabSingle">➕ صنف واحد</button>
+        <button class="tab-btn" data-tab="paste" onclick="switchTab('paste')" data-i18n="tabPaste">📋 لصق من إكسل</button>
+        <button class="tab-btn" data-tab="file" onclick="switchTab('file')" data-i18n="tabFile">📄 رفع ملف</button>
+      </div>
+
+      <div class="tab-panel active" data-panel="single">
+        <label data-i18n="gtinLabel">GTIN</label>
+        <input type="text" id="singleGtin" placeholder="مثال: 6221031000015" data-i18n-ph="singleGtinPh">
+        <label data-i18n="itemCodeLabel">كود الصنف (ItemCode)</label>
+        <input type="text" id="singleCode" placeholder="مثال: 2705348" data-i18n-ph="singleCodePh">
+        <label data-i18n="itemNameLabel">اسم الصنف (ItemName)</label>
+        <input type="text" id="singleName" placeholder="مثال: GAUZE HEALTHY SUPER BANDAGE 5CM" data-i18n-ph="singleNamePh">
+        <div class="hint" data-i18n="singleHint">لو الفاصلة (,) اتكتبت في الاسم غلط، هيتم استبدالها بمسافة تلقائيًا — عشان التطبيق الأساسي بيقرا الملف بطريقة بسيطة ومبتفهمش الفواصل جوه النص.</div>
+        <button class="btn-primary" id="addSingleBtn" onclick="addSingleItem()" data-i18n="addSingleBtn">💾 إضافة ورفع على GitHub</button>
+        <div class="status" id="singleStatus"></div>
+      </div>
+
+      <div class="tab-panel" data-panel="paste">
+        <div class="hint" data-i18n="pasteHint">انسخ الأعمدة (GTIN، كود الصنف، اسم الصنف) من إكسل، اضغط في أي خانة تحت، والصق (Ctrl+V) — هتتوزع تلقائي على الصفوف والأعمدة. تقدر تضيف أسطر يدويًا برضو.</div>
+        <div id="pasteTableWrap" style="overflow-x:auto; margin-top:12px;">
+          <table id="pasteTable">
+            <thead><tr><th style="width:26px;">#</th><th data-i18n="gtinLabel">GTIN</th><th data-i18n="colItemCode">كود الصنف</th><th data-i18n="colItemName">اسم الصنف</th><th style="width:26px;"></th></tr></thead>
+            <tbody id="pasteTableBody"></tbody>
+          </table>
+        </div>
+        <label style="margin-top:14px;" data-i18n="rowCountLabel">عدد السطور المطلوبة</label>
+        <input type="text" inputmode="numeric" id="pasteRowCountInput" placeholder="مثال: 50" data-i18n-ph="rowCountPh">
+        <button class="btn-secondary" style="margin-top:8px;" onclick="setPasteRowCount()" data-i18n="createRowsBtn">🔢 إنشاء السطور</button>
+        <div class="row" style="margin-top:10px;"><button class="btn-secondary" style="margin-top:0;" onclick="addPasteRow()" data-i18n="addRowBtn">➕ سطر جديد</button><button class="btn-secondary" style="margin-top:0;" onclick="clearPasteTable()" data-i18n="clearAllBtn">🗑 مسح الكل</button></div>
+        <button class="btn-primary" id="pasteSaveBtn" onclick="previewPasteTable()" data-i18n="previewSaveBtn">💾 معاينة وحفظ</button>
+        <div id="pastePreviewWrap" style="display:none;"><div class="hint" id="pasteSummary" style="margin-top:12px; font-weight:700; color:var(--text);"></div><div class="preview" id="pastePreview"></div><button class="btn-primary" id="pasteConfirmBtn" onclick="commitPasteTable()" data-i18n="confirmSaveBtn">✅ تأكيد الحفظ على GitHub</button></div>
+        <div class="status" id="pasteStatus"></div>
+      </div>
+
+      <div class="tab-panel" data-panel="file">
+        <div class="hint" data-i18n="fileHint">الملف المرفوع لازم يكون بنفس الترتيب: GTIN,ItemCode,ItemName (مع سطر عنوان في الأول). أي GTIN موجود بالفعل هيتحدّث ببياناته الجديدة، وأي GTIN جديد هيتضاف — الملف الأصلي مش بيتمسح أو يتستبدل خالص.</div>
+        <label style="margin-top:12px;" data-i18n="chooseFileLabel">اختر ملف CSV</label><input type="file" id="mergeFile" accept=".csv,text/csv" onchange="previewMergeFile()">
+        <div id="mergePreviewWrap" style="display:none;"><div class="hint" id="mergeSummary" style="margin-top:12px; font-weight:700; color:var(--text);"></div><div class="preview" id="mergePreview"></div><button class="btn-primary" id="mergeBtn" onclick="commitMerge()" data-i18n="confirmMergeBtn">💾 تأكيد الدمج ورفع على GitHub</button></div>
+        <div class="status" id="mergeStatus"></div>
+      </div>
+    </div>
+
+    <div class="file-panel" data-file-panel="fileupload">
+      <div class="hint" data-i18n="fuMainHint">ملف FileUploade.csv مستقل عن items.csv. في كل رمية تكتب PersonalName مرة واحدة، وSheetNo. يتولد تلقائيًا كرمز فريد من 10 أحرف وأرقام ويُستخدم لكل صف في نفس الرمية.</div>
+      <div class="fu-tabs">
+        <button class="fu-tab-btn active" data-fu-tab="single" onclick="switchFuTab('single')" data-i18n="fuTabSingle">➕ سجل واحد</button>
+        <button class="fu-tab-btn" data-fu-tab="paste" onclick="switchFuTab('paste')" data-i18n="fuTabPaste">📋 لصق من إكسل</button>
+        <button class="fu-tab-btn" data-fu-tab="file" onclick="switchFuTab('file')" data-i18n="fuTabFile">📄 رفع ملف</button>
+      </div>
+
+      <div class="fu-panel active" data-fu-panel="single">
+        <div class="row">
+          <div><label data-i18n="fuSheetNo">SheetNo.</label><input id="fuSingleSheetNo" type="text" readonly placeholder="يتم توليده تلقائيًا"></div>
+          <div><label data-i18n="fuPersonalName">PersonalName — اسم المسؤول</label><input id="fuSinglePersonalName" type="text"></div>
+        </div>
+        <div class="row">
+          <div><label data-i18n="fuItemCode">Item Code</label><input id="fuSingleItemCode" type="text"></div>
+          <div><label data-i18n="fuItemName">Item Name</label><input id="fuSingleItemName" type="text"></div>
+        </div>
+        <div class="row">
+          <div><label>Shelf Code</label><input id="fuSingleShelfCode" type="text"></div>
+          <div><label>WhN</label><input id="fuSingleWhN" type="text"></div>
+        </div>
+        <div class="row"><div><label>Typ</label><input id="fuSingleTyp" type="text"></div><div><label>BT</label><input id="fuSingleBT" type="text"></div></div>
+        <div class="row"><div><label>Stock Indicator</label><input id="fuSingleStockIndicator" type="text"></div><div><label>Stock Removal</label><input id="fuSingleStockRemoval" type="text"></div></div>
+        <div class="row"><div><label>Stock Placement</label><input id="fuSingleStockPlacement" type="text"></div><div><label>Sto Location</label><input id="fuSingleStoLocation" type="text"></div></div>
+        <div class="row"><div><label>Group No</label><input id="fuSingleGroupNo" type="text"></div><div><label>Group Name</label><input id="fuSingleGroupName" type="text"></div></div>
+        <label>Sec</label><input id="fuSingleSec" type="text">
+        <div class="hint">SheetNo. يتم إنشاؤه تلقائيًا كرمز فريد من 10 أحرف وأرقام.</div>
+        <button class="btn-primary" id="fuSingleSaveBtn" onclick="saveFuSingle()" data-i18n="fuSaveSingle">💾 إضافة ورفع</button>
+        <div class="status" id="fuSingleStatus"></div>
+      </div>
+
+      <div class="fu-panel" data-fu-panel="paste">
+        <div class="hint" data-i18n="fuPasteHint">انسخ البيانات من Excel والصقها مباشرة. SheetNo. يتولد تلقائيًا مرة واحدة لكل رمية، وPersonalName يتم إدخاله مرة واحدة لكل رمية.</div>
+        <div class="row" style="margin-top:10px;">
+          <div><label>SheetNo. — تلقائي</label><input id="fuPasteSheetNo" type="text" readonly placeholder="سيتم توليده تلقائيًا"></div>
+          <div><label>PersonalName — اسم المسؤول</label><input id="fuPastePersonalName" type="text" placeholder="اسم المسؤول"></div>
+        </div>
+        <div class="hint" style="margin-top:8px;">الصق من Excel داخل الجدول بالترتيب: Item Code, Item Name, Shelf Code, WhN, Typ, BT, Stock Indicator, Stock Removal, Stock Placement, Sto Location, Group No, Group Name, Sec. لا تلصق SheetNo أو PersonalName؛ البرنامج يولدهما/يضيفهما تلقائيًا.</div>
+        <div class="wide-table">
+          <table id="fuPasteTable"><thead><tr><th>#</th><th>Item Code</th><th>Item Name</th><th>Shelf Code</th><th>WhN</th><th>Typ</th><th>BT</th><th>Stock Indicator</th><th>Stock Removal</th><th>Stock Placement</th><th>Sto Location</th><th>Group No</th><th>Group Name</th><th>Sec</th><th></th></tr></thead><tbody id="fuPasteBody"></tbody></table>
+        </div>
+        <label style="margin-top:14px;" data-i18n="fuRowsLabel">عدد السطور المطلوبة</label><input type="text" inputmode="numeric" id="fuRowCount" placeholder="مثال: 100">
+        <button class="btn-secondary" style="margin-top:8px;" onclick="setFuRowCount()" data-i18n="createRowsBtn">🔢 إنشاء السطور</button>
+        <div class="row" style="margin-top:10px;"><button class="btn-secondary" style="margin-top:0;" onclick="addFuPasteRow()">➕ سطر جديد</button><button class="btn-secondary" style="margin-top:0;" onclick="clearFuPasteTable()">🗑 مسح الكل</button></div>
+        <button class="btn-primary" id="fuPasteSaveBtn" onclick="previewFuPaste()" data-i18n="fuPreviewSave">💾 معاينة وحفظ</button>
+        <div id="fuPastePreviewWrap" style="display:none;"><div class="hint" id="fuPasteSummary"></div><div class="preview" id="fuPastePreview"></div><button class="btn-primary" id="fuPasteConfirmBtn" onclick="commitFuPaste()" data-i18n="fuConfirmSave">✅ تأكيد الرفع</button></div>
+        <div class="status" id="fuPasteStatus"></div>
+      </div>
+
+      <div class="fu-panel" data-fu-panel="file">
+        <div class="hint" data-i18n="fuFileHint">ارفع ملف CSV يحتوي على بيانات الأصناف فقط. SheetNo. يتولد تلقائيًا وPersonalName يكتب مرة واحدة لكل رمية.</div>
+        <div class="row" style="margin-top:10px;"><div><label>SheetNo. — تلقائي</label><input id="fuFileSheetNo" type="text" readonly></div><div><label>PersonalName — اسم المسؤول</label><input id="fuFilePersonalName" type="text"></div></div>
+        <label style="margin-top:12px;" data-i18n="chooseFileLabel">اختر ملف CSV</label><input type="file" id="fuMergeFile" accept=".csv,text/csv" onchange="previewFuFile()">
+        <div id="fuFilePreviewWrap" style="display:none;"><div class="hint" id="fuFileSummary"></div><div class="preview" id="fuFilePreview"></div><button class="btn-primary" id="fuFileConfirmBtn" onclick="commitFuFile()" data-i18n="fuConfirmSave">✅ تأكيد الرفع</button></div>
+        <div class="status" id="fuFileStatus"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+const SETTINGS_KEY = 'adminItemsToolSettings';
+const LANG_KEY = 'adminItemsToolLang';
+
+const i18n = {
+  ar: {
+    pageTitle: 'إدارة ملف الأصناف — Warehouse Scanner (Sysora)',
+    h1: '📦 إدارة ملف الأصناف',
+    subTitle: 'أداة إدارة ملفات Warehouse Scanner — تقدر تدير items.csv و FileUploade.csv من نفس الصفحة.',
+    githubSectionTitle: '⚙️ الاتصال بـ GitHub',
+    ownerLabel: 'اسم المستخدم/المنظمة (Owner)',
+    repoLabel: 'اسم الريبو (Repo)',
+    branchLabel: 'الفرع (Branch)',
+    pathLabel: 'مسار الملف',
+    tokenLabel: 'مفتاح الوصول (Personal Access Token)',
+    tokenHint: 'المفتاح ده زي كلمة سر — من GitHub: Settings ← Developer settings ← Personal access tokens ← Fine-grained tokens. اعمل توكن جديد بصلاحية Contents: Read and write على الريبو ده بس (مش على كل حساباتك)، وحط له تاريخ انتهاء معقول. متشاركوش مع حد، ومتحطوش في أي مكان تاني غير هنا.',
+    rememberLabel: 'احفظ الإعدادات دي على الجهاز ده بس (اختياري)',
+    testConnBtn: '🔌 اختبار الاتصال',
+    tabSingle: '➕ صنف واحد',
+    tabPaste: '📋 لصق من إكسل',
+    tabFile: '📄 رفع ملف',
+    fuMainHint: 'ملف FileUploade.csv مستقل عن items.csv. في كل رمية تكتب PersonalName مرة واحدة، وSheetNo. يتولد تلقائيًا كرمز فريد من 10 أحرف وأرقام ويُستخدم لكل صف في نفس الرمية.',
+    fuTabSingle: '➕ سجل واحد', fuTabPaste: '📋 لصق من إكسل', fuTabFile: '📄 رفع ملف',
+    fuSheetNo: 'SheetNo.', fuPersonalName: 'PersonalName — اسم المسؤول', fuItemCode: 'Item Code', fuItemName: 'Item Name',
+    fuSaveSingle: '💾 إضافة ورفع', fuPasteHint: 'انسخ من Excel بداية من Item Code وحتى Empty فقط. PersonalName يُكتب مرة واحدة، وSheetNo. يتولد تلقائيًا مرة واحدة لكل رمية.',
+    fuRowsLabel: 'عدد السطور المطلوبة', fuPreviewSave: '💾 معاينة وحفظ', fuConfirmSave: '✅ تأكيد الرفع',
+    fuFileHint: 'ارفع ملف CSV يحتوي على الأعمدة: Item Code, Item Name, Shelf Code, WhN, Typ, BT, Stock Indicator, Stock Removal, Stock Placement, Sto Location, Group No, Group Name, Sec, Empty. PersonalName يُكتب مرة واحدة، وSheetNo. يتولد تلقائيًا لكل رمية.',
+    gtinLabel: 'GTIN',
+    itemCodeLabel: 'كود الصنف (ItemCode)',
+    itemNameLabel: 'اسم الصنف (ItemName)',
+    colItemCode: 'كود الصنف',
+    colItemName: 'اسم الصنف',
+    singleHint: 'لو الفاصلة (,) اتكتبت في الاسم غلط، هيتم استبدالها بمسافة تلقائيًا — عشان التطبيق الأساسي بيقرا الملف بطريقة بسيطة ومبتفهمش الفواصل جوه النص.',
+    addSingleBtn: '💾 إضافة ورفع على GitHub',
+    pasteHint: 'انسخ الأعمدة (GTIN، كود الصنف، اسم الصنف) من إكسل، اضغط في أي خانة تحت، والصق (Ctrl+V) — هتتوزع تلقائي على الصفوف والأعمدة. تقدر تضيف أسطر يدويًا برضو.',
+    rowCountLabel: 'عدد السطور المطلوبة',
+    rowCountPh: 'مثال: 50',
+    createRowsBtn: '🔢 إنشاء السطور',
+    addRowBtn: '➕ سطر جديد',
+    clearAllBtn: '🗑 مسح الكل',
+    previewSaveBtn: '💾 معاينة وحفظ',
+    confirmSaveBtn: '✅ تأكيد الحفظ على GitHub',
+    fileHint: 'الملف المرفوع لازم يكون بنفس الترتيب: GTIN,ItemCode,ItemName (مع سطر عنوان في الأول). أي GTIN موجود بالفعل هيتحدّث ببياناته الجديدة، وأي GTIN جديد هيتضاف — الملف الأصلي مش بيتمسح أو يتستبدل خالص.',
+    chooseFileLabel: 'اختر ملف CSV',
+    confirmMergeBtn: '💾 تأكيد الدمج ورفع على GitHub',
+    singleGtinPh: 'مثال: 6221031000015',
+    singleCodePh: 'مثال: 2705348',
+    singleNamePh: 'مثال: GAUZE HEALTHY SUPER BANDAGE 5CM',
+    tagNew: 'جديد',
+    tagUpdate: 'تحديث',
+    previewColGtin: 'GTIN',
+    previewColCode: 'الكود',
+    previewColName: 'الاسم',
+    errFillOwnerRepoToken: '❌ من فضلك املأ اسم المستخدم واسم الريبو والمفتاح.',
+    testingConn: '⏳ جاري الاختبار...',
+    connOk: (count) => `✅ الاتصال شغال. الملف الحالي فيه ${count} صنف.`,
+    errNeedToken: '❌ محتاج تدخل مفتاح GitHub فوق الأول.',
+    errNeedGtinCode: '❌ الـ GTIN وكود الصنف لازم يتملوا.',
+    readingFromGithub: '⏳ جاري القراءة من GitHub...',
+    savingToGithub: '⏳ جاري الحفظ على GitHub...',
+    savingToGithubPct: (pct, loadedMB, totalMB) => `⏳ جاري الحفظ على GitHub... ${pct}% (${loadedMB} من ${totalMB} ميجا)`,
+    errUploadNetwork: '❌ فشل الاتصال أثناء الرفع (تحقق من النت).',
+    singleUpdated: (gtin) => `✅ تم تحديث الصنف الموجود (GTIN: ${gtin}) بنجاح.`,
+    singleAdded: (gtin) => `✅ تم إضافة صنف جديد (GTIN: ${gtin}) بنجاح.`,
+    errEmptyOrWrongFile: '❌ الملف ده فاضي أو مش بنفس الترتيب (GTIN,ItemCode,ItemName).',
+    errNeedTokenCompare: '❌ محتاج تدخل مفتاح GitHub فوق الأول عشان أقارن بالملف الحالي.',
+    comparingWithGithub: '⏳ جاري المقارنة بالملف الحالي على GitHub...',
+    mergeSummary: (newCount, updateCount, remaining) => `📊 هيتضاف ${newCount} صنف جديد، وهيتحدّث ${updateCount} صنف موجود بالفعل. باقي أصناف الملف الحالي (${remaining}) هتفضل زي ما هي.`,
+    pasteSummary: (newCount, updateCount) => `📊 هيتضاف ${newCount} صنف جديد، وهيتحدّث ${updateCount} صنف موجود بالفعل.`,
+    moreRowsNote: (count) => `...وباقي ${count} صف مش معروضين هنا، بس هيتضافوا/يتحدّثوا برضو.`,
+    reviewBeforeConfirmFile: '👀 راجع القائمة تحت، وادوس "تأكيد الدمج" لو كل حاجة تمام.',
+    reviewBeforeConfirmPaste: '👀 راجع القائمة تحت، وادوس "تأكيد الحفظ" لو كل حاجة تمام.',
+    mergeDone: (added, updated, total) => `✅ تم الدمج بنجاح: ${added} صنف جديد، ${updated} صنف اتحدّث. الملف الآن فيه ${total} صنف إجمالي.`,
+    pasteErrNeedRow: '❌ محتاج تملأ سطر واحد على الأقل بـ GTIN وكود الصنف.',
+    pasteDone: (added, updated) => `✅ تم الحفظ بنجاح: ${added} صنف جديد، ${updated} صنف اتحدّث.`,
+    errGeneric: (msg) => '❌ ' + msg,
+    errGetFailed: (status, body) => `GET فشل (HTTP ${status}) — ${body}`,
+    errGetBlobFailed: (status, body) => `GET (blob) فشل (HTTP ${status}) — ${body}`,
+    errPutFailed: (status, body) => `الحفظ فشل (HTTP ${status}) — ${body}`,
+    errLargeFileNoSha: '❌ الملف كبير و متعرفش أجيب الـ sha بتاعه من GitHub.',
+    errRowCountInvalid: '❌ اكتب عدد صحيح أكبر من صفر.',
+    errRowCountTooBig: (limit) => `❌ العدد كبير أوي — أقصى حد ${limit} سطر في المرة الواحدة. لو محتاج أكتر، استخدم تاب "رفع ملف" بدل كده.`,
+    rowsCreated: (n) => `✅ اتعمل ${n} سطر فاضي — اضغط في أول خانة والصق البيانات.`,
+    errConflict: '❌ الملف اتغيّر على GitHub بعد المعاينة — اعمل معاينة تاني وجرّب من الأول.',
+  },
+  en: {
+    pageTitle: 'Item List Admin — Warehouse Scanner (Sysora)',
+    h1: '📦 Item List Admin',
+    subTitle: 'A standalone Warehouse Scanner file manager — manage both items.csv and FileUploade.csv from one page.',
+    githubSectionTitle: '⚙️ GitHub Connection',
+    ownerLabel: 'Username/Organization (Owner)',
+    repoLabel: 'Repository (Repo)',
+    branchLabel: 'Branch',
+    pathLabel: 'File path',
+    tokenLabel: 'Access token (Personal Access Token)',
+    tokenHint: 'This token is like a password — from GitHub: Settings ← Developer settings ← Personal access tokens ← Fine-grained tokens. Create a new token with Contents: Read and write permission on this repo only (not your whole account), and set a reasonable expiry date. Never share it, and never paste it anywhere except here.',
+    rememberLabel: 'Remember these settings on this device only (optional)',
+    testConnBtn: '🔌 Test Connection',
+    tabSingle: '➕ Single Item',
+    tabPaste: '📋 Paste from Excel',
+    tabFile: '📄 Upload File',
+    fuMainHint: 'FileUploade.csv is separate from items.csv. Each upload gets an automatic unique 10-character alphanumeric Empty value, shared by all rows in that upload.',
+    fuTabSingle: '➕ Single Record', fuTabPaste: '📋 Paste from Excel', fuTabFile: '📄 Upload File',
+    fuSheetNo: 'SheetNo.', fuPersonalName: 'PersonalName — Responsible', fuItemCode: 'Item Code', fuItemName: 'Item Name',
+    fuSaveSingle: '💾 Add & Upload', fuPasteHint: 'Paste the columns from Excel. You do not need to enter Empty; the program creates one unique 10-character value per upload and applies it to all rows.',
+    fuRowsLabel: 'Number of rows', fuPreviewSave: '💾 Preview & Save', fuConfirmSave: '✅ Confirm Upload',
+    fuFileHint: 'Upload a CSV containing: SheetNo., PersonalName, Item Code, Item Name, Shelf Code, WhN, Typ, BT, Stock Indicator, Stock Removal, Stock Placement, Sto Location, Group No, Group Name, Sec. Empty is optional; the program generates a new unique value for each upload.',
+    gtinLabel: 'GTIN',
+    itemCodeLabel: 'Item Code (ItemCode)',
+    itemNameLabel: 'Item Name (ItemName)',
+    colItemCode: 'Item Code',
+    colItemName: 'Item Name',
+    singleHint: 'If a comma (,) ends up in the name by mistake, it will automatically be replaced with a space — because the main app reads the file with a simple parser that doesn\'t understand commas inside a field.',
+    addSingleBtn: '💾 Add & Upload to GitHub',
+    pasteHint: 'Copy the columns (GTIN, Item Code, Item Name) from Excel, click any cell below, and paste (Ctrl+V) — it will spread automatically across rows and columns. You can also add rows manually.',
+    rowCountLabel: 'Number of rows needed',
+    rowCountPh: 'e.g. 50',
+    createRowsBtn: '🔢 Create Rows',
+    addRowBtn: '➕ New Row',
+    clearAllBtn: '🗑 Clear All',
+    previewSaveBtn: '💾 Preview & Save',
+    confirmSaveBtn: '✅ Confirm Save to GitHub',
+    fileHint: 'The uploaded file must be in the same order: GTIN,ItemCode,ItemName (with a header row first). Any existing GTIN will be updated with the new data, and any new GTIN will be added — the original file is never cleared or replaced.',
+    chooseFileLabel: 'Choose a CSV file',
+    confirmMergeBtn: '💾 Confirm Merge & Upload to GitHub',
+    singleGtinPh: 'e.g. 6221031000015',
+    singleCodePh: 'e.g. 2705348',
+    singleNamePh: 'e.g. GAUZE HEALTHY SUPER BANDAGE 5CM',
+    tagNew: 'new',
+    tagUpdate: 'update',
+    previewColGtin: 'GTIN',
+    previewColCode: 'Code',
+    previewColName: 'Name',
+    errFillOwnerRepoToken: '❌ Please fill in the owner, repo, and token.',
+    testingConn: '⏳ Testing...',
+    connOk: (count) => `✅ Connection works. The current file has ${count} items.`,
+    errNeedToken: '❌ Enter your GitHub token above first.',
+    errNeedGtinCode: '❌ GTIN and item code are required.',
+    readingFromGithub: '⏳ Reading from GitHub...',
+    savingToGithub: '⏳ Saving to GitHub...',
+    savingToGithubPct: (pct, loadedMB, totalMB) => `⏳ Saving to GitHub... ${pct}% (${loadedMB} of ${totalMB} MB)`,
+    errUploadNetwork: '❌ Connection failed during upload (check your internet).',
+    singleUpdated: (gtin) => `✅ Existing item (GTIN: ${gtin}) updated successfully.`,
+    singleAdded: (gtin) => `✅ New item (GTIN: ${gtin}) added successfully.`,
+    errEmptyOrWrongFile: '❌ This file is empty or not in the expected order (GTIN,ItemCode,ItemName).',
+    errNeedTokenCompare: '❌ Enter your GitHub token above first so it can be compared with the current file.',
+    comparingWithGithub: '⏳ Comparing with the current file on GitHub...',
+    mergeSummary: (newCount, updateCount, remaining) => `📊 ${newCount} new item(s) will be added, and ${updateCount} existing item(s) will be updated. The rest of the current file (${remaining}) stays untouched.`,
+    pasteSummary: (newCount, updateCount) => `📊 ${newCount} new item(s) will be added, and ${updateCount} existing item(s) will be updated.`,
+    moreRowsNote: (count) => `...and ${count} more row(s) not shown here, but they will be added/updated too.`,
+    reviewBeforeConfirmFile: '👀 Review the list below, then hit "Confirm Merge" if everything looks right.',
+    reviewBeforeConfirmPaste: '👀 Review the list below, then hit "Confirm Save" if everything looks right.',
+    mergeDone: (added, updated, total) => `✅ Merge complete: ${added} new item(s), ${updated} updated. The file now has ${total} items total.`,
+    pasteErrNeedRow: '❌ Fill in at least one row with a GTIN and item code.',
+    pasteDone: (added, updated) => `✅ Saved successfully: ${added} new item(s), ${updated} updated.`,
+    errGeneric: (msg) => '❌ ' + msg,
+    errGetFailed: (status, body) => `GET failed (HTTP ${status}) — ${body}`,
+    errGetBlobFailed: (status, body) => `GET (blob) failed (HTTP ${status}) — ${body}`,
+    errPutFailed: (status, body) => `Save failed (HTTP ${status}) — ${body}`,
+    errLargeFileNoSha: '❌ The file is large and its sha could not be retrieved from GitHub.',
+    errRowCountInvalid: '❌ Enter a whole number greater than zero.',
+    errRowCountTooBig: (limit) => `❌ That number is too large — the limit is ${limit} rows at once. If you need more, use the "Upload File" tab instead.`,
+    rowsCreated: (n) => `✅ Created ${n} blank row(s) — click the first cell and paste your data.`,
+    errConflict: '❌ The file changed on GitHub after you previewed it — preview again and retry.',
+  }
+};
+
+let lang = 'ar';
+try{ const savedLang = localStorage.getItem(LANG_KEY); if (savedLang === 'ar' || savedLang === 'en') lang = savedLang; }catch(e){}
+
+function t(key, ...args){
+  const val = i18n[lang][key];
+  return (typeof val === 'function') ? val(...args) : val;
+}
+
+function applyLang(){
+  const htmlRoot = document.getElementById('htmlRoot');
+  htmlRoot.setAttribute('lang', lang);
+  htmlRoot.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+  document.getElementById('pageTitleTag').textContent = t('pageTitle');
+  document.title = t('pageTitle');
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (i18n[lang][key] !== undefined) el.textContent = t(key);
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    if (i18n[lang][key] !== undefined) el.placeholder = t(key);
+  });
+  document.getElementById('langBtn').textContent = (lang === 'ar') ? 'EN' : 'AR';
+}
+function toggleLang(){
+  lang = (lang === 'ar') ? 'en' : 'ar';
+  try{ localStorage.setItem(LANG_KEY, lang); }catch(e){}
+  applyLang();
+}
+applyLang();
+
+function els(){
+  return {
+    owner: document.getElementById('ghOwner'),
+    repo: document.getElementById('ghRepo'),
+    branch: document.getElementById('ghBranch'),
+    path: document.getElementById('ghPath'),
+    token: document.getElementById('ghToken'),
+    remember: document.getElementById('rememberToken'),
+  };
+}
+
+function loadSettings(){
+  let hadSavedSettings = false;
+  try{
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (!raw) return hadSavedSettings;
+    const s = JSON.parse(raw);
+    const e = els();
+    if (s.owner) e.owner.value = s.owner;
+    if (s.repo) e.repo.value = s.repo;
+    if (s.branch) e.branch.value = s.branch;
+    if (s.path) e.path.value = s.path;
+    if (s.token) e.token.value = s.token;
+    e.remember.checked = true;
+    hadSavedSettings = !!(s.token);
+  }catch(err){}
+  return hadSavedSettings;
+}
+function saveSettingsIfRequested(){
+  const e = els();
+  if (e.remember.checked){
+    try{
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+        owner: e.owner.value.trim(), repo: e.repo.value.trim(),
+        branch: e.branch.value.trim(), path: e.path.value.trim(),
+        token: e.token.value.trim()
+      }));
+    }catch(err){}
+  } else {
+    try{ localStorage.removeItem(SETTINGS_KEY); }catch(err){}
+  }
+}
+
+// GitHub connection card is collapsible — if a token was already saved on
+// this device, it starts collapsed (nothing left to fill in most of the
+// time); otherwise it starts open so a first-time user sees it right away.
+function toggleGhSection(force){
+  const body = document.getElementById('ghSectionBody');
+  const arrow = document.getElementById('ghSectionArrow');
+  const shouldClose = (force === 'close') ? true : (force === 'open') ? false : !body.classList.contains('closed');
+  body.classList.toggle('closed', shouldClose);
+  arrow.classList.toggle('closed', shouldClose);
+}
+const hadSavedSettings = loadSettings();
+toggleGhSection(hadSavedSettings ? 'close' : 'open');
+
+function ghConfig(){
+  const e = els();
+  return {
+    owner: e.owner.value.trim(),
+    repo: e.repo.value.trim(),
+    branch: e.branch.value.trim() || 'main',
+    path: e.path.value.trim() || 'items.csv',
+    token: e.token.value.trim()
+  };
+}
+
+function setStatus(elId, type, msg){
+  const el = document.getElementById(elId);
+  el.className = 'status show ' + type;
+  el.textContent = msg;
+}
+
+// ---- UTF-8 safe base64 helpers (item names can contain non-ASCII like ™) ----
+function utf8ToBase64(str){
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  const chunkSize = 0x8000; // تجنّب تعدية حد الـ arguments في المتصفح مع الملفات الكبيرة
+  for (let i = 0; i < bytes.length; i += chunkSize){
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+function base64ToUtf8(b64){
+  const binary = atob(b64.replace(/\n/g, ''));
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+// ---- CSV parse / merge / serialize (mirrors the main app's simple, non-quote-aware reader) ----
+function parseItemsCSV(text){
+  const map = {};   // GTIN -> {itemCode, itemName}
+  const order = []; // preserves original row order
+  const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+  const startIdx = (lines.length && lines[0].split(',')[0].trim().toLowerCase() === 'gtin') ? 1 : 0;
+  for (let i = startIdx; i < lines.length; i++){
+    const parts = lines[i].split(',');
+    if (parts.length < 3) continue;
+    const gtin = parts[0].trim();
+    const itemCode = parts[1].trim();
+    const itemName = parts.slice(2).join(',').trim();
+    if (!gtin || !itemCode) continue;
+    if (!(gtin in map)) order.push(gtin);
+    map[gtin] = { itemCode, itemName };
+  }
+  return { map, order };
+}
+function sanitizeField(s){
+  // The main app splits each CSV line on ',' with no quote-awareness, so a
+  // comma inside a field would silently shift every column after it. Commas
+  // are replaced with a space to guarantee the file stays readable there.
+  return String(s || '').replace(/,/g, ' ').replace(/[\r\n]+/g, ' ').trim();
+}
+function mergeItems(current, additions){
+  let added = 0, updated = 0;
+  const details = [];
+  for (const a of additions){
+    const gtin = sanitizeField(a.gtin);
+    const itemCode = sanitizeField(a.itemCode);
+    const itemName = sanitizeField(a.itemName);
+    if (!gtin || !itemCode) continue;
+    const isUpdate = gtin in current.map;
+    if (isUpdate) updated++; else { current.order.push(gtin); added++; }
+    current.map[gtin] = { itemCode, itemName };
+    details.push({ gtin, itemCode, itemName, isUpdate });
+  }
+  return { added, updated, details };
+}
+function serializeItemsCSV(current){
+  const lines = ['GTIN,ItemCode,ItemName'];
+  for (const gtin of current.order){
+    const rec = current.map[gtin];
+    lines.push(gtin + ',' + rec.itemCode + ',' + rec.itemName);
+  }
+  return lines.join('\r\n') + '\r\n';
+}
+
+// ---- Tabs ----
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === name));
+}
+
+// ---- Paste-from-Excel table ----
+let pasteRowCount = 0;
+let pendingPasteAdditions = null;
+let pendingPasteCurrent = null;
+let pendingPasteSha = null;
+
+function createPasteRow(gtin, code, name){
+  pasteRowCount++;
+  const tr = document.createElement('tr');
+  tr.innerHTML =
+    '<td style="text-align:center; color:var(--muted); font-size:11px;">' + pasteRowCount + '</td>' +
+    '<td><input type="text" class="paste-cell" data-col="0" value="' + escapeHtmlAdmin(gtin || '') + '"></td>' +
+    '<td><input type="text" class="paste-cell" data-col="1" value="' + escapeHtmlAdmin(code || '') + '"></td>' +
+    '<td><input type="text" class="paste-cell" data-col="2" value="' + escapeHtmlAdmin(name || '') + '"></td>' +
+    '<td><button type="button" class="rowDelBtn" onclick="this.closest(\'tr\').remove()">🗑</button></td>';
+  document.getElementById('pasteTableBody').appendChild(tr);
+  return tr;
+}
+function addPasteRow(){ createPasteRow('', '', ''); }
+function clearPasteTable(){
+  document.getElementById('pasteTableBody').innerHTML = '';
+  pasteRowCount = 0;
+  for (let i = 0; i < 4; i++) addPasteRow();
+  document.getElementById('pastePreviewWrap').style.display = 'none';
+  pendingPasteAdditions = null;
+  pendingPasteCurrent = null;
+  pendingPasteSha = null;
+}
+const PASTE_ROW_LIMIT = 5000; // حد أعلى منطقي عشان الصفحة متحسّش وهي بترندر آلاف خانات الإدخال
+
+function setPasteRowCount(){
+  const input = document.getElementById('pasteRowCountInput');
+  const n = parseInt(input.value, 10);
+  if (!n || n < 1){
+    setStatus('pasteStatus', 'err', t('errRowCountInvalid'));
+    return;
+  }
+  if (n > PASTE_ROW_LIMIT){
+    setStatus('pasteStatus', 'err', t('errRowCountTooBig', PASTE_ROW_LIMIT));
+    return;
+  }
+  document.getElementById('pasteTableBody').innerHTML = '';
+  pasteRowCount = 0;
+  for (let i = 0; i < n; i++) addPasteRow();
+  document.getElementById('pastePreviewWrap').style.display = 'none';
+  pendingPasteAdditions = null;
+  pendingPasteCurrent = null;
+  pendingPasteSha = null;
+  setStatus('pasteStatus', 'info', t('rowsCreated', n));
+}
+clearPasteTable(); // start with a few blank rows
+
+// Splits pasted clipboard text into a grid of rows/cols. Excel and Google
+// Sheets both put a TAB between columns and a newline between rows when you
+// copy a multi-cell selection.
+function computePasteGrid(clipboardText){
+  const rows = clipboardText.replace(/\r/g, '').split('\n');
+  while (rows.length && rows[rows.length - 1] === '') rows.pop(); // drop the trailing blank line Excel adds
+  return rows.map(r => r.split('\t'));
+}
+
+document.getElementById('pasteTableBody').addEventListener('paste', function(e){
+  const active = document.activeElement;
+  if (!active || !active.classList || !active.classList.contains('paste-cell')) return;
+  const clipboardText = (e.clipboardData || window.clipboardData).getData('text');
+  if (!clipboardText) return;
+  e.preventDefault();
+
+  const grid = computePasteGrid(clipboardText);
+  const startCol = parseInt(active.dataset.col, 10);
+  const startTr = active.closest('tr');
+  let trs = Array.from(document.getElementById('pasteTableBody').children);
+  const startRowIdx = trs.indexOf(startTr);
+
+  grid.forEach((rowVals, rIdx) => {
+    const targetRowIdx = startRowIdx + rIdx;
+    while (targetRowIdx >= trs.length){
+      createPasteRow('', '', '');
+      trs = Array.from(document.getElementById('pasteTableBody').children);
+    }
+    const tr = trs[targetRowIdx];
+    rowVals.forEach((val, cIdx) => {
+      const targetCol = startCol + cIdx;
+      if (targetCol > 2) return; // only 3 columns (GTIN / ItemCode / ItemName) exist
+      const input = tr.querySelector('.paste-cell[data-col="' + targetCol + '"]');
+      if (input) input.value = val.trim();
+    });
+  });
+});
+
+function collectPasteTableRows(){
+  const trs = Array.from(document.querySelectorAll('#pasteTableBody tr'));
+  const additions = [];
+  trs.forEach(tr => {
+    const gtin = tr.querySelector('[data-col="0"]').value.trim();
+    const itemCode = tr.querySelector('[data-col="1"]').value.trim();
+    const itemName = tr.querySelector('[data-col="2"]').value.trim();
+    if (gtin && itemCode) additions.push({ gtin, itemCode, itemName });
+  });
+  return additions;
+}
+
+async function previewPasteTable(){
+  const additions = collectPasteTableRows();
+  if (!additions.length){
+    setStatus('pasteStatus', 'err', t('pasteErrNeedRow'));
+    return;
+  }
+  const cfg = ghConfig();
+  if (!cfg.token){
+    setStatus('pasteStatus', 'err', t('errNeedToken'));
+    return;
+  }
+  setStatus('pasteStatus', 'info', t('comparingWithGithub'));
+  try{
+    const { text: currentText, sha: currentSha } = await ghGetFile(cfg);
+    const current = parseItemsCSV(currentText);
+    let newCount = 0, updateCount = 0;
+    const rowsPreview = additions.map(a => {
+      const isUpdate = a.gtin in current.map;
+      if (isUpdate) updateCount++; else newCount++;
+      return { ...a, isUpdate };
+    });
+    pendingPasteAdditions = additions;
+    pendingPasteCurrent = current;
+    pendingPasteSha = currentSha;
+    document.getElementById('pasteSummary').textContent = t('pasteSummary', newCount, updateCount);
+    document.getElementById('pastePreview').innerHTML =
+      `<table><thead><tr><th>${t('previewColGtin')}</th><th>${t('previewColCode')}</th><th>${t('previewColName')}</th><th></th></tr></thead><tbody>` +
+      rowsPreview.map(r =>
+        '<tr><td>' + escapeHtmlAdmin(r.gtin) + '</td><td>' + escapeHtmlAdmin(r.itemCode) + '</td><td>' + escapeHtmlAdmin(r.itemName) +
+        '</td><td><span class="tag ' + (r.isUpdate ? 'update' : 'new') + '">' + (r.isUpdate ? t('tagUpdate') : t('tagNew')) + '</span></td></tr>'
+      ).join('') +
+      '</tbody></table>';
+    document.getElementById('pastePreviewWrap').style.display = 'block';
+    setStatus('pasteStatus', 'info', t('reviewBeforeConfirmPaste'));
+  }catch(err){
+    setStatus('pasteStatus', 'err', t('errGeneric', err.message));
+  }
+}
+
+async function commitPasteTable(){
+  if (!pendingPasteAdditions || !pendingPasteAdditions.length) return;
+  const cfg = ghConfig();
+  const btn = document.getElementById('pasteConfirmBtn');
+  btn.disabled = true;
+  try{
+    let current, sha;
+    if (pendingPasteCurrent && pendingPasteSha){
+      // نفس النسخة اللي اتقرت وقت المعاينة — من غير ما ننزّل الملف الكبير تاني
+      current = pendingPasteCurrent;
+      sha = pendingPasteSha;
+    } else {
+      setStatus('pasteStatus', 'info', t('readingFromGithub'));
+      const fetched = await ghGetFile(cfg);
+      current = parseItemsCSV(fetched.text);
+      sha = fetched.sha;
+    }
+    const { added, updated } = mergeItems(current, pendingPasteAdditions);
+    const newText = serializeItemsCSV(current);
+    setStatus('pasteStatus', 'info', t('savingToGithub'));
+    await ghPutFileWithProgress(cfg, newText, sha, `Add ${pendingPasteAdditions.length} items via paste table (${added} new, ${updated} updated)`,
+      (loaded, total) => {
+        const pct = Math.round((loaded / total) * 100);
+        setStatus('pasteStatus', 'info', t('savingToGithubPct', pct, (loaded/1024/1024).toFixed(1), (total/1024/1024).toFixed(1)));
+      });
+    saveSettingsIfRequested();
+    setStatus('pasteStatus', 'ok', t('pasteDone', added, updated));
+    clearPasteTable();
+  }catch(err){
+    pendingPasteCurrent = null;
+    pendingPasteSha = null;
+    if (String(err.message).includes('HTTP 409')){
+      setStatus('pasteStatus', 'err', t('errConflict'));
+    } else {
+      setStatus('pasteStatus', 'err', t('errGeneric', err.message));
+    }
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+// ---- GitHub Contents API ----
+// ملاحظة مهمة: الـ Contents API بيرجع محتوى الملف (base64) بس للملفات لغاية 1MB.
+// لو الملف أكبر من كده، الحقل content بيرجع فاضي (encoding: "none") والـ sha بس هو
+// اللي بيتضمن. عشان كده لازم نستخدم Git Blobs API (بيدعم لغاية 100MB) كـ fallback.
+async function ghGetFile(cfg){
+  const url = `https://api.github.com/repos/${encodeURIComponent(cfg.owner)}/${encodeURIComponent(cfg.repo)}/contents/${encodeURIComponent(cfg.path)}?ref=${encodeURIComponent(cfg.branch)}`;
+  const res = await fetch(url, {
+    headers: {
+      'Authorization': 'Bearer ' + cfg.token,
+      'Accept': 'application/vnd.github+json'
+    }
+  });
+  if (!res.ok){
+    const body = await res.text().catch(()=> '');
+    throw new Error(t('errGetFailed', res.status, body.slice(0,200)));
+  }
+  const data = await res.json();
+
+  let content = data.content;
+  let encoding = data.encoding;
+
+  // الملف أكبر من 1MB -> content هيكون فاضي وencoding هيكون "none". نجيب المحتوى
+  // الحقيقي عن طريق Git Blobs API باستخدام نفس الـ sha.
+  if (!content || encoding === 'none'){
+    if (!data.sha){
+      throw new Error(t('errLargeFileNoSha'));
+    }
+    const blobUrl = `https://api.github.com/repos/${encodeURIComponent(cfg.owner)}/${encodeURIComponent(cfg.repo)}/git/blobs/${data.sha}`;
+    const blobRes = await fetch(blobUrl, {
+      headers: {
+        'Authorization': 'Bearer ' + cfg.token,
+        'Accept': 'application/vnd.github+json'
+      }
+    });
+    if (!blobRes.ok){
+      const body = await blobRes.text().catch(()=> '');
+      throw new Error(t('errGetBlobFailed', blobRes.status, body.slice(0,200)));
+    }
+    const blobData = await blobRes.json();
+    content = blobData.content;
+  }
+
+  return { text: base64ToUtf8(content), sha: data.sha };
+}
+async function ghPutFile(cfg, newText, sha, message){
+  const url = `https://api.github.com/repos/${encodeURIComponent(cfg.owner)}/${encodeURIComponent(cfg.repo)}/contents/${encodeURIComponent(cfg.path)}`;
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Authorization': 'Bearer ' + cfg.token,
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      message: message,
+      content: utf8ToBase64(newText),
+      sha: sha,
+      branch: cfg.branch
+    })
+  });
+  if (!res.ok){
+    const body = await res.text().catch(()=> '');
+    throw new Error(t('errPutFailed', res.status, body.slice(0,300)));
+  }
+  return await res.json();
+}
+
+// Same request as ghPutFile, but via XMLHttpRequest instead of fetch() so
+// real upload-progress events are available (fetch has no upload-progress
+// API) — useful here since items.csv can be several MB and the PUT can
+// take a noticeable moment on a warehouse wifi connection.
+function ghPutFileWithProgress(cfg, newText, sha, message, onProgress){
+  return new Promise((resolve, reject) => {
+    const url = `https://api.github.com/repos/${encodeURIComponent(cfg.owner)}/${encodeURIComponent(cfg.repo)}/contents/${encodeURIComponent(cfg.path)}`;
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', url, true);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + cfg.token);
+    xhr.setRequestHeader('Accept', 'application/vnd.github+json');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    if (xhr.upload && onProgress){
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) onProgress(e.loaded, e.total);
+      };
+    }
+    xhr.onload = () => {
+      let body = {};
+      try { body = JSON.parse(xhr.responseText); } catch(e){}
+      if (xhr.status >= 200 && xhr.status < 300){
+        resolve(body);
+      } else {
+        reject(new Error(t('errPutFailed', xhr.status, xhr.responseText.slice(0,300))));
+      }
+    };
+    xhr.onerror = () => reject(new Error(t('errUploadNetwork')));
+    xhr.send(JSON.stringify({
+      message: message,
+      content: utf8ToBase64(newText),
+      sha: sha,
+      branch: cfg.branch
+    }));
+  });
+}
+
+async function testConnection(){
+  const cfg = ghConfig();
+  if (!cfg.owner || !cfg.repo || !cfg.token){
+    setStatus('connStatus', 'err', t('errFillOwnerRepoToken'));
+    return;
+  }
+  setStatus('connStatus', 'info', t('testingConn'));
+  try{
+    const { text } = await ghGetFile(cfg);
+    const { order } = parseItemsCSV(text);
+    saveSettingsIfRequested();
+    setStatus('connStatus', 'ok', t('connOk', order.length));
+  }catch(err){
+    setStatus('connStatus', 'err', t('errGeneric', err.message));
+  }
+}
+
+async function addSingleItem(){
+  const cfg = ghConfig();
+  const gtin = document.getElementById('singleGtin').value.trim();
+  const itemCode = document.getElementById('singleCode').value.trim();
+  const itemName = document.getElementById('singleName').value.trim();
+
+  if (!cfg.token){ setStatus('singleStatus', 'err', t('errNeedToken')); return; }
+  if (!gtin || !itemCode){ setStatus('singleStatus', 'err', t('errNeedGtinCode')); return; }
+
+  const btn = document.getElementById('addSingleBtn');
+  btn.disabled = true;
+  setStatus('singleStatus', 'info', t('readingFromGithub'));
+  try{
+    const { text, sha } = await ghGetFile(cfg);
+    const current = parseItemsCSV(text);
+    const wasExisting = gtin in current.map;
+    const { added, updated } = mergeItems(current, [{ gtin, itemCode, itemName }]);
+    const newText = serializeItemsCSV(current);
+
+    setStatus('singleStatus', 'info', t('savingToGithub'));
+    await ghPutFileWithProgress(cfg, newText, sha, `Add/update item ${gtin} via admin tool`,
+      (loaded, total) => {
+        const pct = Math.round((loaded / total) * 100);
+        setStatus('singleStatus', 'info', t('savingToGithubPct', pct, (loaded/1024/1024).toFixed(1), (total/1024/1024).toFixed(1)));
+      });
+
+    saveSettingsIfRequested();
+    setStatus('singleStatus', 'ok', wasExisting ? t('singleUpdated', gtin) : t('singleAdded', gtin));
+    document.getElementById('singleGtin').value = '';
+    document.getElementById('singleCode').value = '';
+    document.getElementById('singleName').value = '';
+  }catch(err){
+    setStatus('singleStatus', 'err', t('errGeneric', err.message));
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+let pendingMergeAdditions = null;
+let pendingMergeCurrent = null;
+let pendingMergeSha = null;
+
+function previewMergeFile(){
+  const fileInput = document.getElementById('mergeFile');
+  const wrap = document.getElementById('mergePreviewWrap');
+  const file = fileInput.files[0];
+  if (!file){ wrap.style.display = 'none'; return; }
+
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try{
+      const text = reader.result;
+      const parsed = parseItemsCSV(text);
+      const additions = parsed.order.map(gtin => ({ gtin, itemCode: parsed.map[gtin].itemCode, itemName: parsed.map[gtin].itemName }));
+      if (!additions.length){
+        setStatus('mergeStatus', 'err', t('errEmptyOrWrongFile'));
+        wrap.style.display = 'none';
+        return;
+      }
+
+      const cfg = ghConfig();
+      if (!cfg.token){
+        setStatus('mergeStatus', 'err', t('errNeedTokenCompare'));
+        wrap.style.display = 'none';
+        return;
+      }
+
+      setStatus('mergeStatus', 'info', t('comparingWithGithub'));
+      const { text: currentText, sha: currentSha } = await ghGetFile(cfg);
+      const current = parseItemsCSV(currentText);
+
+      let newCount = 0, updateCount = 0;
+      const rows = additions.map(a => {
+        const isUpdate = a.gtin in current.map;
+        if (isUpdate) updateCount++; else newCount++;
+        return { ...a, isUpdate };
+      });
+
+      pendingMergeAdditions = additions;
+      pendingMergeCurrent = current;
+      pendingMergeSha = currentSha;
+      document.getElementById('mergeSummary').textContent = t('mergeSummary', newCount, updateCount, current.order.length - updateCount);
+
+      const previewRows = rows.slice(0, 200).map(r =>
+        `<tr><td>${escapeHtmlAdmin(r.gtin)}</td><td>${escapeHtmlAdmin(r.itemCode)}</td><td>${escapeHtmlAdmin(r.itemName)}</td><td><span class="tag ${r.isUpdate ? 'update' : 'new'}">${r.isUpdate ? t('tagUpdate') : t('tagNew')}</span></td></tr>`
+      ).join('');
+      document.getElementById('mergePreview').innerHTML =
+        `<table><thead><tr><th>${t('previewColGtin')}</th><th>${t('previewColCode')}</th><th>${t('previewColName')}</th><th></th></tr></thead><tbody>${previewRows}</tbody></table>` +
+        (rows.length > 200 ? `<div class="hint" style="padding:6px 8px;">${t('moreRowsNote', rows.length - 200)}</div>` : '');
+      wrap.style.display = 'block';
+      setStatus('mergeStatus', 'info', t('reviewBeforeConfirmFile'));
+    }catch(err){
+      setStatus('mergeStatus', 'err', t('errGeneric', err.message));
+      wrap.style.display = 'none';
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+async function commitMerge(){
+  if (!pendingMergeAdditions || !pendingMergeAdditions.length) return;
+  const cfg = ghConfig();
+  const btn = document.getElementById('mergeBtn');
+  btn.disabled = true;
+  try{
+    let current, sha;
+    if (pendingMergeCurrent && pendingMergeSha){
+      // نفس النسخة اللي اتقرت وقت المعاينة — بيوفر تنزيلة تانية كاملة للملف (مهم جدًا مع ملف كبير زي ده)
+      current = pendingMergeCurrent;
+      sha = pendingMergeSha;
+    } else {
+      setStatus('mergeStatus', 'info', t('readingFromGithub'));
+      const fetched = await ghGetFile(cfg);
+      current = parseItemsCSV(fetched.text);
+      sha = fetched.sha;
+    }
+    const { added, updated } = mergeItems(current, pendingMergeAdditions);
+    const newText = serializeItemsCSV(current);
+
+    setStatus('mergeStatus', 'info', t('savingToGithub'));
+    await ghPutFileWithProgress(cfg, newText, sha, `Merge ${pendingMergeAdditions.length} items via admin tool (${added} new, ${updated} updated)`,
+      (loaded, total) => {
+        const pct = Math.round((loaded / total) * 100);
+        setStatus('mergeStatus', 'info', t('savingToGithubPct', pct, (loaded/1024/1024).toFixed(1), (total/1024/1024).toFixed(1)));
+      });
+
+    saveSettingsIfRequested();
+    setStatus('mergeStatus', 'ok', t('mergeDone', added, updated, current.order.length));
+    document.getElementById('mergePreviewWrap').style.display = 'none';
+    document.getElementById('mergeFile').value = '';
+    pendingMergeAdditions = null;
+    pendingMergeCurrent = null;
+    pendingMergeSha = null;
+  }catch(err){
+    pendingMergeCurrent = null;
+    pendingMergeSha = null;
+    if (String(err.message).includes('HTTP 409')){
+      setStatus('mergeStatus', 'err', t('errConflict'));
+    } else {
+      setStatus('mergeStatus', 'err', t('errGeneric', err.message));
+    }
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+
+// ---- FileUploade.csv manager ----
+const FU_PATH = 'FileUploade.csv';
+const FU_HEADERS = ['SheetNo.','PersonalName','Item Code','Item Name','Shelf Code','WhN','Typ','BT','Stock Indicator','Stock Removal','Stock Placement','Sto Location','Group No','Group Name','Sec','Empty'];
+const FU_PASTE_HEADERS = FU_HEADERS.slice(2); // Item Code ... Empty
+let fuPasteCount = 0, pendingFuPaste = null, pendingFuPasteCurrent = null, pendingFuPasteSha = null;
+let pendingFuFileRows = null, pendingFuFileCurrent = null, pendingFuFileSha = null;
+
+function switchFile(name){
+  document.querySelectorAll('.file-btn').forEach(b => b.classList.toggle('active', b.dataset.file === name));
+  document.querySelectorAll('.file-panel').forEach(p => p.classList.toggle('active', p.dataset.filePanel === name));
+  const path = document.getElementById('ghPath');
+  if (path) path.value = name === 'items' ? 'items.csv' : FU_PATH;
+}
+function switchFuTab(name){
+  document.querySelectorAll('.fu-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.fuTab === name));
+  document.querySelectorAll('.fu-panel').forEach(p => p.classList.toggle('active', p.dataset.fuPanel === name));
+  if(name === 'paste') prepareFuPasteBatch();
+}
+function generateFuSheetNo(existingText){
+  const used = new Set((existingText||'').split(/\r?\n/).slice(1).map(x => x.split(',')[0]?.trim()).filter(Boolean));
+  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let id='';
+  do { id=''; for(let i=0;i<10;i++) id += chars[Math.floor(Math.random()*chars.length)]; } while(used.has(id));
+  return id;
+}
+function fuRow(values={}){
+  fuPasteCount++;
+  const tr=document.createElement('tr');
+  const vals=FU_PASTE_HEADERS.map(h => values[h] || '');
+  tr.innerHTML='<td style="text-align:center;color:var(--muted);">'+fuPasteCount+'</td>'+FU_PASTE_HEADERS.map((h,i)=>'<td><input class="fu-cell" data-col="'+i+'" value="'+escapeHtmlAdmin(vals[i])+'"></td>').join('')+'<td><button type="button" class="rowDelBtn" onclick="this.closest(\'tr\').remove()">🗑</button></td>';
+  document.getElementById('fuPasteBody').appendChild(tr); return tr;
+}
+function addFuPasteRow(){fuRow();}
+function clearFuPasteTable(){document.getElementById('fuPasteBody').innerHTML='';fuPasteCount=0;for(let i=0;i<4;i++)addFuPasteRow();document.getElementById('fuPastePreviewWrap').style.display='none';pendingFuPaste=null;pendingFuPasteCurrent=null;pendingFuPasteSha=null;}
+function setFuRowCount(){const n=parseInt(document.getElementById('fuRowCount').value,10);if(!n||n<1){setStatus('fuPasteStatus','err','اكتب عدد صحيح أكبر من صفر.');return;}if(n>5000){setStatus('fuPasteStatus','err','الحد الأقصى 5000 سطر في المرة الواحدة.');return;}document.getElementById('fuPasteBody').innerHTML='';fuPasteCount=0;for(let i=0;i<n;i++)addFuPasteRow();setStatus('fuPasteStatus','info','تم إنشاء '+n+' سطر.');}
+document.getElementById('fuPasteBody').addEventListener('paste', function(e){
+  const active=document.activeElement;
+  if(!active || !active.classList.contains('fu-cell')) return;
+  const text=(e.clipboardData||window.clipboardData).getData('text');
+  if(!text) return;
+  e.preventDefault();
+  const grid=text.replace(/\r/g,'').split('\n').filter((r,i,a)=>!(i===a.length-1 && r==='')).map(r=>r.split('\t'));
+  const startTr=active.closest('tr');
+  const trs=()=>Array.from(document.querySelectorAll('#fuPasteBody tr'));
+  const startRow=trs().indexOf(startTr);
+  const startCol=parseInt(active.dataset.col,10);
+  grid.forEach((vals,ri)=>{
+    let rows=trs(); let idx=startRow+ri;
+    while(idx>=rows.length){addFuPasteRow();rows=trs();}
+    vals.forEach((v,ci)=>{
+      const col=startCol+ci; if(col>=FU_PASTE_HEADERS.length) return;
+      const input=rows[idx].querySelector('[data-col="'+col+'"]');
+      if(input) input.value=v.trim();
+    });
+  });
+});
+function collectFuRows(){return Array.from(document.querySelectorAll('#fuPasteBody tr')).map(tr=>{const o={};FU_PASTE_HEADERS.forEach((h,i)=>o[h]=tr.querySelector('[data-col="'+i+'"]').value.trim());return o;}).filter(r=>FU_PASTE_HEADERS.slice(0,13).some(h=>r[h]));}
+function sanitizeFu(v){return String(v??'').replace(/,/g,' ').replace(/[\r\n]+/g,' ').trim();}
+function parseFuCSV(text){const lines=text.split(/\r?\n/).filter(x=>x.trim());if(!lines.length)return[];const hdr=lines[0].split(',').map(x=>x.trim().toLowerCase());const idx={};FU_HEADERS.forEach(h=>idx[h.toLowerCase()]=hdr.indexOf(h.toLowerCase()));return lines.slice(1).map(line=>{const p=line.split(',');const o={};FU_HEADERS.forEach(h=>{const j=idx[h.toLowerCase()];o[h]=j>=0?(p[j]||'').trim():'';});return o;}).filter(r=>FU_HEADERS.slice(0,15).some(h=>r[h]));}
+function serializeFuCSV(rows){return FU_HEADERS.join(',')+'\r\n'+rows.map(r=>FU_HEADERS.map(h=>sanitizeFu(r[h])).join(',')).join('\r\n')+'\r\n';}
+function fuCurrentRows(text){return parseFuCSV(text);}
+async function getFuCurrent(){const cfg=ghConfig();cfg.path=FU_PATH;const x=await ghGetFile(cfg);document.getElementById('ghPath').value=FU_PATH;return x;}
+async function saveFuRows(rows, sha, message, statusId, btn){const cfg=ghConfig();cfg.path=FU_PATH;setStatus(statusId,'info',t('savingToGithub'));await ghPutFileWithProgress(cfg,serializeFuCSV(rows),sha,message,(loaded,total)=>{if(total)setStatus(statusId,'info',t('savingToGithubPct',Math.round(loaded/total*100),(loaded/1024/1024).toFixed(1),(total/1024/1024).toFixed(1)));});saveSettingsIfRequested();}
+function fillFuBatch(rows,sheetNo,personalName){return rows.map(r=>({...r,'SheetNo.':sheetNo,PersonalName:personalName}));}
+async function prepareFuPasteBatch(){
+  try{
+    const {text}=await getFuCurrent();
+    const el=document.getElementById('fuPasteSheetNo');
+    if(el && !el.value) el.value=generateFuSheetNo(text);
+  }catch(e){}
+}
+async function saveFuSingle(){
+  const btn=document.getElementById('fuSingleSaveBtn');btn.disabled=true;
+  try{
+    const {text,sha}=await getFuCurrent();
+    const r={};
+    const map={PersonalName:'fuSinglePersonalName','Item Code':'fuSingleItemCode','Item Name':'fuSingleItemName','Shelf Code':'fuSingleShelfCode',WhN:'fuSingleWhN',Typ:'fuSingleTyp',BT:'fuSingleBT','Stock Indicator':'fuSingleStockIndicator','Stock Removal':'fuSingleStockRemoval','Stock Placement':'fuSingleStockPlacement','Sto Location':'fuSingleStoLocation','Group No':'fuSingleGroupNo','Group Name':'fuSingleGroupName',Sec:'fuSingleSec',Empty:'fuSingleEmpty'};
+    Object.entries(map).forEach(([h,id])=>{const el=document.getElementById(id);if(el)r[h]=el.value.trim();});
+    if(!r['Item Code']&&!r['Item Name']){setStatus('fuSingleStatus','err','اكتب على الأقل Item Code أو Item Name.');return;}
+    const sheetNo=generateFuSheetNo(text); r['SheetNo.']=sheetNo;
+    await saveFuRows([...fuCurrentRows(text),r],sha,'Add FileUploade record '+sheetNo,'fuSingleStatus',btn);
+    document.getElementById('fuSingleSheetNo').value=sheetNo;setStatus('fuSingleStatus','ok','تمت الإضافة بنجاح. SheetNo. = '+sheetNo);
+  }catch(e){setStatus('fuSingleStatus','err',t('errGeneric',e.message));}finally{btn.disabled=false;}
+}
+async function previewFuPaste(){
+  const rows=collectFuRows();
+  const personalName=document.getElementById('fuPastePersonalName').value.trim();
+  if(!rows.length){setStatus('fuPasteStatus','err','اكتب صفًا واحدًا على الأقل.');return;}
+  if(!personalName){setStatus('fuPasteStatus','err','اكتب PersonalName مرة واحدة للرمية.');return;}
+  try{
+    setStatus('fuPasteStatus','info',t('comparingWithGithub'));
+    const {text,sha}=await getFuCurrent();
+    const sheetNo=document.getElementById('fuPasteSheetNo').value.trim() || generateFuSheetNo(text);
+    document.getElementById('fuPasteSheetNo').value=sheetNo;
+    const finalRows=fillFuBatch(rows,sheetNo,personalName);
+    pendingFuPaste={rows:finalRows,id:sheetNo};pendingFuPasteCurrent=fuCurrentRows(text);pendingFuPasteSha=sha;
+    document.getElementById('fuPasteSummary').textContent='سيتم رفع '+rows.length+' صف. SheetNo. للرمية = '+sheetNo+' | PersonalName = '+personalName;
+    document.getElementById('fuPastePreview').innerHTML='<table id="fuPreviewTable"><thead><tr>'+FU_HEADERS.map(h=>'<th>'+escapeHtmlAdmin(h)+'</th>').join('')+'</tr></thead><tbody>'+finalRows.slice(0,100).map(r=>'<tr>'+FU_HEADERS.map(h=>'<td>'+escapeHtmlAdmin(r[h])+'</td>').join('')+'</tr>').join('')+'</tbody></table>'+(finalRows.length>100?'<div class="hint" style="padding:6px 8px;">يتم عرض أول 100 صف فقط في المعاينة.</div>':'');
+    document.getElementById('fuPastePreviewWrap').style.display='block';setStatus('fuPasteStatus','info','راجع المعاينة ثم أكد الرفع.');
+  }catch(e){setStatus('fuPasteStatus','err',t('errGeneric',e.message));}
+}
+async function commitFuPaste(){if(!pendingFuPaste)return;const btn=document.getElementById('fuPasteConfirmBtn');btn.disabled=true;try{await saveFuRows([...pendingFuPasteCurrent,...pendingFuPaste.rows],pendingFuPasteSha,'Append '+pendingFuPaste.rows.length+' FileUploade records ('+pendingFuPaste.id+')','fuPasteStatus',btn);setStatus('fuPasteStatus','ok','تم الرفع بنجاح. SheetNo. = '+pendingFuPaste.id);clearFuPasteTable();document.getElementById('fuPastePersonalName').value='';document.getElementById('fuPasteSheetNo').value='';}catch(e){setStatus('fuPasteStatus','err',t('errGeneric',e.message));}finally{btn.disabled=false;}}
+async function previewFuFile(){const f=document.getElementById('fuMergeFile').files[0];const wrap=document.getElementById('fuFilePreviewWrap');if(!f){wrap.style.display='none';return;}const text=await f.text();const rows=parseFuCSV(text);if(!rows.length){setStatus('fuFileStatus','err','الملف فارغ أو الأعمدة غير صحيحة.');wrap.style.display='none';return;}try{setStatus('fuFileStatus','info',t('comparingWithGithub'));const cur=await getFuCurrent();const id=generateFuSheetNo(cur.text);const personalName=prompt('اكتب PersonalName للرمية:','')||'';if(!personalName.trim()){setStatus('fuFileStatus','err','يجب كتابة PersonalName.');wrap.style.display='none';return;}const finalRows=fillFuBatch(rows,id,personalName.trim());pendingFuFileRows=finalRows;pendingFuFileCurrent=fuCurrentRows(cur.text);pendingFuFileSha=cur.sha;document.getElementById('fuFileSummary').textContent='سيتم رفع '+rows.length+' صف. SheetNo. = '+id+' | PersonalName = '+personalName.trim();document.getElementById('fuFilePreview').innerHTML='<table id="fuPreviewTable"><thead><tr>'+FU_HEADERS.map(h=>'<th>'+escapeHtmlAdmin(h)+'</th>').join('')+'</tr></thead><tbody>'+finalRows.slice(0,100).map(r=>'<tr>'+FU_HEADERS.map(h=>'<td>'+escapeHtmlAdmin(r[h])+'</td>').join('')+'</tr>').join('')+'</tbody></table>'+(finalRows.length>100?'<div class="hint" style="padding:6px 8px;">يتم عرض أول 100 صف فقط في المعاينة.</div>':'');wrap.style.display='block';setStatus('fuFileStatus','info','راجع المعاينة ثم أكد الرفع.');}catch(e){setStatus('fuFileStatus','err',t('errGeneric',e.message));wrap.style.display='none';}}
+async function commitFuFile(){if(!pendingFuFileRows)return;const btn=document.getElementById('fuFileConfirmBtn');btn.disabled=true;try{await saveFuRows([...pendingFuFileCurrent,...pendingFuFileRows],pendingFuFileSha,'Append '+pendingFuFileRows.length+' FileUploade records ('+pendingFuFileRows[0]['SheetNo.']+')','fuFileStatus',btn);setStatus('fuFileStatus','ok','تم الرفع بنجاح. SheetNo. = '+pendingFuFileRows[0]['SheetNo.']);document.getElementById('fuFilePreviewWrap').style.display='none';document.getElementById('fuMergeFile').value='';pendingFuFileRows=null;pendingFuFileCurrent=null;pendingFuFileSha=null;}catch(e){setStatus('fuFileStatus','err',t('errGeneric',e.message));}finally{btn.disabled=false;}}
+clearFuPasteTable();
+
+function escapeHtmlAdmin(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+</script>
+</body>
+</html>

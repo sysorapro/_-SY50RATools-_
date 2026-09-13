@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GitHub Token Encryptor</title>
+<style>
+  body{font-family:Arial,sans-serif;background:#f4f6f8;margin:0;padding:24px;color:#1f2937}
+  .box{max-width:720px;margin:auto;background:#fff;border-radius:16px;padding:24px;box-shadow:0 8px 30px rgba(0,0,0,.08)}
+  h1{margin-top:0}.note{background:#fff7ed;padding:12px;border-radius:10px;line-height:1.7}
+  label{display:block;font-weight:700;margin:16px 0 7px}
+  input,textarea{width:100%;box-sizing:border-box;padding:12px;border:1px solid #d1d5db;border-radius:10px;font-size:15px}
+  button{margin-top:16px;padding:12px 18px;border:0;border-radius:10px;background:#111827;color:#fff;font-weight:700;cursor:pointer}
+  textarea{min-height:90px;font-family:Consolas,monospace;direction:ltr;text-align:left}
+  .result{display:none;margin-top:20px}
+  .ok{color:#166534;font-weight:700}
+  .small{font-size:13px;color:#6b7280;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>GitHub Token Encryptor</h1>
+  <div class="note">
+    الأداة دي تستخدم نفس طريقة التشفير الموجودة في برنامج Warehouse Scanner:
+    <b>AES-GCM + SHA-256</b> مع نفس مفتاح الاشتقاق الموجود داخل البرنامج.
+  </div>
+
+  <label>GitHub Personal Access Token</label>
+  <input id="token" type="password" autocomplete="off" placeholder="github_pat_... أو ghp_...">
+
+  <button onclick="encryptToken()">تشفير التوكن</button>
+
+  <div id="result" class="result">
+    <div class="ok">تم التشفير بنجاح</div>
+
+    <label>encryptedToken</label>
+    <textarea id="enc" readonly></textarea>
+
+    <label>iv</label>
+    <textarea id="iv" readonly></textarea>
+
+    <div class="small">
+      انسخ القيمتين كما هما إلى ملف index_with_users_login.html.
+    </div>
+  </div>
+</div>
+
+<script>
+const WH_GITHUB_KEY_PARTS=[
+  ['W','H','_','2','0','2','6'].join(''),
+  ['S','c','a','n','n','e','r'].join(''),
+  ['_','D','i','r','e','c','t'].join(''),
+  ['_','G','i','t','H','u','b'].join(''),
+  ['_','A','E','S','G','C','M'].join(''),
+  ['_','K','3','Y'].join('')
+];
+
+function whGitHubKeyMaterial(){
+  const a=WH_GITHUB_KEY_PARTS;
+  return [a[2],a[0],a[5],a[1],a[4],a[3]].join('|')+'|'+
+         ['W','a','r','e','h','o','u','s','e'].reverse().join('');
+}
+
+function bytesToBase64(bytes){
+  let out='',chunk=0x8000;
+  for(let i=0;i<bytes.length;i+=chunk){
+    const part=bytes.subarray(i,Math.min(i+chunk,bytes.length));
+    out+=String.fromCharCode.apply(null,part);
+  }
+  return btoa(out);
+}
+
+async function whGitHubCryptoKey(){
+  const material=new TextEncoder().encode(whGitHubKeyMaterial());
+  const hash=await crypto.subtle.digest('SHA-256',material);
+  return crypto.subtle.importKey('raw',hash,{name:'AES-GCM'},false,['encrypt']);
+}
+
+async function encryptToken(){
+  const token=document.getElementById('token').value.trim();
+  if(!token){
+    alert('اكتب التوكن أولاً');
+    return;
+  }
+
+  if(!/^github_pat_[A-Za-z0-9_]+$/.test(token) && !/^ghp_[A-Za-z0-9]+$/.test(token)){
+    alert('صيغة GitHub Token غير صحيحة');
+    return;
+  }
+
+  try{
+    const key=await whGitHubCryptoKey();
+
+    // Same IV size used by the decryptor: 12 bytes.
+    const iv=crypto.getRandomValues(new Uint8Array(12));
+
+    const data=await crypto.subtle.encrypt(
+      {name:'AES-GCM',iv},
+      key,
+      new TextEncoder().encode(token)
+    );
+
+    document.getElementById('enc').value=bytesToBase64(new Uint8Array(data));
+    document.getElementById('iv').value=bytesToBase64(iv);
+    document.getElementById('result').style.display='block';
+  }catch(e){
+    alert('حدث خطأ أثناء التشفير: '+e.message);
+  }
+}
+</script>
+</body>
+</html>
