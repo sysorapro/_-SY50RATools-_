@@ -119,6 +119,7 @@
 .data-table th:nth-child(8), .data-table td:nth-child(8) { min-width: 150px; } /* PersonalName */
 .data-table th:nth-child(9), .data-table td:nth-child(9) { min-width: 105px; } /* Date */
 .data-table th:nth-child(10), .data-table td:nth-child(10) { min-width: 90px; } /* Time */
+.data-table th:nth-child(11), .data-table td:nth-child(11) { min-width: 90px; } /* Deletion */
 
 .data-table td input {
   box-sizing: border-box;
@@ -455,7 +456,7 @@ html[data-theme="light"] .side-control-panel .control-btn:hover,html[data-theme=
       </div>
       <div class="action-row"><button class="btn-secondary" onclick="loadFile()">🔄 تحميل البيانات</button><button class="btn-secondary" onclick="selectAll('file')">☑️ تحديد الكل</button></div>
       <button class="btn-primary" style="background:var(--red);color:#fff" onclick="deleteSelected('file')">🗑 حذف المحدد</button>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0"><button class="btn-primary" type="button" onclick="saveAllFile()" style="width:auto;margin-top:0">💾 حفظ مجمع</button><button class="btn-secondary" type="button" onclick="resetSelectedFile()" style="width:auto;margin-top:0">↻ Reset المحدد</button></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin:12px 0"><button class="btn-primary" type="button" onclick="saveAllFile()" style="width:auto;margin-top:0">💾 حفظ مجمع</button><button class="btn-secondary" type="button" onclick="resetSelectedFile()" style="width:auto;margin-top:0">↻ Reset المحدد</button><button class="btn-secondary" type="button" onclick="markSheetDeletionOK()" style="width:auto;margin-top:0">🗑 OK لـ SheetNo. المحدد</button></div>
       <div id="fileTable" class="data-table-wrap"></div>
     </div>
   </div>
@@ -496,7 +497,7 @@ html[data-theme="light"] .side-control-panel .control-btn:hover,html[data-theme=
 
 <script>
 const FILE='FileUploade.csv',USERS='users.csv';
-const FH=['Department','SheetNo.','SheetName','Item Code','Item Name','Trans.Status','PersonalName','Trans.Date','Trans.Time'];
+const FH=['Department','SheetNo.','SheetName','Item Code','Item Name','Trans.Status','PersonalName','Trans.Date','Trans.Time','Deletion'];
 const UH=['UserName','Employee Name','Department','Job Titel','Password','Status','Type'];
 let fr=[],ur=[],fsha='',usha='';
 
@@ -581,14 +582,14 @@ async function loadFile(){try{let x=await get(FILE);fr=x.rows;fsha=x.sha;renderF
 async function loadUsers(){try{let x=await get(USERS);ur=x.rows;usha=x.sha;renderUsers();show('actionStatus','تم تحميل users.csv — '+ur.length+' مستخدم','ok')}catch(e){show('actionStatus','خطأ: '+e.message,'err')}}
 function generateSheetNo(){const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';let v='';do{v='';for(let i=0;i<10;i++)v+=chars[Math.floor(Math.random()*chars.length)]}while(fr.some(r=>String(r['SheetNo.']??'')===v));return v}
 function refreshGeneratedSheetNo(){const x=generateSheetNo();const a=document.getElementById('fSheetNo');const b=document.getElementById('pSheetNo');if(a)a.value=x;if(b)b.value=x}
-function addFile(){let o={};o.Department=fDepartment.value.trim();o['SheetNo.']=fSheetNo.value.trim()||generateSheetNo();o.SheetName=fSheetName.value.trim();o['Item Code']=fItemCode.value.trim();o['Item Name']=fItemName.value.trim();o['Trans.Status']=fStatus.value.trim();o.PersonalName=fPersonal.value.trim();o['Trans.Date']=fDate.value.trim();o['Trans.Time']=fTime.value.trim();if(!o.Department)return alert('Department مطلوب');if(!o.SheetName)return alert('SheetName مطلوب');if(!o['Item Code'])return alert('Item Code مطلوب');fr.push(o);saveFile('إضافة سجل إلى FileUploade.csv','fileAddStatus')}
+function addFile(){let o={};o.Department=fDepartment.value.trim();o['SheetNo.']=fSheetNo.value.trim()||generateSheetNo();o.SheetName=fSheetName.value.trim();o['Item Code']=fItemCode.value.trim();o['Item Name']=fItemName.value.trim();o['Trans.Status']=fStatus.value.trim();o.PersonalName=fPersonal.value.trim();o['Trans.Date']=fDate.value.trim();o['Trans.Time']=fTime.value.trim();o.Deletion='';if(!o.Department)return alert('Department مطلوب');if(!o.SheetName)return alert('SheetName مطلوب');if(!o['Item Code'])return alert('Item Code مطلوب');fr.push(o);saveFile('إضافة سجل إلى FileUploade.csv','fileAddStatus')}
 async function saveFile(m,s){try{let x=await put(FILE,fr,FH,fsha,m);fsha=x.content.sha;show(s,'تم الحفظ على GitHub بنجاح','ok');refreshGeneratedSheetNo()}catch(e){show(s,'خطأ: '+e.message,'err')}}
 function addUser(){let ids=['uUser','uEmployee','uDepartment','uJob','uPassword','uStatus','uType'],o={};UH.forEach((h,i)=>o[h]=document.getElementById(ids[i]).value.trim());o.Password='00000';document.getElementById('uPassword').value='00000';if(!o.UserName)return alert('UserName مطلوب');ur.push(o);saveUsers('إضافة مستخدم إلى users.csv','userAddStatus')}
 async function saveUsers(m,s){try{const latest=await get(USERS);const latestRows=latest.rows||[];const newUser=ur[ur.length-1];if(!newUser)throw Error('بيانات المستخدم غير موجودة');const key=v=>String(v??'').trim().toLowerCase();const idx=latestRows.findIndex(r=>key(r.UserName)===key(newUser.UserName));if(idx>=0)latestRows[idx]=newUser;else latestRows.push(newUser);const x=await put(USERS,latestRows,UH,latest.sha,m);ur=latestRows;usha=x.content.sha;renderUsers();show(s,'تم الحفظ على GitHub بنجاح','ok')}catch(e){show(s,'خطأ: '+e.message,'err')}}
 function addPasteRow(data={}){let tr=document.createElement('tr');let n=document.querySelectorAll('#pasteBody tr').length+1;const PH=['Item Code','Item Name','Trans.Status','PersonalName','Trans.Date','Trans.Time'];tr.innerHTML='<td>'+n+'</td>'+PH.map(h=>'<td><input data-h="'+h.replace(/"/g,'&quot;')+'" value="'+String(data[h]||'').replace(/"/g,'&quot;')+'"></td>').join('')+'<td><button class="rowDelBtn" onclick="this.closest(\'tr\').remove()">✕</button></td>';document.getElementById('pasteBody').appendChild(tr)}
 document.getElementById('pasteTable').addEventListener('paste',e=>{let txt=e.clipboardData.getData('text/plain');if(!txt.includes('\t'))return;e.preventDefault();clearPaste();txt.trim().split(/\r?\n/).forEach(line=>{let c=line.split('\t'),o={};['Item Code','Item Name','Trans.Status','PersonalName','Trans.Date','Trans.Time'].forEach((h,i)=>o[h]=(c[i]||'').trim());addPasteRow(o)})})
 function clearPaste(){document.getElementById('pasteBody').innerHTML=''}
-async function savePaste(){let dep=pDepartment.value.trim(),sn=pSheetNo.value.trim()||generateSheetNo(),name=pSheetName.value.trim();if(!dep)return alert('Department مطلوب');if(!name)return alert('SheetName مطلوب');let rows=[...document.querySelectorAll('#pasteBody tr')].map(tr=>{let o={};tr.querySelectorAll('input').forEach(i=>o[i.dataset.h]=i.value.trim());o.Department=dep;o['SheetNo.']=sn;o.SheetName=name;return o}).filter(o=>o['Item Code']||o['Item Name']||o['Trans.Status']||o.PersonalName||o['Trans.Date']||o['Trans.Time']);if(!rows.length)return alert('لا توجد بيانات');fr.push(...rows);await saveFile('Paste data into FileUploade.csv','pasteStatus');clearPaste();refreshGeneratedSheetNo()}
+async function savePaste(){let dep=pDepartment.value.trim(),sn=pSheetNo.value.trim()||generateSheetNo(),name=pSheetName.value.trim();if(!dep)return alert('Department مطلوب');if(!name)return alert('SheetName مطلوب');let rows=[...document.querySelectorAll('#pasteBody tr')].map(tr=>{let o={};tr.querySelectorAll('input').forEach(i=>o[i.dataset.h]=i.value.trim());o.Department=dep;o['SheetNo.']=sn;o.SheetName=name;o.Deletion='';return o}).filter(o=>o['Item Code']||o['Item Name']||o['Trans.Status']||o.PersonalName||o['Trans.Date']||o['Trans.Time']);if(!rows.length)return alert('لا توجد بيانات');fr.push(...rows);await saveFile('Paste data into FileUploade.csv','pasteStatus');clearPaste();refreshGeneratedSheetNo()}
 function uniqueValues(rows,key){return [...new Set(rows.map(r=>String(r[key]??'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true,sensitivity:'base'}))}
 function fillFilter(id,values){const el=document.getElementById(id);if(!el)return;const old=el.value;el.innerHTML='<option value="">الكل</option>'+values.map(v=>'<option value="'+String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')+'">'+String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</option>').join('');if(values.includes(old))el.value=old;}
 function refreshFileFilters(){fillFilter('qDepartment',uniqueValues(fr,'Department'));fillFilter('qSheetNo',uniqueValues(fr,'SheetNo.'));fillFilter('qItemCode',uniqueValues(fr,'Item Code'));fillFilter('qStatus',uniqueValues(fr,'Trans.Status'))}
@@ -680,32 +681,64 @@ async function saveAllFile(){
     show('actionStatus','تم حفظ جميع تعديلات FileUploade بنجاح','ok');
   }catch(e){show('actionStatus','خطأ أثناء الحفظ المجمع: '+e.message,'err')}
 }
+async function markSheetDeletionOK(){
+  const sheetNo=String(document.getElementById('qSheetNo')?.value||'').trim();
+  if(!sheetNo)return alert('اختر SheetNo. محدد أولاً');
+  try{
+    const latest=await get(FILE);
+    fr=latest.rows;
+    fsha=latest.sha;
+    const matched=fr.filter(r=>String(r['SheetNo.']??'').trim()===sheetNo);
+    if(!matched.length)return alert('لا توجد سجلات لهذا SheetNo.');
+    matched.forEach(r=>{r.Deletion='OK'});
+    let x=await put(FILE,fr,FH,fsha,'Mark Deletion OK for SheetNo. '+sheetNo);
+    fsha=x.content.sha;
+    renderFile();
+    const q=document.getElementById('qSheetNo');if(q)q.value=sheetNo;
+    show('actionStatus','تم تحديث Deletion إلى OK مباشرة لـ SheetNo. '+sheetNo+' فقط وحفظ التعديل بنجاح','ok');
+  }catch(e){
+    show('actionStatus','خطأ أثناء تحديث Deletion: '+e.message,'err');
+  }
+}
+
 async function resetFileRow(i){
   if(!fr[i])return;
   sync('file',i);
-  if(!confirm('سيتم مسح Trans.Status و PersonalName و Trans.Date و Trans.Time لهذا السجل وحفظ التعديل على FileUploade.csv. هل تريد المتابعة؟'))return;
   try{
+    const latest=await get(FILE);
+    fr=latest.rows;
+    fsha=latest.sha;
+    if(!fr[i])return;
     fr[i]['Trans.Status']='';
     fr[i]['PersonalName']='';
     fr[i]['Trans.Date']='';
     fr[i]['Trans.Time']='';
+    fr[i]['Deletion']='';
     let x=await put(FILE,fr,FH,fsha,'Reset FileUploade record');
     fsha=x.content.sha;
     renderFile();
-    show('actionStatus','تم Reset السجل ومسح الحقول الأربعة وحفظ FileUploade.csv بنجاح','ok');
+    show('actionStatus','تم Reset السجل ومسح Trans.Status و PersonalName و Trans.Date و Trans.Time و Deletion وحفظ التعديل مباشرة','ok');
   }catch(e){show('actionStatus','خطأ أثناء Reset: '+e.message,'err')}
 }
 async function resetSelectedFile(){
   const ids=[...document.querySelectorAll('.sel-file:checked')].map(x=>+x.dataset.i);
   if(!ids.length)return alert('اختر السجلات أولاً');
-  ids.forEach(i=>sync('file',i));
-  if(!confirm('سيتم مسح Trans.Status و PersonalName و Trans.Date و Trans.Time للسجلات المحددة وحفظ التعديل على FileUploade.csv. هل تريد المتابعة؟'))return;
   try{
-    ids.forEach(i=>{if(!fr[i])return;fr[i]['Trans.Status']='';fr[i]['PersonalName']='';fr[i]['Trans.Date']='';fr[i]['Trans.Time']=''});
+    const latest=await get(FILE);
+    fr=latest.rows;
+    fsha=latest.sha;
+    ids.forEach(i=>{
+      if(!fr[i])return;
+      fr[i]['Trans.Status']='';
+      fr[i]['PersonalName']='';
+      fr[i]['Trans.Date']='';
+      fr[i]['Trans.Time']='';
+      fr[i]['Deletion']='';
+    });
     let x=await put(FILE,fr,FH,fsha,'Reset FileUploade records');
     fsha=x.content.sha;
     renderFile();
-    show('actionStatus','تم Reset السجلات المحددة ومسح الحقول الأربعة وحفظ FileUploade.csv بنجاح','ok');
+    show('actionStatus','تم Reset السجلات المحددة ومسح الحقول الأربعة و Deletion وحفظ التعديل مباشرة','ok');
   }catch(e){show('actionStatus','خطأ أثناء Reset: '+e.message,'err')}
 }
 function toggleVisible(type,cb){document.querySelectorAll('.sel-'+type).forEach(x=>x.checked=cb.checked)}
