@@ -1,6 +1,6 @@
-const CACHE_NAME = "sysora-tools-v2";
+const CACHE_NAME = "sysora-tools-v3";
 
-const URLS_TO_CACHE = [
+const APP_FILES = [
     "./",
     "./index.html",
     "./manifest.json",
@@ -8,54 +8,61 @@ const URLS_TO_CACHE = [
     "./icon-512.png"
 ];
 
-self.addEventListener("install", event => {
+self.addEventListener("install", function (event) {
     event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-            return cache.addAll(URLS_TO_CACHE);
+        caches.open(CACHE_NAME).then(function (cache) {
+            return cache.addAll(APP_FILES);
         })
     );
-
-    self.skipWaiting();
 });
 
-self.addEventListener("activate", event => {
+self.addEventListener("activate", function (event) {
     event.waitUntil(
-        caches.keys().then(cacheNames => {
+        caches.keys().then(function (cacheNames) {
             return Promise.all(
-                cacheNames
-                    .filter(name => name !== CACHE_NAME)
-                    .map(name => caches.delete(name))
+                cacheNames.map(function (cacheName) {
+                    if (cacheName !== CACHE_NAME) {
+                        return caches.delete(cacheName);
+                    }
+                })
             );
         })
     );
-
-    self.clients.claim();
 });
 
-self.addEventListener("fetch", event => {
+self.addEventListener("fetch", function (event) {
+    if (event.request.method !== "GET") {
+        return;
+    }
+
     event.respondWith(
-        caches.match(event.request).then(cachedResponse => {
+        caches.match(event.request).then(function (cachedResponse) {
             if (cachedResponse) {
                 return cachedResponse;
             }
 
-            return fetch(event.request).then(networkResponse => {
-                if (
-                    !networkResponse ||
-                    networkResponse.status !== 200 ||
-                    networkResponse.type !== "basic"
-                ) {
-                    return networkResponse;
+            return fetch(event.request).then(function (response) {
+
+                if (!response || response.status !== 200) {
+                    return response;
                 }
 
-                const responseToCache = networkResponse.clone();
+                var responseClone = response.clone();
 
-                caches.open(CACHE_NAME).then(cache => {
-                    cache.put(event.request, responseToCache);
+                caches.open(CACHE_NAME).then(function (cache) {
+                    cache.put(event.request, responseClone);
                 });
 
-                return networkResponse;
+                return response;
+            }).catch(function () {
+                return caches.match("./index.html");
             });
         })
     );
+});
+
+self.addEventListener("message", function (event) {
+    if (event.data === "SKIP_WAITING") {
+        self.skipWaiting();
+    }
 });
