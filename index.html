@@ -414,5 +414,18 @@ setLanguage(localStorage.getItem('sy50ra-lang') || 'en');
 <script>
 function closeControls(){ document.body.classList.remove('controls-open'); }
 </script>
+  <script>
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./sw.js")
+            .then(function () {
+                console.log("SYSORA Service Worker registered");
+            })
+            .catch(function (error) {
+                console.error("Service Worker registration failed:", error);
+            });
+    });
+}
+</script>
 </body>
 </html>
