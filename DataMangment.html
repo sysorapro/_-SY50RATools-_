@@ -542,7 +542,7 @@ function loadSettings(){
   }catch(e){localStorage.removeItem(SETTINGS_KEY)}
 }
 function cfg(){return{owner:ghOwner.value.trim(),repo:ghRepo.value.trim(),branch:ghBranch.value.trim()||'main',token:ghToken.value.trim()}}
-function H(){let h={'Accept':'application/vnd.github+json'};if(cfg().token)h.Authorization='Bearer '+cfg().token;return h}
+function H(){let h={'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};if(cfg().token)h.Authorization='Bearer '+cfg().token;return h}
 function show(id,t,c='info'){const x=document.getElementById(id);x.textContent=t;x.className='status show '+c}
 function enc(s){const b=new TextEncoder().encode(s);let x='';b.forEach(v=>x+=String.fromCharCode(v));return btoa(x)}
 function dec(s){const x=atob(s.replace(/\n/g,''));return new TextDecoder().decode(Uint8Array.from(x,c=>c.charCodeAt(0)))}
@@ -575,21 +575,170 @@ function parseCSV(t){
 }
 function ce(v){v=String(v??'');return /[",\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
 function csv(rows,h){return h.join(',')+'\r\n'+rows.map(r=>h.map(k=>ce(r[k])).join(',')).join('\r\n')+'\r\n'}
-async function get(path){let u=`https://api.github.com/repos/${encodeURIComponent(cfg().owner)}/${encodeURIComponent(cfg().repo)}/contents/${path}?ref=${encodeURIComponent(cfg().branch)}`;let r=await fetch(u,{headers:H()});if(!r.ok)throw Error(await r.text());let j=await r.json();return{rows:parseCSV(dec(j.content)),sha:j.sha}}
-async function put(path,rows,h,sha,message){let u=`https://api.github.com/repos/${encodeURIComponent(cfg().owner)}/${encodeURIComponent(cfg().repo)}/contents/${path}`;let r=await fetch(u,{method:'PUT',headers:{...H(),'Content-Type':'application/json'},body:JSON.stringify({message,content:enc(csv(rows,h)),branch:cfg().branch,sha})});if(!r.ok)throw Error(await r.text());return r.json()}
+function apiError(e,action='الاتصال بـ GitHub'){
+  if(e instanceof TypeError || String(e?.message||e).toLowerCase().includes('failed to fetch')){
+    return new Error('تعذر الاتصال بـ GitHub. تأكد من الإنترنت ومن أن الصفحة مفتوحة من HTTPS، ثم اضغط اختبار الاتصال. إذا كان اختبار الاتصال يعمل، جرّب الحفظ مرة أخرى.');
+  }
+  return e;
+}
+async function get(path){
+  const c=cfg();
+  if(!c.owner||!c.repo)throw Error('أدخل Owner و Repository أولاً');
+  const u=`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(c.branch)}&_=${Date.now()}`;
+  try{
+    const r=await fetch(u,{method:'GET',headers:H(),cache:'no-store'});
+    const text=await r.text();
+    if(!r.ok)throw Error(text||('HTTP '+r.status));
+    const j=JSON.parse(text);
+    if(!j.content||!j.sha)throw Error('لم يتم استلام بيانات الملف أو SHA من GitHub');
+    return{rows:parseCSV(dec(j.content)),sha:j.sha};
+  }catch(e){throw apiError(e,'قراءة الملف')}
+}
+async function put(path,rows,h,sha,message){
+  const c=cfg();
+  if(!c.owner||!c.repo)throw Error('أدخل Owner و Repository أولاً');
+  if(!sha)throw Error('SHA الخاص بالملف غير موجود. أعد تحميل البيانات ثم حاول الحفظ.');
+  const u=`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${encodeURIComponent(path)}`;
+  try{
+    const r=await fetch(u,{
+      method:'PUT',
+      headers:{...H(),'Content-Type':'application/json'},
+      body:JSON.stringify({message,content:enc(csv(rows,h)),branch:c.branch,sha})
+    });
+    const text=await r.text();
+    if(!r.ok)throw Error(text||('HTTP '+r.status));
+    return JSON.parse(text);
+  }catch(e){throw apiError(e,'حفظ الملف')}
+}
+
 async function testConnection(){try{let r=await fetch(`https://api.github.com/repos/${cfg().owner}/${cfg().repo}`,{headers:H()});if(!r.ok)throw Error(await r.text());show('connStatus','تم الاتصال بـ GitHub بنجاح','ok')}catch(e){show('connStatus','فشل الاتصال: '+e.message,'err')}}
 async function loadFile(){try{let x=await get(FILE);fr=x.rows;fsha=x.sha;renderFile();show('actionStatus','تم تحميل FileUploade.csv — '+fr.length+' سجل','ok')}catch(e){show('actionStatus','خطأ: '+e.message,'err')}}
 async function loadUsers(){try{let x=await get(USERS);ur=x.rows;usha=x.sha;renderUsers();show('actionStatus','تم تحميل users.csv — '+ur.length+' مستخدم','ok')}catch(e){show('actionStatus','خطأ: '+e.message,'err')}}
 function generateSheetNo(){const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';let v='';do{v='';for(let i=0;i<10;i++)v+=chars[Math.floor(Math.random()*chars.length)]}while(fr.some(r=>String(r['SheetNo.']??'')===v));return v}
 function refreshGeneratedSheetNo(){const x=generateSheetNo();const a=document.getElementById('fSheetNo');const b=document.getElementById('pSheetNo');if(a)a.value=x;if(b)b.value=x}
-function addFile(){let o={};o.Department=fDepartment.value.trim();o['SheetNo.']=fSheetNo.value.trim()||generateSheetNo();o.SheetName=fSheetName.value.trim();o['Item Code']=fItemCode.value.trim();o['Item Name']=fItemName.value.trim();o['Trans.Status']=fStatus.value.trim();o.PersonalName=fPersonal.value.trim();o['Trans.Date']=fDate.value.trim();o['Trans.Time']=fTime.value.trim();o.Deletion='';if(!o.Department)return alert('Department مطلوب');if(!o.SheetName)return alert('SheetName مطلوب');if(!o['Item Code'])return alert('Item Code مطلوب');fr.push(o);saveFile('إضافة سجل إلى FileUploade.csv','fileAddStatus')}
-async function saveFile(m,s){try{let x=await put(FILE,fr,FH,fsha,m);fsha=x.content.sha;show(s,'تم الحفظ على GitHub بنجاح','ok');refreshGeneratedSheetNo()}catch(e){show(s,'خطأ: '+e.message,'err')}}
+async function addFile(){
+  let o={};
+  o.Department=fDepartment.value.trim();
+  o['SheetNo.']=fSheetNo.value.trim()||generateSheetNo();
+  o.SheetName=fSheetName.value.trim();
+  o['Item Code']=fItemCode.value.trim();
+  o['Item Name']=fItemName.value.trim();
+  o['Trans.Status']=fStatus.value.trim();
+  o.PersonalName=fPersonal.value.trim();
+  o['Trans.Date']=fDate.value.trim();
+  o['Trans.Time']=fTime.value.trim();
+  o.Deletion='';
+  if(!o.Department)return alert('Department مطلوب');
+  if(!o.SheetName)return alert('SheetName مطلوب');
+  if(!o['Item Code'])return alert('Item Code مطلوب');
+
+  try{
+    show('fileAddStatus','جاري الإضافة...','info');
+    let lastErr=null;
+    for(let attempt=1;attempt<=4;attempt++){
+      const latest=await get(FILE);
+      const rows=latest.rows||[];
+      rows.push({...o});
+      try{
+        const x=await put(FILE,rows,FH,latest.sha,'Add record to FileUploade.csv');
+        fr=rows;
+        fsha=x.content.sha;
+        renderFile();
+        show('fileAddStatus','تمت إضافة السجل وحفظه على GitHub بنجاح','ok');
+        refreshGeneratedSheetNo();
+        ['fSheetName','fItemCode','fItemName','fStatus','fPersonal','fDate','fTime'].forEach(id=>{
+          const el=document.getElementById(id); if(el)el.value='';
+        });
+        return;
+      }catch(e){
+        lastErr=e;
+        const msg=String(e&&e.message||e);
+        if(!(msg.includes('409')||msg.includes('does not match'))||attempt===4)throw e;
+        await new Promise(r=>setTimeout(r,400*attempt));
+      }
+    }
+    throw lastErr||Error('فشل الحفظ');
+  }catch(e){
+    show('fileAddStatus','خطأ: '+e.message,'err');
+  }
+}
+
+async function saveFile(m,s){
+  try{
+    let lastErr=null;
+    for(let attempt=1;attempt<=4;attempt++){
+      const latest=await get(FILE);
+      let rows=latest.rows||[];
+      // في عمليات الإضافة/اللصق، fr تحتوي على النسخة المحلية. نستخدم الفرق الجديد فقط.
+      // أما العمليات الأخرى فتستمر باستخدام fr كما هي.
+      if(m.includes('إضافة سجل')||m.includes('Paste data')){
+        const local=fr||[];
+        const remoteLen=rows.length;
+        if(local.length>=remoteLen) rows=local;
+      }else{
+        rows=fr||[];
+      }
+      try{
+        const x=await put(FILE,rows,FH,latest.sha,m);
+        fr=rows; fsha=x.content.sha;
+        show(s,'تم الحفظ على GitHub بنجاح','ok');
+        refreshGeneratedSheetNo();
+        return;
+      }catch(e){
+        lastErr=e;
+        const msg=String(e&&e.message||e);
+        if(!(msg.includes('409')||msg.includes('does not match'))||attempt===4)throw e;
+        await new Promise(r=>setTimeout(r,400*attempt));
+      }
+    }
+    throw lastErr||Error('فشل الحفظ');
+  }catch(e){
+    show(s,'خطأ: '+e.message,'err');
+  }
+}
 function addUser(){let ids=['uUser','uEmployee','uDepartment','uJob','uPassword','uStatus','uType'],o={};UH.forEach((h,i)=>o[h]=document.getElementById(ids[i]).value.trim());o.Password='00000';document.getElementById('uPassword').value='00000';if(!o.UserName)return alert('UserName مطلوب');ur.push(o);saveUsers('إضافة مستخدم إلى users.csv','userAddStatus')}
 async function saveUsers(m,s){try{const latest=await get(USERS);const latestRows=latest.rows||[];const newUser=ur[ur.length-1];if(!newUser)throw Error('بيانات المستخدم غير موجودة');const key=v=>String(v??'').trim().toLowerCase();const idx=latestRows.findIndex(r=>key(r.UserName)===key(newUser.UserName));if(idx>=0)latestRows[idx]=newUser;else latestRows.push(newUser);const x=await put(USERS,latestRows,UH,latest.sha,m);ur=latestRows;usha=x.content.sha;renderUsers();show(s,'تم الحفظ على GitHub بنجاح','ok')}catch(e){show(s,'خطأ: '+e.message,'err')}}
 function addPasteRow(data={}){let tr=document.createElement('tr');let n=document.querySelectorAll('#pasteBody tr').length+1;const PH=['Item Code','Item Name','Trans.Status','PersonalName','Trans.Date','Trans.Time'];tr.innerHTML='<td>'+n+'</td>'+PH.map(h=>'<td><input data-h="'+h.replace(/"/g,'&quot;')+'" value="'+String(data[h]||'').replace(/"/g,'&quot;')+'"></td>').join('')+'<td><button class="rowDelBtn" onclick="this.closest(\'tr\').remove()">✕</button></td>';document.getElementById('pasteBody').appendChild(tr)}
 document.getElementById('pasteTable').addEventListener('paste',e=>{let txt=e.clipboardData.getData('text/plain');if(!txt.includes('\t'))return;e.preventDefault();clearPaste();txt.trim().split(/\r?\n/).forEach(line=>{let c=line.split('\t'),o={};['Item Code','Item Name','Trans.Status','PersonalName','Trans.Date','Trans.Time'].forEach((h,i)=>o[h]=(c[i]||'').trim());addPasteRow(o)})})
 function clearPaste(){document.getElementById('pasteBody').innerHTML=''}
-async function savePaste(){let dep=pDepartment.value.trim(),sn=pSheetNo.value.trim()||generateSheetNo(),name=pSheetName.value.trim();if(!dep)return alert('Department مطلوب');if(!name)return alert('SheetName مطلوب');let rows=[...document.querySelectorAll('#pasteBody tr')].map(tr=>{let o={};tr.querySelectorAll('input').forEach(i=>o[i.dataset.h]=i.value.trim());o.Department=dep;o['SheetNo.']=sn;o.SheetName=name;o.Deletion='';return o}).filter(o=>o['Item Code']||o['Item Name']||o['Trans.Status']||o.PersonalName||o['Trans.Date']||o['Trans.Time']);if(!rows.length)return alert('لا توجد بيانات');fr.push(...rows);await saveFile('Paste data into FileUploade.csv','pasteStatus');clearPaste();refreshGeneratedSheetNo()}
+async function savePaste(){
+  let dep=pDepartment.value.trim(),sn=pSheetNo.value.trim()||generateSheetNo(),name=pSheetName.value.trim();
+  if(!dep)return alert('Department مطلوب');
+  if(!name)return alert('SheetName مطلوب');
+  let rows=[...document.querySelectorAll('#pasteBody tr')].map(tr=>{
+    let o={};
+    tr.querySelectorAll('input').forEach(i=>o[i.dataset.h]=i.value.trim());
+    o.Department=dep;o['SheetNo.']=sn;o.SheetName=name;o.Deletion='';
+    return o;
+  }).filter(o=>o['Item Code']||o['Item Name']||o['Trans.Status']||o.PersonalName||o['Trans.Date']||o['Trans.Time']);
+  if(!rows.length)return alert('لا توجد بيانات');
+
+  try{
+    show('pasteStatus','جاري حفظ البيانات...','info');
+    let lastErr=null;
+    for(let attempt=1;attempt<=4;attempt++){
+      const latest=await get(FILE);
+      const remoteRows=latest.rows||[];
+      const newRows=remoteRows.concat(rows.map(r=>({...r})));
+      try{
+        const x=await put(FILE,newRows,FH,latest.sha,'Paste data into FileUploade.csv');
+        fr=newRows; fsha=x.content.sha;
+        renderFile();
+        show('pasteStatus','تم الحفظ على GitHub بنجاح','ok');
+        clearPaste(); refreshGeneratedSheetNo();
+        return;
+      }catch(e){
+        lastErr=e;
+        const msg=String(e&&e.message||e);
+        if(!(msg.includes('409')||msg.includes('does not match'))||attempt===4)throw e;
+        await new Promise(r=>setTimeout(r,400*attempt));
+      }
+    }
+    throw lastErr||Error('فشل الحفظ');
+  }catch(e){
+    show('pasteStatus','خطأ: '+e.message,'err');
+  }
+}
 function uniqueValues(rows,key){return [...new Set(rows.map(r=>String(r[key]??'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true,sensitivity:'base'}))}
 function fillFilter(id,values){const el=document.getElementById(id);if(!el)return;const old=el.value;el.innerHTML='<option value="">الكل</option>'+values.map(v=>'<option value="'+String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')+'">'+String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</option>').join('');if(values.includes(old))el.value=old;}
 function refreshFileFilters(){fillFilter('qDepartment',uniqueValues(fr,'Department'));fillFilter('qSheetNo',uniqueValues(fr,'SheetNo.'));fillFilter('qItemCode',uniqueValues(fr,'Item Code'));fillFilter('qStatus',uniqueValues(fr,'Trans.Status'))}
