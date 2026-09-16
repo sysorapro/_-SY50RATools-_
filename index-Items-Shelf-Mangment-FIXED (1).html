@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SY50RA Tools</title>
+<meta name="description" content="SY50RA Tools — a collection of productivity tools.">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f172a">
+<style>
+:root{
+  --bg:#07111f;
+  --bg2:#0d1b2e;
+  --card:rgba(18,34,56,.72);
+  --border:rgba(255,255,255,.10);
+  --text:#f4f7fb;
+  --muted:#9eacc0;
+  --accent:#55a7ff;
+  --accent2:#7c5cff;
+  --shadow:0 24px 70px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; min-height:100vh; color:var(--text);
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  background:
+    radial-gradient(circle at 15% 10%,rgba(85,167,255,.18),transparent 28%),
+    radial-gradient(circle at 85% 15%,rgba(124,92,255,.16),transparent 30%),
+    linear-gradient(135deg,var(--bg),var(--bg2));
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:36px 36px;
+}
+.container{width:min(1120px,92%);margin:auto}
+header{padding:82px 0 26px;text-align:center}
+.logo{
+  width:76px;height:76px;margin:0 auto 20px;border-radius:22px;
+  display:grid;place-items:center;font-weight:900;font-size:24px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  box-shadow:0 16px 45px rgba(85,167,255,.25);
+}
+h1{margin:0;font-size:clamp(38px,6vw,64px);letter-spacing:-2px}
+.subtitle{margin:13px auto 0;color:var(--muted);font-size:17px;max-width:650px;line-height:1.6}
+.tools{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:22px;padding:38px 0 70px;
+}
+.card{
+  position:relative;overflow:hidden;min-height:225px;padding:30px;
+  border:1px solid var(--border);border-radius:26px;background:var(--card);
+  backdrop-filter:blur(18px);box-shadow:var(--shadow);
+  transition:.28s ease;display:flex;flex-direction:column;
+}
+.card:after{
+  content:"";position:absolute;width:170px;height:170px;right:-70px;top:-70px;
+  border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  opacity:.10;filter:blur(4px);
+}
+.card:hover{transform:translateY(-7px);border-color:rgba(125,180,255,.34)}
+.icon{
+  width:52px;height:52px;border-radius:16px;display:grid;place-items:center;
+  font-size:24px;background:rgba(85,167,255,.11);border:1px solid rgba(85,167,255,.18);
+  margin-bottom:22px;
+}
+.card h2{margin:0 0 10px;font-size:22px}
+.card p{margin:0;color:var(--muted);line-height:1.55;font-size:14px;flex:1}
+.open{
+  margin-top:25px;width:max-content;text-decoration:none;color:white;
+  padding:11px 18px;border-radius:12px;font-weight:700;font-size:14px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  box-shadow:0 9px 25px rgba(85,167,255,.18);transition:.2s;
+}
+.open:hover{filter:brightness(1.1);transform:translateX(2px)}
+footer{padding:0 0 35px;text-align:center;color:#718198;font-size:13px}
+
+.controls{
+  position:fixed !important;
+  top:0 !important;
+  left:0 !important;
+  right:0 !important;
+  width:100% !important;
+  height:58px !important;
+  z-index:2147483647 !important;
+  display:flex !important;
+  justify-content:flex-end !important;
+  align-items:center !important;
+  gap:6px !important;
+  padding:7px 24px !important;
+  margin:0 !important;
+  border:0 !important;
+  border-bottom:1px solid var(--border) !important;
+  border-radius:0 !important;
+  background:rgba(10,24,40,.97) !important;
+  backdrop-filter:blur(20px) !important;
+  -webkit-backdrop-filter:blur(20px) !important;
+  box-shadow:0 5px 20px rgba(0,0,0,.20) !important;
+}
+.control-btn{
+  border:0;background:transparent;color:var(--muted);cursor:pointer;
+  padding:9px 12px;border-radius:11px;font-weight:700;font-size:13px;
+  transition:.2s
+}
+.control-btn:hover,.control-btn.active{background:rgba(255,255,255,.10);color:var(--text)}
+[data-theme="light"]{
+  --bg:#f3f7fc;--bg2:#e8eef7;--card:rgba(255,255,255,.78);
+  --border:rgba(18,35,58,.12);--text:#102033;--muted:#607086;
+  --shadow:0 24px 70px rgba(33,58,91,.14)
+}
+[data-theme="light"] body{}
+[data-theme="light"] .controls{background:rgba(255,255,255,.98) !important;box-shadow:0 5px 20px rgba(33,58,91,.12) !important}
+[data-theme="light"] .card{background:var(--card)}
+[data-theme="light"] .open{color:#fff}
+
+@media(max-width:700px){.tools{grid-template-columns:1fr}.card{min-height:205px}header{padding-top:35px}}
+</style>
+
+
+<style id="header-side-controls">
+/* Side controls: fixed at the top side of the screen and draggable by long-press */
+#headerControlHandle{
+  position:fixed!important;
+  top:24px!important;
+  right:0!important;
+  left:auto!important;
+  z-index:2147483647!important;
+  width:44px!important;
+  height:44px!important;
+  padding:0!important;
+  border:1px solid var(--border)!important;
+  border-right:0!important;
+  border-radius:14px 0 0 14px!important;
+  background:rgba(10,24,40,.86)!important;
+  color:var(--text)!important;
+  cursor:grab!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.25)!important;
+  backdrop-filter:blur(16px)!important;
+  -webkit-backdrop-filter:blur(16px)!important;
+  font-size:18px!important;
+  transition:background .2s ease,box-shadow .2s ease!important;
+  touch-action:none!important;
+}
+#headerControlHandle:active{cursor:grabbing!important;}
+#headerControlPanel{
+  position:fixed!important;
+  top:24px!important;
+  right:50px!important;
+  left:auto!important;
+  z-index:2147483646!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  padding:6px!important;
+  border:1px solid var(--border)!important;
+  border-radius:15px!important;
+  background:rgba(10,24,40,.94)!important;
+  backdrop-filter:blur(18px)!important;
+  -webkit-backdrop-filter:blur(18px)!important;
+  box-shadow:0 14px 35px rgba(0,0,0,.28)!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  transform:translateX(8px) scale(.96)!important;
+  transform-origin:top right!important;
+  pointer-events:none!important;
+  transition:opacity .2s ease,transform .2s ease,visibility .2s ease!important;
+}
+#headerControlPanel.controls-open{
+  opacity:1!important;
+  visibility:visible!important;
+  transform:translateX(0) scale(1)!important;
+  pointer-events:auto!important;
+}
+#headerControlPanel .control-btn{
+  border:0!important;background:transparent!important;color:var(--muted)!important;
+  cursor:pointer!important;padding:9px 12px!important;border-radius:10px!important;
+  font-weight:700!important;font-size:13px!important;white-space:nowrap!important;
+}
+#headerControlPanel .control-btn:hover,#headerControlPanel .control-btn.active{background:rgba(255,255,255,.10)!important;color:var(--text)!important;}
+[data-theme="light"] #headerControlHandle,[data-theme="light"] #headerControlPanel{background:rgba(255,255,255,.94)!important;}
+@media(max-width:700px){
+  #headerControlHandle{top:16px!important;}
+  #headerControlPanel{top:16px!important;right:50px!important;}
+}
+</style>
+<style id="side-controls-final">
+#headerControlHandle{
+  position:fixed!important;
+  top:40%!important;
+  right:0!important;
+  transform:translateY(-50%)!important;
+  z-index:9999!important;
+  width:28px!important;
+  height:58px!important;
+  border:1px solid var(--border)!important;
+  border-right:0!important;
+  border-radius:13px 0 0 13px!important;
+  background:rgba(10,24,40,.82)!important;
+  color:var(--text)!important;
+  box-shadow:0 12px 35px rgba(0,0,0,.28)!important;
+  backdrop-filter:blur(16px)!important;
+  cursor:pointer!important;
+  font-size:22px!important;
+  transition:.22s ease!important;
+}
+#headerControlHandle:hover{width:40px!important;background:rgba(20,42,68,.95)!important}
+#headerControlPanel{
+  position:fixed!important;
+  top:50%!important;
+  right:0!important;
+  transform:translate(110%,-50%)!important;
+  z-index:10000!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:8px!important;
+  padding:9px!important;
+  border:1px solid var(--border)!important;
+  border-right:0!important;
+  border-radius:16px 0 0 16px!important;
+  background:rgba(10,24,40,.88)!important;
+  backdrop-filter:blur(18px)!important;
+  box-shadow:0 16px 45px rgba(0,0,0,.30)!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  transition:.22s ease!important;
+}
+body.controls-open #headerControlPanel{
+  transform:translate(0,-50%)!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+body.controls-open #headerControlHandle{opacity:0!important;pointer-events:none!important}
+#headerControlPanel .control-btn{white-space:nowrap;min-width:72px;text-align:center}
+[data-theme="light"] #headerControlHandle,
+[data-theme="light"] #headerControlPanel{background:rgba(255,255,255,.90)!important}
+@media(max-width:600px){
+  #headerControlPanel{gap:6px;padding:7px}
+  #headerControlPanel .control-btn{min-width:64px;padding:8px 10px}
+}
+</style>
+</head>
+<body>
+<main class="container">
+<header>
+  <button id="headerControlHandle" type="button" aria-label="Open page controls" title="Controls">⋮</button>
+  <div id="headerControlPanel" aria-label="Page controls">
+    <button class="control-btn" id="enBtn" type="button" onclick="setLanguage('en'); closeControls()">EN</button>
+    <button class="control-btn" id="arBtn" type="button" onclick="setLanguage('ar'); closeControls()">عربي</button>
+    <button class="control-btn" id="themeBtn" type="button" onclick="toggleTheme(); closeControls()">☀️ / 🌙</button>
+  </div>
+  <div class="logo">S.P.T</div>
+  <h1 data-en="Sysora Pro Tools" data-ar="أدوات Sysora Pro">Sysora Pro Tools</h1>
+  <p class="subtitle" data-en="A professional workspace for the tools I use every day." data-ar="مساحة احترافية تجمع الأدوات التي أستخدمها يوميًا.">A professional workspace for the tools I use every day.</p>
+</header>
+
+<section class="tools" aria-label="Tools">
+  <article class="card">
+    <div class="icon">📦</div>
+    <h2><span data-en="Items-Shelf Mangment" data-ar="إدارة الأصناف والأرفف">Items-Shelf Mangment</span></h2>
+    <p><span data-en="Manage items and shelves through a dedicated workspace." data-ar="إدارة الأصناف والأرفف من خلال مساحة عمل مخصصة.">Manage items and shelves through a dedicated workspace.</span></p>
+    <a class="open" href="Items-Shelf-Mangment.html" onclick="openToolWithFallback(event, 'Items-Shelf-Mangment.html', 'ItemsMangment.html')"><span data-en="Open Tool&nbsp; →" data-ar="فتح الأداة&nbsp; →">Open Tool&nbsp; →</span></a>
+  </article>
+
+  <article class="card">
+    <div class="icon">◫</div>
+    <h2><span data-en="Data Mangment" data-ar="إدارة البيانات">Data Mangment</span></h2>
+    <p><span data-en="Organize, process, and manage your operational data in one place." data-ar="تنظيم ومعالجة وإدارة بياناتك التشغيلية في مكان واحد.">Organize, process, and manage your operational data in one place.</span></p>
+    <a class="open" href="DataMangment.html"><span data-en="Open Tool&nbsp; →" data-ar="فتح الأداة&nbsp; →">Open Tool&nbsp; →</span></a>
+  </article>
+
+  <article class="card">
+    <div class="icon">🔐</div>
+    <h2><span data-en="GitHub Token Encryptor" data-ar="تشفير GitHub Token">GitHub Token Encryptor</span></h2>
+    <p><span data-en="Protect GitHub token data with a simple encryption utility." data-ar="حماية بيانات GitHub Token باستخدام أداة تشفير بسيطة.">Protect GitHub token data with a simple encryption utility.</span></p>
+    <a class="open" href="GitHub_Token_Encryptor.html"><span data-en="Open Tool&nbsp; →" data-ar="فتح الأداة&nbsp; →">Open Tool&nbsp; →</span></a>
+  </article>
+
+  <article class="card">
+    <div class="icon">▦</div>
+    <h2><span data-en="Items &amp; Shelf Barcode Generator" data-ar="مولد باركود الأصناف والأرفف">Items &amp; Shelf Barcode Generator</span></h2>
+    <p><span data-en="Generate barcodes for items and shelves quickly and efficiently." data-ar="إنشاء باركود للأصناف والأرفف بسرعة وكفاءة.">Generate barcodes for items and shelves quickly and efficiently.</span></p>
+    <a class="open" href="Items-Shelf-Barcode-Generator.html" onclick="openToolWithFallback(event, 'Items-Shelf-Barcode-Generator.html', 'Items-Shelf Barcode Generator.html')"><span data-en="Open Tool&nbsp; →" data-ar="فتح الأداة&nbsp; →">Open Tool&nbsp; →</span></a>
+  </article>
+</section>
+
+<footer><span data-en="Sysora Pro Tools • All Tools In One Place" data-ar="Sysora Pro Tools • كل الأدوات في مكان واحد">Sysora Pro Tools • All Tools In One Place</span></footer>
+</main>
+
+<script>
+const savedTheme = localStorage.getItem('sy50ra-theme') || 'dark';
+document.documentElement.setAttribute('data-theme', savedTheme);
+
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('sy50ra-theme', next);
+}
+
+function setLanguage(lang){
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-en][data-ar]').forEach(el=>{
+    el.innerHTML = el.getAttribute('data-' + lang);
+  });
+  document.getElementById('enBtn').classList.toggle('active', lang === 'en');
+  document.getElementById('arBtn').classList.toggle('active', lang === 'ar');
+  localStorage.setItem('sy50ra-lang', lang);
+}
+setLanguage(localStorage.getItem('sy50ra-lang') || 'en');
+</script>
+
+
+
+<script id="header-side-controls-js">
+(function(){
+  const handle=document.getElementById('headerControlHandle');
+  const panel=document.getElementById('headerControlPanel');
+  if(!handle||!panel) return;
+
+  const saved=JSON.parse(localStorage.getItem('sy50ra-controls-position')||'null');
+  if(saved && Number.isFinite(saved.top) && Number.isFinite(saved.right)){
+    handle.style.top=saved.top+'px';
+    handle.style.right=saved.right+'px';
+  }
+
+  function positionPanel(){
+    const r=handle.getBoundingClientRect();
+    panel.style.top=Math.max(8,r.top)+'px';
+    panel.style.right=Math.max(8,window.innerWidth-r.left+8)+'px';
+  }
+
+  function closePanel(){ panel.classList.remove('controls-open'); }
+
+  handle.addEventListener('click',function(){
+    if(dragged){ dragged=false; return; }
+    positionPanel();
+    panel.classList.toggle('controls-open');
+  });
+
+  panel.querySelectorAll('.control-btn').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      setTimeout(closePanel,80);
+    });
+  });
+
+  document.addEventListener('click',function(e){
+    if(!handle.contains(e.target) && !panel.contains(e.target)) closePanel();
+  });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closePanel(); });
+  window.addEventListener('resize',function(){ if(panel.classList.contains('controls-open')) positionPanel(); });
+
+  let pressTimer=null, dragging=false, dragged=false;
+  let startX=0,startY=0,startTop=0,startRight=0;
+
+  function startPress(e){
+    if(e.button!==undefined && e.button!==0) return;
+    const pt=e.touches?e.touches[0]:e;
+    startX=pt.clientX; startY=pt.clientY;
+    const r=handle.getBoundingClientRect();
+    startTop=r.top; startRight=window.innerWidth-r.right;
+    dragged=false;
+    clearTimeout(pressTimer);
+    pressTimer=setTimeout(function(){
+      dragging=true;
+      closePanel();
+      handle.style.transition='none';
+    },500);
+  }
+
+  function movePress(e){
+    const pt=e.touches?e.touches[0]:e;
+    const dx=pt.clientX-startX, dy=pt.clientY-startY;
+    if(!dragging){
+      if(Math.hypot(dx,dy)>8) clearTimeout(pressTimer);
+      return;
+    }
+    e.preventDefault();
+    dragged=true;
+    let top=startTop+dy;
+    let right=startRight-dx;
+    const maxTop=window.innerHeight-handle.offsetHeight-8;
+    const maxRight=window.innerWidth-handle.offsetWidth-8;
+    top=Math.max(8,Math.min(maxTop,top));
+    right=Math.max(8,Math.min(maxRight,right));
+    handle.style.top=top+'px';
+    handle.style.right=right+'px';
+  }
+
+  function endPress(){
+    clearTimeout(pressTimer);
+    if(dragging){
+      dragging=false;
+      handle.style.transition='background .2s ease,box-shadow .2s ease';
+      localStorage.setItem('sy50ra-controls-position',JSON.stringify({
+        top:parseFloat(handle.style.top), right:parseFloat(handle.style.right)
+      }));
+    }
+  }
+
+  handle.addEventListener('mousedown',startPress);
+  window.addEventListener('mousemove',movePress,{passive:false});
+  window.addEventListener('mouseup',endPress);
+  handle.addEventListener('touchstart',startPress,{passive:true});
+  window.addEventListener('touchmove',movePress,{passive:false});
+  window.addEventListener('touchend',endPress);
+  window.addEventListener('touchcancel',endPress);
+})();
+</script>
+
+<script>
+function closeControls(){ document.body.classList.remove('controls-open'); }
+</script>
+  <script>
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./sw.js")
+            .then(function () {
+                console.log("SYSORA Service Worker registered");
+            })
+            .catch(function (error) {
+                console.error("Service Worker registration failed:", error);
+            });
+    });
+}
+</script>
+
+<script>
+function openToolWithFallback(event, primary, fallback){
+  event.preventDefault();
+  fetch(primary, {method:'HEAD', cache:'no-store'})
+    .then(function(r){
+      if(r.ok){
+        window.location.href = primary;
+      }else{
+        window.location.href = fallback;
+      }
+    })
+    .catch(function(){
+      // If the server blocks HEAD/CORS, use the renamed file as the primary target.
+      window.location.href = primary;
+    });
+}
+</script>
+</body>
+</html>
