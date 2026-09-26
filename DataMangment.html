@@ -715,6 +715,9 @@ async function putCreateOrUpdate(path,rows,h,sha,message){
 async function testConnection(){try{let r=await fetch(`https://api.github.com/repos/${cfg().owner}/${cfg().repo}`,{headers:H()});if(!r.ok)throw Error(await r.text());show('connStatus','تم الاتصال بـ GitHub بنجاح','ok')}catch(e){show('connStatus','فشل الاتصال: '+e.message,'err')}}
 async function loadFile(){try{let x=await get(FILE);fr=x.rows;fsha=x.sha;renderFile();show('actionStatus','تم تحميل FileUploade.csv — '+fr.length+' سجل','ok')}catch(e){show('actionStatus','خطأ: '+e.message,'err')}}
 async function loadUsers(){try{let x=await get(USERS);ur=x.rows;usha=x.sha;renderUsers();show('actionStatus','تم تحميل users.csv — '+ur.length+' مستخدم','ok')}catch(e){show('actionStatus','خطأ: '+e.message,'err')}}
+// "Upload date" and "Deletion date" carry both date and time, in one consistent shape:
+// DD/MM/YYYY HH:MM:SS — this must match what the main app's integrity checker (FU_DATETIME_RE)
+// accepts as valid for these two fields.
 function nowDeviceDateTime(){
   const d=new Date();
   const pad=n=>String(n).padStart(2,'0');
