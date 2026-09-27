@@ -1323,19 +1323,17 @@ async function markSheetDeletionOK(){
 }
 
 async function backupDoneRows(){
-  if(!confirm('سيتم نقل كل السجلات التي Trans.Status فيها Done و Scanned فيها OK و Deletion فيها OK إلى FileUploadeBackup.csv ثم حذفها من FileUploade.csv. هل تريد المتابعة؟'))return;
+  if(!confirm('سيتم نقل كل السجلات التي Deletion فيها OK فقط إلى FileUploadeBackup.csv ثم حذفها من FileUploade.csv. هل تريد المتابعة؟'))return;
   try{
     show('actionStatus','جاري تنفيذ Backup...','info');
     for(let attempt=1;attempt<=4;attempt++){
       const latest=await get(FILE);
       const sourceRows=latest.rows||[];
-      const isDone=r=>String(r['Trans.Status']??'').trim().toLowerCase()==='done';
-      const isScannedOK=r=>String(r.Scanned??'').trim().toLowerCase()==='ok';
       const isOK=r=>String(r.Deletion??'').trim().toLowerCase()==='ok';
-      const moving=sourceRows.filter(r=>isDone(r)&&isScannedOK(r)&&isOK(r));
+      const moving=sourceRows.filter(r=>isOK(r));
       if(!moving.length){
         fr=sourceRows;fsha=latest.sha;renderFile();
-        show('actionStatus','لا توجد سجلات مستوفية للـBackup: Trans.Status = Done و Scanned = OK و Deletion = OK.','info');
+        show('actionStatus','لا توجد سجلات مستوفية للـBackup: Deletion = OK.','info');
         return;
       }
       let backupRows=[],backupSha='';
@@ -1350,7 +1348,7 @@ async function backupDoneRows(){
       const seen=new Set(backupRows.map(keyRow));
       const toAppend=moving.filter(r=>{const k=keyRow(r);if(seen.has(k))return false;seen.add(k);return true;}).map(r=>({...r}));
       const mergedBackup=backupRows.concat(toAppend);
-      const remaining=sourceRows.filter(r=>!(isDone(r)&&isScannedOK(r)&&isOK(r)));
+      const remaining=sourceRows.filter(r=>!isOK(r));
       try{
         const bx=await putCreateOrUpdate(BACKUP,mergedBackup,FH,backupSha,'Backup FileUploade records');
         const fx=await put(FILE,remaining,FH,latest.sha,'Move records to FileUploadeBackup.csv');
