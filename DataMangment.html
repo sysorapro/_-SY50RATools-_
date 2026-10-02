@@ -133,16 +133,17 @@
   width: 100%;
 }
 
-/* جدول Users */
-#userTable .data-table th:nth-child(2), #userTable .data-table td:nth-child(2) { min-width: 130px; }
-#userTable .data-table th:nth-child(3), #userTable .data-table td:nth-child(3) { min-width: 180px; }
-#userTable .data-table th:nth-child(4), #userTable .data-table td:nth-child(4) { min-width: 130px; }
-#userTable .data-table th:nth-child(5), #userTable .data-table td:nth-child(5) { min-width: 150px; }
-#userTable .data-table th:nth-child(6), #userTable .data-table td:nth-child(6) { min-width: 110px; }
-#userTable .data-table th:nth-child(7), #userTable .data-table td:nth-child(7) { min-width: 100px; }
-#userTable .data-table th:nth-child(8), #userTable .data-table td:nth-child(8) { min-width: 90px; }
-#userTable .data-table th:nth-child(4), #userTable .data-table td:nth-child(4) { min-width: 150px; }
-#userTable .data-table th:nth-child(5), #userTable .data-table td:nth-child(5) { min-width: 180px; }
+/* جدول Users — ترتيب الأعمدة:
+   UserName, Employee Name, Department, Job Titel, Password, Status, Type, Mob.No, Emp.Email */
+#userTable .data-table th:nth-child(2), #userTable .data-table td:nth-child(2) { min-width: 130px; } /* UserName */
+#userTable .data-table th:nth-child(3), #userTable .data-table td:nth-child(3) { min-width: 180px; } /* Employee Name */
+#userTable .data-table th:nth-child(4), #userTable .data-table td:nth-child(4) { min-width: 130px; } /* Department */
+#userTable .data-table th:nth-child(5), #userTable .data-table td:nth-child(5) { min-width: 150px; } /* Job Titel */
+#userTable .data-table th:nth-child(6), #userTable .data-table td:nth-child(6) { min-width: 110px; } /* Password */
+#userTable .data-table th:nth-child(7), #userTable .data-table td:nth-child(7) { min-width: 100px; } /* Status */
+#userTable .data-table th:nth-child(8), #userTable .data-table td:nth-child(8) { min-width: 90px; }  /* Type */
+#userTable .data-table th:nth-child(9), #userTable .data-table td:nth-child(9) { min-width: 130px; } /* Mob.No */
+#userTable .data-table th:nth-child(10), #userTable .data-table td:nth-child(10) { min-width: 210px; } /* Emp.Email */
 
 /* على الشاشات الصغيرة */
 @media (max-width: 800px) {
@@ -623,13 +624,13 @@ html[data-theme="light"] .side-control-panel .control-btn:hover,html[data-theme=
       <div class="uniform-form-grid users-form-grid">
         <div class="field-card"><label>UserName</label><input type="text" id="uUser"></div>
         <div class="field-card"><label>Employee Name</label><input type="text" id="uEmployee"></div>
-        <div class="field-card"><label>Mob.No</label><input type="text" id="uMobNo"></div>
-        <div class="field-card"><label>Emp.Email</label><input type="text" id="uEmpEmail"></div>
         <div class="field-card"><label>Department</label><select id="uDepartment"><option value="">اختر القسم</option><option value="NonPharma">NonPharma</option><option value="Pharma">Pharma</option></select></div>
         <div class="field-card"><label>Job Titel</label><input type="text" id="uJob"></div>
         <div class="field-card"><label>Password</label><input type="password" id="uPassword" value="00000" readonly></div>
         <div class="field-card"><label>Status</label><input type="text" id="uStatus"></div>
         <div class="field-card"><label>Type</label><input type="text" id="uType"></div>
+        <div class="field-card"><label>Mob.No</label><input type="text" id="uMobNo"></div>
+        <div class="field-card"><label>Emp.Email</label><input type="text" id="uEmpEmail"></div>
       </div>
       <button class="btn-primary" onclick="addUser()">💾 إضافة ورفع على GitHub</button>
       <div class="status" id="userAddStatus"></div>
@@ -638,12 +639,12 @@ html[data-theme="light"] .side-control-panel .control-btn:hover,html[data-theme=
       <div class="uniform-form-grid filter-grid users-filter-grid">
         <div class="field-card"><label>UserName</label><input type="text" id="uqUserName" list="uqUserName_dl" placeholder="الكل" autocomplete="off" oninput="renderUsers()"><datalist id="uqUserName_dl"></datalist></div>
         <div class="field-card"><label>Employee Name</label><input type="text" id="uqEmployee" list="uqEmployee_dl" placeholder="الكل" autocomplete="off" oninput="renderUsers()"><datalist id="uqEmployee_dl"></datalist></div>
-        <div class="field-card"><label>Mob.No</label><input type="text" id="uqMobNo" list="uqMobNo_dl" placeholder="الكل" autocomplete="off" oninput="renderUsers()"><datalist id="uqMobNo_dl"></datalist></div>
-        <div class="field-card"><label>Emp.Email</label><input type="text" id="uqEmpEmail" list="uqEmpEmail_dl" placeholder="الكل" autocomplete="off" oninput="renderUsers()"><datalist id="uqEmpEmail_dl"></datalist></div>
         <div class="field-card"><label>Department</label><input type="text" id="uqDepartment" list="uqDepartment_dl" placeholder="الكل" autocomplete="off" oninput="renderUsers()"><datalist id="uqDepartment_dl"></datalist></div>
         <div class="field-card"><label>Job Titel</label><input type="text" id="uqJob" list="uqJob_dl" placeholder="الكل" autocomplete="off" oninput="renderUsers()"><datalist id="uqJob_dl"></datalist></div>
         <div class="field-card"><label>Status</label><input type="text" id="uqStatus" list="uqStatus_dl" placeholder="الكل" autocomplete="off" oninput="renderUsers()"><datalist id="uqStatus_dl"></datalist></div>
         <div class="field-card"><label>Type</label><input type="text" id="uqType" list="uqType_dl" placeholder="الكل" autocomplete="off" oninput="renderUsers()"><datalist id="uqType_dl"></datalist></div>
+        <div class="field-card"><label>Mob.No</label><input type="text" id="uqMobNo" list="uqMobNo_dl" placeholder="الكل" autocomplete="off" oninput="renderUsers()"><datalist id="uqMobNo_dl"></datalist></div>
+        <div class="field-card"><label>Emp.Email</label><input type="text" id="uqEmpEmail" list="uqEmpEmail_dl" placeholder="الكل" autocomplete="off" oninput="renderUsers()"><datalist id="uqEmpEmail_dl"></datalist></div>
       </div>
       <div class="action-row"><button class="btn-secondary" onclick="loadUsers()">🔄 تحميل البيانات</button><button class="btn-secondary" onclick="selectAll('users')">☑️ تحديد الكل</button></div>
       <button class="btn-primary" style="background:var(--red);color:#fff" onclick="deleteSelected('users')">🗑 حذف المحدد</button>
@@ -656,7 +657,7 @@ html[data-theme="light"] .side-control-panel .control-btn:hover,html[data-theme=
 <script>
 const FILE='FileUploade.csv', BACKUP='FileUploadeBackup.csv', USERS='users.csv';
 const FH=['Department','SheetNo.','SheetName','ActionType','Item Code','Item Name','Upload date','Trans.Status','PersonalName','Trans.Date','Trans.Time','Scanned','Deletion','Deletion date'];
-const UH=['UserName','Employee Name','Mob.No','Emp.Email','Department','Job Titel','Password','Status','Type'];
+const UH=['UserName','Employee Name','Department','Job Titel','Password','Status','Type','Mob.No','Emp.Email'];
 let fr=[],ur=[],br=[],fsha='',usha='',bsha='';
 
 document.addEventListener('DOMContentLoaded',()=>{
@@ -898,7 +899,7 @@ async function saveFile(m,s){
     show(s,'خطأ: '+e.message,'err');
   }
 }
-function addUser(){let ids=['uUser','uEmployee','uMobNo','uEmpEmail','uDepartment','uJob','uPassword','uStatus','uType'],o={};UH.forEach((h,i)=>o[h]=document.getElementById(ids[i]).value.trim());o.Password='00000';document.getElementById('uPassword').value='00000';if(!o.UserName)return alert('UserName مطلوب');ur.push(o);saveUsers('إضافة مستخدم إلى users.csv','userAddStatus')}
+function addUser(){let ids=['uUser','uEmployee','uDepartment','uJob','uPassword','uStatus','uType','uMobNo','uEmpEmail'],o={};UH.forEach((h,i)=>o[h]=document.getElementById(ids[i]).value.trim());o.Password='00000';document.getElementById('uPassword').value='00000';if(!o.UserName)return alert('UserName مطلوب');ur.push(o);saveUsers('إضافة مستخدم إلى users.csv','userAddStatus')}
 async function saveUsers(m,s){try{const latest=await get(USERS);const latestRows=latest.rows||[];const newUser=ur[ur.length-1];if(!newUser)throw Error('بيانات المستخدم غير موجودة');const key=v=>String(v??'').trim().toLowerCase();const idx=latestRows.findIndex(r=>key(r.UserName)===key(newUser.UserName));if(idx>=0)latestRows[idx]=newUser;else latestRows.push(newUser);const x=await put(USERS,latestRows,UH,latest.sha,m);ur=latestRows;usha=x.content.sha;renderUsers();show(s,'تم الحفظ على GitHub بنجاح','ok')}catch(e){show(s,'خطأ: '+e.message,'err')}}
 function addPasteRow(data={}){
   let tr=document.createElement('tr');
