@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SY50RA Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <meta name="description" content="SY50RA Tools — a collection of productivity tools.">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f172a">
 <style>
 :root{
   --bg:#07111f;
@@ -15,18 +15,18 @@
   --border:rgba(255,255,255,.10);
   --text:#f4f7fb;
   --muted:#9eacc0;
-  --accent:#55a7ff;
-  --accent2:#7c5cff;
+  --accent:#E8A33D;
+  --accent2:#B87F2A;
   --shadow:0 24px 70px rgba(0,0,0,.35);
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
   margin:0; min-height:100vh; color:var(--text);
-  font-family:Inter,Segoe UI,Arial,sans-serif;
+  font-family:Inter,'Tajawal','Segoe UI',Arial,sans-serif;
   background:
-    radial-gradient(circle at 15% 10%,rgba(85,167,255,.18),transparent 28%),
-    radial-gradient(circle at 85% 15%,rgba(124,92,255,.16),transparent 30%),
+    radial-gradient(circle at 15% 10%,rgba(232,163,61,.18),transparent 28%),
+    radial-gradient(circle at 85% 15%,rgba(184,127,42,.16),transparent 30%),
     linear-gradient(135deg,var(--bg),var(--bg2));
 }
 body:before{
@@ -41,7 +41,7 @@ header{padding:82px 0 26px;text-align:center}
   width:76px;height:76px;margin:0 auto 20px;border-radius:22px;
   display:grid;place-items:center;font-weight:900;font-size:24px;
   background:linear-gradient(135deg,var(--accent),var(--accent2));
-  box-shadow:0 16px 45px rgba(85,167,255,.25);
+  box-shadow:0 16px 45px rgba(232,163,61,.25);
 }
 h1{margin:0;font-size:clamp(38px,6vw,64px);letter-spacing:-2px}
 .subtitle{margin:13px auto 0;color:var(--muted);font-size:17px;max-width:650px;line-height:1.6}
@@ -60,10 +60,10 @@ h1{margin:0;font-size:clamp(38px,6vw,64px);letter-spacing:-2px}
   border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));
   opacity:.10;filter:blur(4px);
 }
-.card:hover{transform:translateY(-7px);border-color:rgba(125,180,255,.34)}
+.card:hover{transform:translateY(-7px);border-color:rgba(232,163,61,.34)}
 .icon{
   width:52px;height:52px;border-radius:16px;display:grid;place-items:center;
-  font-size:24px;background:rgba(85,167,255,.11);border:1px solid rgba(85,167,255,.18);
+  font-size:24px;background:rgba(232,163,61,.11);border:1px solid rgba(232,163,61,.18);
   margin-bottom:22px;
 }
 .card h2{margin:0 0 10px;font-size:22px}
@@ -72,7 +72,7 @@ h1{margin:0;font-size:clamp(38px,6vw,64px);letter-spacing:-2px}
   margin-top:25px;width:max-content;text-decoration:none;color:white;
   padding:11px 18px;border-radius:12px;font-weight:700;font-size:14px;
   background:linear-gradient(135deg,var(--accent),var(--accent2));
-  box-shadow:0 9px 25px rgba(85,167,255,.18);transition:.2s;
+  box-shadow:0 9px 25px rgba(232,163,61,.18);transition:.2s;
 }
 .open:hover{filter:brightness(1.1);transform:translateX(2px)}
 footer{padding:0 0 35px;text-align:center;color:#718198;font-size:13px}
@@ -252,18 +252,17 @@ body.controls-open #headerControlHandle{opacity:0!important;pointer-events:none!
     <button class="control-btn" id="arBtn" type="button" onclick="setLanguage('ar'); closeControls()">عربي</button>
     <button class="control-btn" id="themeBtn" type="button" onclick="toggleTheme(); closeControls()">☀️ / 🌙</button>
   </div>
-  <div class="logo">S.P.T</div>
-  <h1 data-en="Sysora Pro Tools" data-ar="أدوات Sysora Pro">Sysora Pro Tools</h1>
-  <b>Developed by SYSORA V2.0 © 2026</b>
+  <div class="logo">S5</div>
+  <h1 data-en="SY50RA Tools" data-ar="أدوات SY50RA">SY50RA Tools</h1>
   <p class="subtitle" data-en="A professional workspace for the tools I use every day." data-ar="مساحة احترافية تجمع الأدوات التي أستخدمها يوميًا.">A professional workspace for the tools I use every day.</p>
 </header>
 
 <section class="tools" aria-label="Tools">
   <article class="card">
     <div class="icon">📦</div>
-    <h2><span data-en="Items-Shelf Mangment" data-ar="إدارة الأصناف والأرفف">Items-Shelf Mangment</span></h2>
-    <p><span data-en="Manage items and shelves through a dedicated workspace." data-ar="إدارة الأصناف والأرفف من خلال مساحة عمل مخصصة.">Manage items and shelves through a dedicated workspace.</span></p>
-    <a class="open" href="Items-Shelf-Mangment.html" onclick="openToolWithFallback(event, 'Items-Shelf-Mangment.html', 'ItemsMangment.html')"><span data-en="Open Tool&nbsp; →" data-ar="فتح الأداة&nbsp; →">Open Tool&nbsp; →</span></a>
+    <h2><span data-en="Items Management" data-ar="إدارة الأصناف">Items Management</span></h2>
+    <p><span data-en="Manage and work with item information through a dedicated workspace." data-ar="إدارة والعمل على بيانات الأصناف من خلال مساحة عمل مخصصة.">Manage and work with item information through a dedicated workspace.</span></p>
+    <a class="open" href="ItemsMangment.html"><span data-en="Open Tool&nbsp; →" data-ar="فتح الأداة&nbsp; →">Open Tool&nbsp; →</span></a>
   </article>
 
   <article class="card">
@@ -284,11 +283,11 @@ body.controls-open #headerControlHandle{opacity:0!important;pointer-events:none!
     <div class="icon">▦</div>
     <h2><span data-en="Items &amp; Shelf Barcode Generator" data-ar="مولد باركود الأصناف والأرفف">Items &amp; Shelf Barcode Generator</span></h2>
     <p><span data-en="Generate barcodes for items and shelves quickly and efficiently." data-ar="إنشاء باركود للأصناف والأرفف بسرعة وكفاءة.">Generate barcodes for items and shelves quickly and efficiently.</span></p>
-    <a class="open" href="Items-Shelf-Barcode-Generator.html" onclick="openToolWithFallback(event, 'Items-Shelf-Barcode-Generator.html', 'Items-Shelf Barcode Generator.html')"><span data-en="Open Tool&nbsp; →" data-ar="فتح الأداة&nbsp; →">Open Tool&nbsp; →</span></a>
+    <a class="open" href="Items-Shelf%20Barcode%20Generator.html"><span data-en="Open Tool&nbsp; →" data-ar="فتح الأداة&nbsp; →">Open Tool&nbsp; →</span></a>
   </article>
 </section>
 
-<footer><span data-en="Sysora Pro Tools • All Tools In One Place" data-ar="Sysora Pro Tools • كل الأدوات في مكان واحد">Sysora Pro Tools • All Tools In One Place</span></footer>
+<footer><span data-en="SY50RA Tools • All tools in one place" data-ar="SY50RA Tools • كل الأدوات في مكان واحد">SY50RA Tools • All tools in one place</span></footer>
 </main>
 
 <script>
@@ -414,37 +413,6 @@ setLanguage(localStorage.getItem('sy50ra-lang') || 'en');
 
 <script>
 function closeControls(){ document.body.classList.remove('controls-open'); }
-</script>
-  <script>
-if ("serviceWorker" in navigator) {
-    window.addEventListener("load", function () {
-        navigator.serviceWorker.register("./sw.js")
-            .then(function () {
-                console.log("SYSORA Service Worker registered");
-            })
-            .catch(function (error) {
-                console.error("Service Worker registration failed:", error);
-            });
-    });
-}
-</script>
-
-<script>
-function openToolWithFallback(event, primary, fallback){
-  event.preventDefault();
-  fetch(primary, {method:'HEAD', cache:'no-store'})
-    .then(function(r){
-      if(r.ok){
-        window.location.href = primary;
-      }else{
-        window.location.href = fallback;
-      }
-    })
-    .catch(function(){
-      // If the server blocks HEAD/CORS, use the renamed file as the primary target.
-      window.location.href = primary;
-    });
-}
 </script>
 </body>
 </html>
