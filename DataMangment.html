@@ -87,7 +87,7 @@
 #userAdd input { width: 100%; box-sizing: border-box; }
 
 /* الحقول القصيرة */
-#fSheetNo, #fDate, #fTime,
+#fSheetNo, #fDate,
 #fStatus, #uStatus, #uType, #uJob,
 #qSheetNo, #qStatus, #uqDepartment {
   max-width: 220px;
@@ -124,10 +124,11 @@
 .data-table th:nth-child(9), .data-table td:nth-child(9) { min-width: 120px; } /* Status */
 .data-table th:nth-child(10), .data-table td:nth-child(10) { min-width: 150px; } /* PersonalName */
 .data-table th:nth-child(11), .data-table td:nth-child(11) { min-width: 105px; } /* Date */
-.data-table th:nth-child(12), .data-table td:nth-child(12) { min-width: 90px; } /* Time */
-.data-table th:nth-child(13), .data-table td:nth-child(13) { min-width: 90px; } /* Scanned */
-.data-table th:nth-child(14), .data-table td:nth-child(14) { min-width: 90px; } /* Deletion */
-.data-table th:nth-child(15), .data-table td:nth-child(15) { min-width: 150px; } /* Deletion date */
+.data-table th:nth-child(12), .data-table td:nth-child(12) { min-width: 90px; } /* Scanned */
+.data-table th:nth-child(13), .data-table td:nth-child(13) { min-width: 110px; } /* ShelfNo */
+.data-table th:nth-child(14), .data-table td:nth-child(14) { min-width: 150px; } /* Scan.Date */
+.data-table th:nth-child(15), .data-table td:nth-child(15) { min-width: 90px; } /* Deletion */
+.data-table th:nth-child(16), .data-table td:nth-child(16) { min-width: 150px; } /* Deletion date */
 
 .data-table td input {
   box-sizing: border-box;
@@ -149,7 +150,7 @@
 
 /* على الشاشات الصغيرة */
 @media (max-width: 800px) {
-  #fSheetNo, #fDate, #fTime, #fStatus, #uStatus, #uType, #uJob,
+  #fSheetNo, #fDate, #fStatus, #uStatus, #uType, #uJob,
   #qSheetNo, #qStatus, #uqDepartment,
   #fDepartment, #fSheetName, #fItemCode, #fPersonal,
   #uUser, #uEmployee, #uDepartment, #qDepartment, #qItemCode, #uq {
@@ -260,8 +261,8 @@ body{
   color:var(--text) !important;
   font-family:Inter,'Segoe UI',Arial,sans-serif !important;
   background:
-    radial-gradient(circle at 15% 10%,rgba(232,163,61,.18),transparent 28%),
-    radial-gradient(circle at 85% 15%,rgba(184,127,42,.16),transparent 30%),
+    radial-gradient(circle at 15% 10%,rgba(var(--accent-rgb),.18),transparent 28%),
+    radial-gradient(circle at 85% 15%,rgba(var(--accent2-rgb),.16),transparent 30%),
     linear-gradient(135deg,var(--bg),var(--bg2)) !important;
 }
 body:before{
@@ -273,7 +274,7 @@ body:before{
 h1{font-size:30px !important;line-height:1.25;margin:0 !important;font-weight:800;letter-spacing:-.5px;}
 .sub{color:var(--muted) !important;font-size:14px !important;margin:8px 0 24px !important;}
 .langBtn{
-  background:rgba(10,24,40,.72) !important;border:1px solid var(--border) !important;
+  background:rgba(var(--card-rgb),.72) !important;border:1px solid var(--border) !important;
   color:var(--muted) !important;border-radius:12px !important;padding:9px 13px !important;
   font-weight:700;font-size:13px;backdrop-filter:blur(16px);box-shadow:0 12px 35px rgba(0,0,0,.22);
   transition:.2s;
@@ -294,21 +295,21 @@ h1{font-size:30px !important;line-height:1.25;margin:0 !important;font-weight:80
   transition:.2s;border-radius:10px 10px 0 0 !important;
 }
 .tab-btn:hover{color:var(--text) !important;background:rgba(255,255,255,.04);}
-.tab-btn.active{color:var(--text) !important;border-bottom-color:var(--accent) !important;background:rgba(232,163,61,.07);}
+.tab-btn.active{color:var(--text) !important;border-bottom-color:var(--accent) !important;background:rgba(var(--accent-rgb),.07);}
 label{color:var(--muted) !important;font-size:12.5px !important;}
 input[type=text],input[type=password],input[type=file],.field-card select{
   border:1px solid var(--border) !important;border-radius:11px !important;
   background:rgba(8,20,34,.62) !important;color:var(--text) !important;
   padding:11px 13px !important;transition:.2s;
 }
-input:focus,.field-card select:focus{outline:none !important;border-color:rgba(232,163,61,.75) !important;box-shadow:0 0 0 3px rgba(232,163,61,.10);}
+input:focus,.field-card select:focus{outline:none !important;border-color:rgba(var(--accent-rgb),.75) !important;box-shadow:0 0 0 3px rgba(var(--accent-rgb),.10);}
 .readonly-field{background:rgba(255,255,255,.045) !important;color:var(--muted) !important;}
 button{border-radius:11px !important;transition:.2s;}
 .btn-primary{
   background:linear-gradient(135deg,var(--accent),var(--accent2)) !important;color:#fff !important;
-  border:0 !important;box-shadow:0 10px 28px rgba(232,163,61,.18);width:100%;
+  border:0 !important;box-shadow:0 10px 28px rgba(var(--accent-rgb),.18);width:100%;
 }
-.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 14px 32px rgba(232,163,61,.24);}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 14px 32px rgba(var(--accent-rgb),.24);}
 .btn-secondary{
   background:rgba(255,255,255,.055) !important;border:1px solid var(--border) !important;
   color:var(--text) !important;width:100%;
@@ -323,12 +324,12 @@ button{border-radius:11px !important;transition:.2s;}
 .preview th,.data-table th,#pasteTable th{background:rgba(255,255,255,.055) !important;color:var(--muted) !important;border-color:var(--border) !important;}
 .preview td,.data-table td,#pasteTable td{border-color:var(--border) !important;}
 .data-table td input,#pasteTable input{color:var(--text) !important;}
-.data-table td input:focus,#pasteTable input:focus{background:rgba(232,163,61,.06) !important;border-color:rgba(232,163,61,.55) !important;}
+.data-table td input:focus,#pasteTable input:focus{background:rgba(var(--accent-rgb),.06) !important;border-color:rgba(var(--accent-rgb),.55) !important;}
 .paste-meta{background:rgba(255,255,255,.035) !important;border-color:var(--border) !important;border-radius:13px !important;}
 .reset-password-btn{background:rgba(255,255,255,.055) !important;border-color:var(--border) !important;color:#f0c988 !important;}
-.reset-password-btn:hover{background:rgba(255,255,255,.09) !important;border-color:rgba(232,163,61,.35) !important;}
+.reset-password-btn:hover{background:rgba(255,255,255,.09) !important;border-color:rgba(var(--accent-rgb),.35) !important;}
 .tag.new{background:rgba(61,220,151,.12) !important;color:#bff5df !important;}
-.tag.update{background:rgba(232,163,61,.12) !important;color:#ffe0a8 !important;}
+.tag.update{background:rgba(var(--accent-rgb),.12) !important;color:#ffe0a8 !important;}
 summary{color:var(--muted) !important;}
 @media(max-width:800px){
   body{padding:22px 14px 36px !important;}
@@ -343,7 +344,7 @@ summary{color:var(--muted) !important;}
   --surface-2:rgba(245,248,252,.9);--border:rgba(18,35,58,.12);--text:#102033;--muted:#607086;
   --shadow:0 24px 70px rgba(33,58,91,.14);--amber:#E8A33D;--amber-fg:#102033;
 }
-[data-theme="light"] body{background:radial-gradient(circle at 15% 10%,rgba(232,163,61,.15),transparent 28%),radial-gradient(circle at 85% 15%,rgba(184,127,42,.12),transparent 30%),linear-gradient(135deg,var(--bg),var(--bg2)) !important;}
+[data-theme="light"] body{background:radial-gradient(circle at 15% 10%,rgba(var(--accent-rgb),.15),transparent 28%),radial-gradient(circle at 85% 15%,rgba(var(--accent2-rgb),.12),transparent 30%),linear-gradient(135deg,var(--bg),var(--bg2)) !important;}
 [data-theme="light"] body:before{opacity:.16;}
 [data-theme="light"] .langBtn{background:rgba(255,255,255,.78) !important;color:var(--muted) !important;}
 [data-theme="light"] input[type=text],[data-theme="light"] input[type=password],[data-theme="light"] input[type=file],[data-theme="light"] .field-card select{background:rgba(255,255,255,.86) !important;color:var(--text) !important;}
@@ -352,16 +353,16 @@ summary{color:var(--muted) !important;}
 
 <style id="homepage-controls-visual">
 :root{--bg:#07111f;--bg2:#0d1b2e;--surface:rgba(18,34,56,.72);--surface-2:rgba(10,24,40,.62);--card:rgba(18,34,56,.72);--border:rgba(255,255,255,.10);--text:#f4f7fb;--muted:#9eacc0;--accent:#E8A33D;--accent2:#B87F2A;--shadow:0 24px 70px rgba(0,0,0,.35)}
-body{color:var(--text);background:radial-gradient(circle at 15% 10%,rgba(232,163,61,.18),transparent 28%),radial-gradient(circle at 85% 15%,rgba(184,127,42,.16),transparent 30%),linear-gradient(135deg,var(--bg),var(--bg2));font-family:Inter,Segoe UI,Arial,sans-serif;max-width:1120px;padding:22px 24px;position:relative}
+body{color:var(--text);background:radial-gradient(circle at 15% 10%,rgba(var(--accent-rgb),.18),transparent 28%),radial-gradient(circle at 85% 15%,rgba(var(--accent2-rgb),.16),transparent 30%),linear-gradient(135deg,var(--bg),var(--bg2));font-family:Inter,Segoe UI,Arial,sans-serif;max-width:1120px;padding:22px 24px;position:relative}
 body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:36px 36px;z-index:-1}
 .topbar{align-items:center}.topbar h1{font-size:30px;margin:6px 0 4px;font-weight:800;letter-spacing:-.4px}
-.page-controls{display:flex;gap:8px;padding:7px;border:1px solid var(--border);border-radius:16px;background:rgba(10,24,40,.72);backdrop-filter:blur(16px);box-shadow:0 12px 35px rgba(0,0,0,.22)}
+.page-controls{display:flex;gap:8px;padding:7px;border:1px solid var(--border);border-radius:16px;background:rgba(var(--card-rgb),.72);backdrop-filter:blur(16px);box-shadow:0 12px 35px rgba(0,0,0,.22)}
 .control-btn{border:0!important;background:transparent!important;color:var(--muted)!important;cursor:pointer;padding:9px 12px;border-radius:11px;font-weight:700;font-size:13px;transition:.2s}
 .control-btn:hover,.control-btn.active{background:rgba(255,255,255,.10)!important;color:var(--text)!important}.langBtn{display:none!important}
 .card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:22px;margin-bottom:18px;backdrop-filter:blur(18px);box-shadow:var(--shadow)}
 .tab-btn.active{color:var(--accent)!important;border-bottom-color:var(--accent)!important}
 input[type=text],input[type=password],input[type=file],.field-card select{background:var(--surface-2)!important;color:var(--text)!important;border-color:var(--border)!important;border-radius:12px!important}
-input:focus,.field-card select:focus{border-color:var(--accent)!important;box-shadow:0 0 0 3px rgba(232,163,61,.10)}
+input:focus,.field-card select:focus{border-color:var(--accent)!important;box-shadow:0 0 0 3px rgba(var(--accent-rgb),.10)}
 .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2))!important;color:#fff!important;border:0!important;border-radius:12px!important}.btn-secondary{background:rgba(255,255,255,.06)!important;color:var(--text)!important;border:1px solid var(--border)!important;border-radius:12px!important}
 [data-theme="light"]{--bg:#f3f7fc;--bg2:#e8eef7;--surface:rgba(255,255,255,.78);--surface-2:rgba(246,249,253,.92);--card:rgba(255,255,255,.78);--border:rgba(18,35,58,.12);--text:#102033;--muted:#607086;--shadow:0 24px 70px rgba(33,58,91,.14)}
 [data-theme="light"] .page-controls{background:rgba(255,255,255,.78)}
@@ -369,15 +370,22 @@ input:focus,.field-card select:focus{border-color:var(--accent)!important;box-sh
 </style>
 
 <style id="side-control-style">
-.side-control-handle{position:fixed;top:10px;right:0;z-index:99999;width:34px;height:34px;border-radius:12px 0 0 12px;border:1px solid rgba(255,255,255,.12);background:rgba(10,24,40,.82);color:var(--text,#f4f7fb);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;line-height:1;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.25);backdrop-filter:blur(14px);user-select:none;touch-action:none;transition:background .2s ease,box-shadow .2s ease,transform .2s ease}
-.side-control-handle:hover{background:rgba(18,34,56,.95);box-shadow:0 10px 28px rgba(0,0,0,.32)}
-.side-control-panel{position:fixed;top:10px;right:42px;z-index:99998;display:flex;gap:6px;padding:6px;border:1px solid var(--border,rgba(255,255,255,.1));border-radius:14px;background:rgba(10,24,40,.82);backdrop-filter:blur(16px);box-shadow:0 12px 35px rgba(0,0,0,.25);opacity:0;visibility:hidden;pointer-events:none;transform:translateX(8px);transition:.18s ease}
+.side-control-handle{position:fixed;top:10px;right:0;z-index:99999;width:34px;height:34px;border-radius:12px 0 0 12px;border:1px solid rgba(255,255,255,.12);background:rgba(var(--card-rgb),.82);color:var(--text,#f4f7fb);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;line-height:1;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.25);backdrop-filter:blur(14px);user-select:none;touch-action:none;transition:background .2s ease,box-shadow .2s ease,transform .2s ease}
+.side-control-handle:hover{background:rgba(var(--card-rgb),.95);box-shadow:0 10px 28px rgba(0,0,0,.32)}
+.side-control-panel{position:fixed;top:10px;right:42px;z-index:99998;display:flex;gap:6px;padding:6px;border:1px solid var(--border,rgba(255,255,255,.1));border-radius:14px;background:rgba(var(--card-rgb),.82);backdrop-filter:blur(16px);box-shadow:0 12px 35px rgba(0,0,0,.25);opacity:0;visibility:hidden;pointer-events:none;transform:translateX(8px);transition:.18s ease}
 .side-control-panel.controls-open{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(0)}
 .side-control-panel .control-btn{margin:0!important;border:0!important;background:transparent!important;color:var(--muted)!important;box-shadow:none!important;transform:none!important;cursor:pointer;padding:8px 10px!important;border-radius:10px!important;font-weight:700!important;font-size:12px!important;white-space:nowrap}
 .side-control-panel .control-btn:hover,.side-control-panel .control-btn.active{background:rgba(255,255,255,.10)!important;color:var(--text)!important}
 html[data-theme="light"] .side-control-handle,html[data-theme="light"] .side-control-panel{background:rgba(255,255,255,.86);color:var(--text)}
 html[data-theme="light"] .side-control-panel .control-btn:hover,html[data-theme="light"] .side-control-panel .control-btn.active{background:rgba(18,35,58,.08)!important}
 </style>
+<style id="sysora-tool-palette">
+/* SYSORA Backup tool palette (dark / light) */
+:root{--bg:#0f1a25;--bg2:#0f1a25;--card:#172635;--surface:#172635;--surface-2:#0f1a25;--border:#2a3d50;--text:#e8eef4;--muted:#93a6b7;--accent:#2bb594;--accent2:#1f9a7e;--amber:#2bb594;--amber-dim:#1f9a7e;--amber-fg:#8fe3cd;--shadow:0 24px 70px rgba(0,0,0,.35);--accent-rgb:43,181,148;--accent2-rgb:31,154,126;--card-rgb:23,38,53}
+html[data-theme="light"]{--bg:#eef1f4;--bg2:#eef1f4;--card:#ffffff;--surface:#ffffff;--surface-2:#eef1f4;--border:#d9e0e7;--text:#12263a;--muted:#5d6f80;--accent:#0e7c66;--accent2:#0a6a57;--amber:#0e7c66;--amber-dim:#0a6a57;--amber-fg:#0b5c4b;--shadow:0 24px 70px rgba(33,58,91,.14);--accent-rgb:14,124,102;--accent2-rgb:10,106,87;--card-rgb:255,255,255}
+html,body{background:var(--bg)!important}
+</style>
+
 </head>
 <body>
 <div id="sideControlHandle" class="side-control-handle" aria-label="Controls" title="Click to open • Long press and drag to move">⋮</div>
@@ -442,14 +450,8 @@ html[data-theme="light"] .side-control-panel .control-btn:hover,html[data-theme=
         <div class="field-card"><label>PersonalName</label><input type="text" id="fPersonal"></div>
         <div class="field-card"><label>Trans.Date</label>
           <div style="display:flex;gap:6px;">
-            <input type="text" id="fDate" placeholder="مثال: 24/09/2026" style="flex:1;min-width:0;">
-            <button type="button" onclick="dmFillNow('fDate','date')" style="padding:0 12px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;font-size:12px;white-space:nowrap;">⏱ الآن</button>
-          </div>
-        </div>
-        <div class="field-card"><label>Trans.Time</label>
-          <div style="display:flex;gap:6px;">
-            <input type="text" id="fTime" placeholder="مثال: 14:10:00" style="flex:1;min-width:0;">
-            <button type="button" onclick="dmFillNow('fTime','time')" style="padding:0 12px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;font-size:12px;white-space:nowrap;">⏱ الآن</button>
+            <input type="text" id="fDate" placeholder="مثال: 24/09/2026 14:10:00" style="flex:1;min-width:0;">
+            <button type="button" onclick="dmFillNow('fDate','datetime')" style="padding:0 12px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:8px;font-size:12px;white-space:nowrap;">⏱ الآن</button>
           </div>
         </div>
       </div>
@@ -468,9 +470,9 @@ html[data-theme="light"] .side-control-panel .control-btn:hover,html[data-theme=
           <div class="field-card"><label>Upload date</label><input type="text" id="pUploadDate" class="readonly-field" readonly></div>
         </div>
       </div>
-      <div class="hint" style="margin-top:10px">الصق من Excel بالترتيب: <b>ActionType</b> ثم <b>Item Code</b> ثم <b>Item Name</b> ثم <b>Trans.Status</b> ثم <b>PersonalName</b> ثم <b>Trans.Date</b> ثم <b>Trans.Time</b>. لا تحتاج إلى نسخ Department أو SheetNo أو SheetName أو Upload date.</div>
+      <div class="hint" style="margin-top:10px">الصق من Excel بالترتيب: <b>ActionType</b> ثم <b>Item Code</b> ثم <b>Item Name</b> ثم <b>Trans.Status</b> ثم <b>PersonalName</b> ثم <b>Trans.Date</b>. لا تحتاج إلى نسخ Department أو SheetNo أو SheetName أو Upload date.</div>
       <div id="pasteTableWrap" style="overflow-x:auto;margin-top:12px">
-        <table id="pasteTable"><thead><tr><th>#</th><th>ActionType</th><th>Item Code</th><th>Item Name</th><th>Trans.Status</th><th>PersonalName</th><th>Trans.Date</th><th>Trans.Time</th><th></th></tr></thead><tbody id="pasteBody"></tbody></table>
+        <table id="pasteTable"><thead><tr><th>#</th><th>ActionType</th><th>Item Code</th><th>Item Name</th><th>Trans.Status</th><th>PersonalName</th><th>Trans.Date</th><th></th></tr></thead><tbody id="pasteBody"></tbody></table>
       </div>
       <div class="row" style="margin-top:10px"><button class="btn-secondary" style="margin-top:0" onclick="addPasteRow()">➕ سطر جديد</button><button class="btn-secondary" style="margin-top:0" onclick="clearPaste()">🗑 مسح الكل</button></div>
       <button class="btn-primary" onclick="savePaste()">💾 معاينة وحفظ</button>
@@ -746,7 +748,7 @@ html[data-theme="light"] .side-control-panel .control-btn:hover,html[data-theme=
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 const FILE='FileUploade.csv', BACKUP='FileUploadeBackup.csv', USERS='users.csv', POORDERS='PoOrders.csv', PRIVATEFILE='PrivateFile.csv';
-const FH=['Department','SheetNo.','SheetName','ActionType','Item Code','Item Name','Upload date','Trans.Status','PersonalName','Trans.Date','Trans.Time','Scanned','Deletion','Deletion date'];
+const FH=['Department','SheetNo.','SheetName','ActionType','Item Code','Item Name','Upload date','Trans.Status','PersonalName','Trans.Date','Scanned','ShelfNo','Scan.Date','Deletion','Deletion date'];
 const UH=['UserName','Employee Name','Department','Job Titel','Password','Status','Type','Mob.No','Emp.Email'];
 const POH=['Department','ActionType','PoNo','ShelfNo','Item Code','Item Name','Emp.No','Emp.Name','Scan.Date'];
 const PFH=['Department','SheetNo','SheetName','ActionType','ShelfNo','Item Code','Item Name','Emp.No','Emp.Name','Scan.Date'];
@@ -944,16 +946,12 @@ function nowDeviceDateTime(){
   const pad=n=>String(n).padStart(2,'0');
   return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
-// Fills a Trans.Date/Trans.Time field with the current value in the correct shape — avoids the
-// manual-typo errors that end up flagged by the FileUploade integrity checker later.
-const DM_DATE_RE=/^\d{1,2}\/\d{1,2}\/\d{4}$/;
-const DM_TIME_RE=/^\d{1,2}:\d{2}(:\d{2})?$/;
+// Fills Trans.Date with the same date+time format used by Upload date.
+const DM_DATETIME_RE=/^\d{1,2}\/\d{1,2}\/\d{4} \d{2}:\d{2}:\d{2}$/;
 function dmFillNow(id,kind){
   const el=document.getElementById(id); if(!el)return;
   const d=new Date(); const pad=n=>String(n).padStart(2,'0');
-  el.value = kind==='time'
-    ? `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
-    : `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
+  el.value = `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 function refreshGeneratedDates(){
   const now=nowDeviceDateTime();
@@ -975,15 +973,15 @@ async function addFile(){
   o['Trans.Status']=fStatus.value.trim();
   o.PersonalName=fPersonal.value.trim();
   o['Trans.Date']=fDate.value.trim();
-  o['Trans.Time']=fTime.value.trim();
   o.Scanned='';
+  o.ShelfNo='';
+  o['Scan.Date']='';
   o.Deletion='';
   o['Deletion date']='';
   if(!o.Department)return alert('Department مطلوب');
   if(!o.SheetName)return alert('SheetName مطلوب');
   if(!o['Item Code'])return alert('Item Code مطلوب');
-  if(o['Trans.Date']&&!DM_DATE_RE.test(o['Trans.Date']))return alert('صيغة Trans.Date غير صحيحة — لازم تكون DD/MM/YYYY، مثال: 24/09/2026');
-  if(o['Trans.Time']&&!DM_TIME_RE.test(o['Trans.Time']))return alert('صيغة Trans.Time غير صحيحة — لازم تكون HH:MM أو HH:MM:SS، مثال: 14:10:00');
+  if(o['Trans.Date']&&!DM_DATETIME_RE.test(o['Trans.Date']))return alert('صيغة Trans.Date غير صحيحة — لازم تكون DD/MM/YYYY HH:MM:SS، مثال: 24/09/2026 14:10:00');
 
   try{
     show('fileAddStatus','جاري الإضافة...','info');
@@ -999,7 +997,7 @@ async function addFile(){
         renderFile();
         show('fileAddStatus','تمت إضافة السجل وحفظه على GitHub بنجاح','ok');
         refreshGeneratedSheetNo();
-        ['fSheetName','fItemCode','fItemName','fUploadDate','fStatus','fPersonal','fDate','fTime'].forEach(id=>{
+        ['fSheetName','fItemCode','fItemName','fUploadDate','fStatus','fPersonal','fDate'].forEach(id=>{
           const el=document.getElementById(id); if(el)el.value='';
         });
         return;
@@ -1054,7 +1052,7 @@ async function saveUsers(m,s){try{const latest=await get(USERS);const latestRows
 function addPasteRow(data={}){
   let tr=document.createElement('tr');
   let n=document.querySelectorAll('#pasteBody tr').length+1;
-  const PH=['Item Code','Item Name','Trans.Status','PersonalName','Trans.Date','Trans.Time'];
+  const PH=['Item Code','Item Name','Trans.Status','PersonalName','Trans.Date'];
   const at=String(data.ActionType||'');
   tr.innerHTML='<td>'+n+'</td><td><input data-h="ActionType" value="'+at.replace(/"/g,'&quot;')+'"></td>'+
     PH.map(h=>'<td><input data-h="'+h.replace(/"/g,'&quot;')+'" value="'+String(data[h]||'').replace(/"/g,'&quot;')+'"></td>').join('')+
@@ -1068,7 +1066,7 @@ document.getElementById('pasteTable').addEventListener('paste',e=>{
   clearPaste();
   txt.trim().split(/\r?\n/).forEach(line=>{
     let c=line.split('\t'),o={};
-    ['ActionType','Item Code','Item Name','Trans.Status','PersonalName','Trans.Date','Trans.Time']
+    ['ActionType','Item Code','Item Name','Trans.Status','PersonalName','Trans.Date']
       .forEach((h,i)=>o[h]=(c[i]||'').trim());
     addPasteRow(o);
   });
@@ -1083,9 +1081,9 @@ async function savePaste(){
     tr.querySelectorAll('input').forEach(i=>o[i.dataset.h]=i.value.trim());
     const atInput=tr.querySelector('input[data-h="ActionType"]');
     o.ActionType=atInput?atInput.value.trim():String(o.ActionType||'').trim();
-    o.Department=dep;o['SheetNo.']=sn;o.SheetName=name;o['Upload date']=uploadDate;o.Scanned='';o.Deletion='';o['Deletion date']='';
+    o.Department=dep;o['SheetNo.']=sn;o.SheetName=name;o['Upload date']=uploadDate;o.Scanned='';o.ShelfNo='';o['Scan.Date']='';o.Deletion='';o['Deletion date']='';
     return o;
-  }).filter(o=>o['Item Code']||o['Item Name']||o['Trans.Status']||o.PersonalName||o['Trans.Date']||o['Trans.Time']);
+  }).filter(o=>o['Item Code']||o['Item Name']||o['Trans.Status']||o.PersonalName||o['Trans.Date']);
   if(!rows.length)return alert('لا توجد بيانات');
 
   try{
@@ -1221,8 +1219,9 @@ async function saveUploadFile(){
     o['Trans.Status']='';
     o.PersonalName='';
     o['Trans.Date']='';
-    o['Trans.Time']='';
     o.Scanned='';
+    o.ShelfNo='';
+    o['Scan.Date']='';
     o.Deletion='';
     o['Deletion date']='';
     return o;
@@ -1622,12 +1621,11 @@ async function resetFileRow(i){
     fr[i]['Trans.Status']='';
     fr[i]['PersonalName']='';
     fr[i]['Trans.Date']='';
-    fr[i]['Trans.Time']='';
     fr[i]['Deletion']='';
     let x=await put(FILE,fr,FH,fsha,'Reset FileUploade record');
     fsha=x.content.sha;
     renderFile();
-    show('actionStatus','تم Reset السجل ومسح Trans.Status و PersonalName و Trans.Date و Trans.Time و Deletion وحفظ التعديل مباشرة','ok');
+    show('actionStatus','تم Reset السجل ومسح Trans.Status و PersonalName و Trans.Date و Deletion وحفظ التعديل مباشرة','ok');
   }catch(e){show('actionStatus','خطأ أثناء Reset: '+e.message,'err')}
 }
 async function resetSelectedFile(){
@@ -1642,13 +1640,12 @@ async function resetSelectedFile(){
       fr[i]['Trans.Status']='';
       fr[i]['PersonalName']='';
       fr[i]['Trans.Date']='';
-      fr[i]['Trans.Time']='';
-      fr[i]['Deletion']='';
+        fr[i]['Deletion']='';
     });
     let x=await put(FILE,fr,FH,fsha,'Reset FileUploade records');
     fsha=x.content.sha;
     renderFile();
-    show('actionStatus','تم Reset السجلات المحددة ومسح الحقول الأربعة و Deletion وحفظ التعديل مباشرة','ok');
+    show('actionStatus','تم Reset السجلات المحددة ومسح Trans.Status و PersonalName و Trans.Date و Deletion وحفظ التعديل مباشرة','ok');
   }catch(e){show('actionStatus','خطأ أثناء Reset: '+e.message,'err')}
 }
 function toggleVisible(type,cb){document.querySelectorAll('.sel-'+type).forEach(x=>x.checked=cb.checked)}

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SYSORA DATA — نسخة احتياطية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<script>try{var t=localStorage.getItem("sysora_theme");if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{--bg:#eef1f4;--card:#fff;--ink:#12263a;--muted:#5d6f80;--line:#d9e0e7;--accent:#0e7c66;--accent-ink:#fff;--warn:#9a6700;--warn-bg:#fff6dd;--err:#b42318;--err-bg:#fdeceb;--ok-bg:#e5f5f0}
+html[data-theme="dark"]{--bg:#0f1a25;--card:#172635;--ink:#e8eef4;--muted:#93a6b7;--line:#2a3d50;--accent:#2bb594;--accent-ink:#06231c;--warn:#f0c04a;--warn-bg:#3a2f12;--err:#ff8a80;--err-bg:#3d1a18;--ok-bg:#123a31}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:'Cairo',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;padding:20px 14px 40px}
+main{max-width:640px;margin:0 auto}
+h1{font-size:24px;font-weight:800;margin:0 0 2px}
+.sub{color:var(--muted);margin:0 0 18px;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+details summary{cursor:pointer;font-weight:600}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.grid .full{grid-column:1/-1}
+label{display:block;font-size:13px;color:var(--muted)}
+input[type=text],input[type=password]{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font:inherit;direction:ltr;text-align:left}
+.chk{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:13px;color:var(--muted)}
+.repo{font-weight:800;direction:ltr;text-align:left;font-size:14px;margin:0 0 6px}
+.repo:not(:first-child){margin-top:14px}
+.row{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line)}
+.row .name{flex:1;direction:ltr;text-align:left;font-weight:600;word-break:break-all}
+.row .st{font-size:13px;color:var(--muted);white-space:nowrap}
+.row .ic{width:22px;text-align:center}
+.row.ok .st{color:var(--accent)}.row.miss .st{color:var(--warn)}.row.fail .st{color:var(--err)}
+button{font:inherit;font-weight:800;border:0;border-radius:11px;padding:12px 16px;cursor:pointer;width:100%}
+button.main{background:var(--accent);color:var(--accent-ink)}
+button:disabled{opacity:.5;cursor:not-allowed}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.bar{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin:8px 0 0}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+@media(prefers-reduced-motion:reduce){.bar i{transition:none}}
+.msg{display:none;border-radius:10px;padding:10px 12px;margin-top:12px;font-size:14px}
+.msg.show{display:block}
+.msg.ok{background:var(--ok-bg)}.msg.warn{background:var(--warn-bg);color:var(--warn)}.msg.err{background:var(--err-bg);color:var(--err)}
+.zipname{direction:ltr;text-align:left;font-weight:800;word-break:break-all}
+#saveBox{display:none}
+#ctlHandle{position:fixed;top:10px;right:0;z-index:99999;width:34px;height:34px;border-radius:12px 0 0 12px;border:1px solid var(--line);border-right:0;background:var(--card);color:var(--ink);font-size:22px;font-weight:900;line-height:1;padding:0;cursor:pointer}
+#ctlPanel{position:fixed;top:10px;right:42px;z-index:99998;display:none;padding:6px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+#ctlPanel.open{display:flex}
+#ctlPanel button{width:auto;padding:8px 12px;background:transparent;color:var(--ink);font-size:13px;font-weight:700}
+@media(max-width:480px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<button id="ctlHandle" type="button" aria-label="Controls" title="Controls">⋮</button>
+<div id="ctlPanel"><button type="button" id="themeBtn">☀️ / 🌙</button></div>
+<main>
+  <h1>نسخة احتياطية — SYSORA DATA</h1>
+  <p class="sub">تحميل ملفات البيانات من GitHub وضغطها في ملف واحد تختار مكان حفظه على جهازك.</p>
+
+  <section class="card">
+    <details>
+      <summary>إعدادات GitHub</summary>
+      <div class="grid">
+        <div><label for="owner">Owner</label><input type="text" id="owner" value="sysorapro" autocomplete="off"></div>
+        <div><label for="branch">Branch</label><input type="text" id="branch" value="main" autocomplete="off"></div>
+        <div><label for="repoData">Repository (ملفات البيانات)</label><input type="text" id="repoData" value="warehouse-scanner-Data" autocomplete="off"></div>
+        <div><label for="repoMain">Repository (الأصناف والأرفف)</label><input type="text" id="repoMain" value="warehouse-scanner-" autocomplete="off"></div>
+        <div class="full"><label for="token">Token (مطلوب لو الـRepos خاصة — صلاحية قراءة المحتوى كفاية)</label><input type="password" id="token" autocomplete="off"></div>
+      </div>
+      <label class="chk"><input type="checkbox" id="remember"> تذكّر الإعدادات والـToken على هذا الجهاز</label>
+      <label class="chk"><input type="checkbox" id="bom" checked> إضافة علامة UTF-8 (BOM) لملفات CSV داخل النسخة عشان العربي يفتح صح في Excel</label>
+    </details>
+  </section>
+
+  <section class="card" id="filesCard" aria-live="polite"></section>
+
+  <section class="card">
+    <button class="main" id="goBtn" type="button">تحميل الملفات وتجهيز النسخة</button>
+    <div id="pct" style="margin-top:12px;font-weight:800;direction:rtl">0%</div>
+    <div class="bar" aria-hidden="true"><i id="barFill"></i></div>
+    <div class="msg" id="msg" role="status"></div>
+    <div id="saveBox">
+      <p class="zipname" id="zipName" style="margin:14px 0 8px"></p>
+      <button class="main" id="saveBtn" type="button"></button>
+    </div>
+  </section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const KEY='sysora_backup_settings_v1';
+const GROUPS=[
+  {repoField:'repoData',files:['FileUploade.csv','FileUploadeBackup.csv','PoOrders.csv','PrivateFile.csv','users.csv']},
+  {repoField:'repoMain',files:['groups.csv','items.csv','shelves.csv']}
+];
+let zipBlob=null,zipFileName='',busy=false;
+
+function loadSettings(){
+  try{
+    const d=JSON.parse(localStorage.getItem(KEY)||'null');
+    if(!d)return;
+    ['owner','branch','repoData','repoMain','token'].forEach(k=>{if(d[k])$(k).value=d[k];});
+    $('remember').checked=true;
+  }catch(e){}
+}
+function saveSettings(){
+  try{
+    if(!$('remember').checked){localStorage.removeItem(KEY);return;}
+    const d={};['owner','branch','repoData','repoMain','token'].forEach(k=>d[k]=$(k).value.trim());
+    localStorage.setItem(KEY,JSON.stringify(d));
+  }catch(e){}
+}
+function cfg(){
+  const c={owner:$('owner').value.trim(),branch:$('branch').value.trim()||'main',token:$('token').value.trim()};
+  c.repoData=$('repoData').value.trim();c.repoMain=$('repoMain').value.trim();
+  return c;
+}
+function stamp(){
+  const d=new Date(),p=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+'-'+p(d.getMinutes())+'-'+p(d.getSeconds());
+}
+function fmtSize(b){return b>=1048576?(b/1048576).toFixed(2)+' MB':(b/1024).toFixed(1)+' KB';}
+function show(text,cls){const m=$('msg');m.textContent=text;m.className='msg show '+cls;}
+function hide(){$('msg').className='msg';}
+
+function renderList(state){
+  const c=cfg(),box=$('filesCard');box.textContent='';
+  GROUPS.forEach(g=>{
+    const h=document.createElement('p');h.className='repo';h.textContent=c.owner+'/'+c[g.repoField];box.appendChild(h);
+    g.files.forEach(f=>{
+      const s=(state&&state[c[g.repoField]+'/'+f])||{cls:'',ic:'•',txt:'في الانتظار'};
+      const r=document.createElement('div');r.className='row '+s.cls;
+      const ic=document.createElement('span');ic.className='ic';ic.textContent=s.ic;
+      const n=document.createElement('span');n.className='name';n.textContent=f;
+      const t=document.createElement('span');t.className='st';t.textContent=s.txt;
+      r.append(ic,n,t);box.appendChild(r);
+    });
+  });
+}
+
+async function listSizes(c,repo){
+  // One request per repo gives the exact byte size of each file -> accurate percentage (even with gzip). Best effort only.
+  try{
+    const headers={'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'};
+    if(c.token)headers.Authorization='Bearer '+c.token;
+    const res=await fetch('https://api.github.com/repos/'+encodeURIComponent(c.owner)+'/'+encodeURIComponent(repo)+'/contents/?ref='+encodeURIComponent(c.branch)+'&_='+Date.now(),{headers,cache:'no-store'});
+    if(!res.ok)return{};
+    const list=await res.json(),m={};
+    (Array.isArray(list)?list:[]).forEach(x=>{if(x&&x.type==='file')m[x.name]=x.size||0;});
+    return m;
+  }catch(e){return{};}
+}
+async function fetchRaw(c,repo,path,onProgress){
+  const url='https://api.github.com/repos/'+encodeURIComponent(c.owner)+'/'+encodeURIComponent(repo)+'/contents/'+encodeURIComponent(path)+'?ref='+encodeURIComponent(c.branch)+'&_='+Date.now();
+  const headers={'Accept':'application/vnd.github.raw+json','X-GitHub-Api-Version':'2022-11-28'};
+  if(c.token)headers.Authorization='Bearer '+c.token;
+  const res=await fetch(url,{headers,cache:'no-store'});
+  if(res.status===404)return{missing:true};
+  if(!res.ok){
+    let m='';try{m=(await res.json()).message||'';}catch(e){}
+    throw new Error('HTTP '+res.status+(m?' — '+m:''));
+  }
+  if(!res.body||!res.body.getReader){const b=await res.arrayBuffer();if(onProgress)onProgress(b.byteLength);return{buf:b};}
+  const rd=res.body.getReader(),parts=[];let loaded=0;
+  for(;;){const r=await rd.read();if(r.done)break;parts.push(r.value);loaded+=r.value.length;if(onProgress)onProgress(loaded);}
+  const out=new Uint8Array(loaded);let o=0;parts.forEach(x=>{out.set(x,o);o+=x.length;});
+  return{buf:out.buffer};
+}
+
+async function runBackup(){
+  if(busy)return;
+  if(typeof JSZip==='undefined'){show('مكتبة الضغط لم تُحمَّل. افتح الصفحة والجهاز متصل بالإنترنت ثم حاول مرة أخرى.','err');return;}
+  const c=cfg();
+  if(!c.owner||!c.repoData||!c.repoMain){show('أكمل Owner وأسماء الـRepositories من الإعدادات.','err');return;}
+  saveSettings();
+  busy=true;zipBlob=null;$('saveBox').style.display='none';$('goBtn').disabled=true;hide();$('barFill').style.width='0';
+  const state={},zip=new JSZip(),missing=[],failed=[];
+  const jobs=[];
+  GROUPS.forEach(g=>g.files.forEach(f=>{
+    const repo=c[g.repoField],k=repo+'/'+f;
+    state[k]={cls:'',ic:'⏳',txt:'جاري التحميل...'};
+    jobs.push({repo,f,k});
+  }));
+  renderList(state);
+  const sizes={};
+  await Promise.all([c.repoData,c.repoMain].map(async repo=>{sizes[repo]=await listSizes(c,repo);}));
+  jobs.forEach(j=>{j.size=(sizes[j.repo]||{})[j.f]||0;j.loaded=0;j.done=false;});
+  const allKnown=jobs.every(j=>j.size>0);
+  let last=0;
+  const overall=()=>{let num=0,den=0;jobs.forEach(j=>{const w=allKnown?j.size:1;num+=(j.done?1:(j.size?Math.min(j.loaded/j.size,0.99):0))*w;den+=w;});return den?Math.floor(num/den*100):0;};
+  const tick=force=>{const n=Date.now();if(!force&&n-last<120)return;last=n;const p=overall();$('barFill').style.width=p+'%';$('pct').textContent='تحميل الملفات: '+p+'%';renderList(state);};
+  tick(true);
+  await Promise.all(jobs.map(async j=>{
+    try{
+      const r=await fetchRaw(c,j.repo,j.f,l=>{j.loaded=l;state[j.k]={cls:'',ic:'⏳',txt:j.size?Math.min(99,Math.floor(l/j.size*100))+'%':fmtSize(l)};tick(false);});
+      if(r.missing){state[j.k]={cls:'miss',ic:'⚠',txt:'غير موجود'};missing.push(j.f);}
+      else{
+        let buf=r.buf;
+        if($('bom').checked){
+          const u=new Uint8Array(buf);
+          if(!(u[0]===0xEF&&u[1]===0xBB&&u[2]===0xBF)){const o=new Uint8Array(u.length+3);o.set([0xEF,0xBB,0xBF],0);o.set(u,3);buf=o.buffer;}
+        }
+        zip.folder(j.repo).file(j.f,buf);state[j.k]={cls:'ok',ic:'✔',txt:fmtSize(buf.byteLength)};
+      }
+    }catch(e){
+      state[j.k]={cls:'fail',ic:'✖',txt:'فشل'};failed.push(j.f+' ('+(e&&e.message||e)+')');
+    }
+    j.done=true;tick(true);
+  }));
+  try{
+    if(failed.length){
+      show('فشل تحميل: '+failed.join(' ، ')+'. لم يتم تجهيز النسخة — راجع الإعدادات/الـToken ثم حاول مرة أخرى.','err');
+      return;
+    }
+    if(missing.length===jobs.length){
+      show('لم يتم العثور على أي ملف. تأكد من Owner والـRepositories والـBranch، وأضف Token لو الـRepos خاصة.','err');
+      return;
+    }
+    show('تم تحميل الملفات. جاري الضغط...','ok');$('barFill').style.width='0';$('pct').textContent='الضغط: 0%';
+    zipBlob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:9}},m=>{const p=Math.floor(m.percent);$('barFill').style.width=p+'%';$('pct').textContent='الضغط: '+p+'%';});
+    zipFileName='SYSORA DATA '+stamp()+'.zip';
+    $('zipName').textContent=zipFileName+' — '+fmtSize(zipBlob.size);
+    $('saveBtn').textContent=window.showSaveFilePicker?'اختيار مكان الحفظ وحفظ النسخة':'تنزيل النسخة';
+    $('saveBox').style.display='block';
+    if(missing.length)show('النسخة جاهزة لكن ملفات غير موجودة على GitHub ولم تُضَف: '+missing.join(' ، '),'warn');
+    else show('تم تحميل كل الملفات ('+jobs.length+') وضغطها. اختر مكان الحفظ.','ok');
+  }catch(e){
+    show('تعذر ضغط الملفات: '+(e&&e.message||e),'err');
+  }finally{
+    busy=false;$('goBtn').disabled=false;
+  }
+}
+
+function downloadFallback(){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(zipBlob);a.download=zipFileName;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(a.href),10000);
+  show('تم تنزيل '+zipFileName+' في مجلد التنزيلات الخاص بالمتصفح.','ok');
+}
+async function saveBackup(){
+  if(!zipBlob)return;
+  if(!window.showSaveFilePicker){downloadFallback();return;}
+  try{
+    const h=await window.showSaveFilePicker({suggestedName:zipFileName,types:[{description:'ZIP',accept:{'application/zip':['.zip']}}]});
+    const w=await h.createWritable();
+    await w.write(zipBlob);await w.close();
+    show('تم حفظ النسخة الاحتياطية: '+h.name,'ok');
+  }catch(e){
+    if(e&&e.name==='AbortError')return;
+    if(e&&(e.name==='SecurityError'||e.name==='TypeError')){downloadFallback();return;}
+    show('تعذر الحفظ: '+(e&&e.message||e),'err');
+  }
+}
+
+$('goBtn').addEventListener('click',runBackup);
+$('saveBtn').addEventListener('click',saveBackup);
+['owner','branch','repoData','repoMain','token'].forEach(k=>$(k).addEventListener('input',()=>{saveSettings();renderList();}));
+$('remember').addEventListener('change',saveSettings);
+loadSettings();renderList();
+$('ctlHandle').addEventListener('click',e=>{e.stopPropagation();$('ctlPanel').classList.toggle('open');});
+document.addEventListener('click',e=>{if(!$('ctlPanel').contains(e.target))$('ctlPanel').classList.remove('open');});
+$('themeBtn').addEventListener('click',()=>{
+  const n=document.documentElement.getAttribute('data-theme')==='light'?'dark':'light';
+  document.documentElement.setAttribute('data-theme',n);
+  try{localStorage.setItem('sysora_theme',n);}catch(e){}
+  $('ctlPanel').classList.remove('open');
+});
+</script>
+</body>
+</html>

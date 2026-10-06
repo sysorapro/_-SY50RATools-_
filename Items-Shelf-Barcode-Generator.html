@@ -101,7 +101,7 @@
   .suggest-box{ position:absolute; top:calc(100% + 4px); left:0; right:0; max-height:240px; overflow-y:auto; background:var(--surface-2); border:1px solid var(--border); border-radius:11px; z-index:5; box-shadow:0 8px 20px rgba(0,0,0,.35); }
   .suggest-row{ padding:9px 12px; cursor:pointer; border-bottom:1px solid var(--border); }
   .suggest-row:last-child{ border-bottom:none; }
-  .suggest-row:hover{ background:rgba(232,163,61,.1); }
+  .suggest-row:hover{ background:rgba(var(--accent-rgb),.1); }
   .suggest-row .code{ font-family:'Cairo',sans-serif; font-weight:700; font-size:13px; }
   .suggest-row .name{ font-size:11.5px; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .remove-x{ margin-inline-start:auto; background:transparent; border:none; color:var(--red); font-size:15px; cursor:pointer; line-height:1; padding:2px 4px; flex-shrink:0; }
@@ -207,8 +207,8 @@ html[data-theme="light"]{
 html,body{
   min-height:100%;
   background:
-    radial-gradient(circle at 15% 10%,rgba(232,163,61,.18),transparent 28%),
-    radial-gradient(circle at 85% 15%,rgba(184,127,42,.16),transparent 30%),
+    radial-gradient(circle at 15% 10%,rgba(var(--accent-rgb),.18),transparent 28%),
+    radial-gradient(circle at 85% 15%,rgba(var(--accent2-rgb),.16),transparent 30%),
     linear-gradient(135deg,var(--bg),var(--bg2));
   color:var(--text);
 }
@@ -270,7 +270,7 @@ header p{
   padding:7px;
   border:1px solid var(--border);
   border-radius:16px;
-  background:rgba(10,24,40,.72);
+  background:rgba(var(--card-rgb),.72);
   backdrop-filter:blur(16px);
   box-shadow:0 12px 35px rgba(0,0,0,.22);
 }
@@ -337,7 +337,7 @@ html[data-theme="light"] .page-controls .control-btn.active{
 .tab.active{
   background:linear-gradient(135deg,var(--accent),var(--accent2));
   color:#fff;
-  box-shadow:0 10px 25px rgba(232,163,61,.18);
+  box-shadow:0 10px 25px rgba(var(--accent-rgb),.18);
 }
 
 .card{
@@ -387,7 +387,7 @@ html[data-theme="light"] input[type="number"]{
 
 input:focus{
   border-color:var(--accent);
-  box-shadow:0 0 0 3px rgba(232,163,61,.12);
+  box-shadow:0 0 0 3px rgba(var(--accent-rgb),.12);
 }
 
 .btn{
@@ -454,7 +454,7 @@ html[data-theme="light"] .bulk-list{
 
 .suggest-box{
   top:calc(100% + 7px);
-  background:rgba(18,34,56,.96);
+  background:rgba(var(--card-rgb),.96);
   border:1px solid var(--border);
   border-radius:15px;
   box-shadow:0 20px 45px rgba(0,0,0,.28);
@@ -471,7 +471,7 @@ html[data-theme="light"] .suggest-box{
 }
 
 .suggest-row:hover{
-  background:rgba(232,163,61,.10);
+  background:rgba(var(--accent-rgb),.10);
 }
 
 .size-option{
@@ -518,13 +518,20 @@ html[data-theme="light"] .size-option{
 </style>
 
 <style id="side-controls-3dots">
-.side-control-handle{position:fixed;top:40%;right:0;z-index:99999;width:28px;height:58px;border-radius:13px 0 0 13px;border:1px solid rgba(255,255,255,.12);background:rgba(10,24,40,.82);color:var(--text,#f4f7fb);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;line-height:1;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.25);backdrop-filter:blur(14px);user-select:none;touch-action:none;transition:background .2s ease,box-shadow .2s ease,transform .2s ease}
-.side-control-panel{position:fixed;top:40%;right:36px;z-index:99998;display:flex;gap:6px;padding:6px;border:1px solid var(--border,rgba(255,255,255,.1));border-radius:14px;background:rgba(10,24,40,.82);backdrop-filter:blur(16px);box-shadow:0 12px 35px rgba(0,0,0,.25);opacity:0;visibility:hidden;pointer-events:none;transform:translateX(8px);transition:.18s ease}
+.side-control-handle{position:fixed;top:40%;right:0;z-index:99999;width:28px;height:58px;border-radius:13px 0 0 13px;border:1px solid rgba(255,255,255,.12);background:rgba(var(--card-rgb),.82);color:var(--text,#f4f7fb);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;line-height:1;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.25);backdrop-filter:blur(14px);user-select:none;touch-action:none;transition:background .2s ease,box-shadow .2s ease,transform .2s ease}
+.side-control-panel{position:fixed;top:40%;right:36px;z-index:99998;display:flex;gap:6px;padding:6px;border:1px solid var(--border,rgba(255,255,255,.1));border-radius:14px;background:rgba(var(--card-rgb),.82);backdrop-filter:blur(16px);box-shadow:0 12px 35px rgba(0,0,0,.25);opacity:0;visibility:hidden;pointer-events:none;transform:translateX(8px);transition:.18s ease}
 .side-control-panel.controls-open{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(0)}
 .side-control-panel .control-btn{border:0;background:transparent;color:var(--muted,#9eacc0);cursor:pointer;padding:9px 12px;border-radius:11px;font-weight:700;font-size:13px;transition:.2s}
 .side-control-panel .control-btn:hover,.side-control-panel .control-btn.active{background:rgba(255,255,255,.10);color:var(--text,#f4f7fb)}
 [data-theme="light"] .side-control-handle,[data-theme="light"] .side-control-panel{background:rgba(255,255,255,.88);border-color:rgba(18,35,58,.12);color:var(--text,#102033)}
 </style>
+<style id="sysora-tool-palette">
+/* SYSORA Backup tool palette (dark / light) */
+:root{--bg:#0f1a25;--bg2:#0f1a25;--card:#172635;--surface:#172635;--surface-2:#0f1a25;--border:#2a3d50;--text:#e8eef4;--muted:#93a6b7;--accent:#2bb594;--accent2:#1f9a7e;--amber:#2bb594;--amber-dim:#1f9a7e;--amber-fg:#8fe3cd;--shadow:0 24px 70px rgba(0,0,0,.35);--accent-rgb:43,181,148;--accent2-rgb:31,154,126;--card-rgb:23,38,53}
+html[data-theme="light"]{--bg:#eef1f4;--bg2:#eef1f4;--card:#ffffff;--surface:#ffffff;--surface-2:#eef1f4;--border:#d9e0e7;--text:#12263a;--muted:#5d6f80;--accent:#0e7c66;--accent2:#0a6a57;--amber:#0e7c66;--amber-dim:#0a6a57;--amber-fg:#0b5c4b;--shadow:0 24px 70px rgba(33,58,91,.14);--accent-rgb:14,124,102;--accent2-rgb:10,106,87;--card-rgb:255,255,255}
+html,body{background:var(--bg)!important}
+</style>
+
 </head>
 <body>
 <div id="sideControlHandle" class="side-control-handle" aria-label="Controls" title="Click to open • Long press and drag to move">⋮</div>
