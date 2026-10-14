@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Warehouse Scanner Monitor - Registration Number Generator</title>
+<style>
+:root{--ink:#1d2624;--paper:#eef1ed;--line:#d5dcd7;--head:#17463f;--red:#b3261e;--mute:#66736f;--amber:#e8a33d}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Tajawal,"Segoe UI",system-ui,sans-serif;font-size:14px}
+.wrap{max-width:760px;margin:0 auto;padding:18px}
+h1{font-size:19px;margin:0 0 10px;text-align: center;color:var(--head)}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.warn{background:#fff1cf;border:1px solid var(--amber);border-radius:12px;padding:10px 12px;margin-bottom:14px;line-height:1.8;font-weight:700}
+label{display:block;font-weight:700;margin:10px 0 4px;font-size:13px}
+input,textarea{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:10px}
+textarea{direction:ltr;font-family:Consolas,monospace;font-size:12.5px;line-height:1.6}
+button{font:inherit;font-weight:700;padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;margin-top:10px}
+button.pri{background:var(--head);color:#fff;border-color:var(--head)}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1;min-width:140px}
+.msg{margin-top:8px;font-weight:700;line-height:1.7;min-height:20px}.bad{color:var(--red)}.ok{color:#176b3a}.note{color:var(--mute);font-weight:400;font-size:12.5px}
+.tok{position:relative}.tok button{position:absolute;inset-inline-end:4px;top:50%;transform:translateY(-50%);margin:0;padding:3px 8px;border:0;background:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Warehouse Scanner Monitor - Registration Number Generator</h1>
+  <div class="warn">⚠️ الملف ده خاص بيك إنت بس — جواه مفتاح التشفير. <u>متبعتوش ولا تديه لأي حد</u>، وميتحطش مع البرنامج. اللي بيتبعت للمستخدم هو «رقم التسجيل» بس.</div>
+
+  <div class="card">
+    <b>إنشاء رقم تسجيل</b>
+    <label for="tok">GitHub Token (للقراءة فقط)</label>
+    <div class="tok"><input type="password" id="tok" autocomplete="off" spellcheck="false"><button type="button" id="eye">👁</button></div>
+    <div class="msg note">استخدم توكن <b>Fine-grained</b> على مستودع البيانات بس، صلاحية <b>Contents:  Read and Write </b>، وله تاريخ انتهاء. ماتستخدمش توكن برنامج المستودع (ده بيكتب).</div>
+    <div class="row">
+      <div><label for="lbl">اسم المستلم (يظهر في الإعدادات)</label><input id="lbl" placeholder="مثال: أحمد - المخزن"></div>
+      <div><label for="exp">ينتهي في (اختياري)</label><input type="date" id="exp"></div>
+    </div>
+    <div id="tokMsg" class="msg"></div>
+    <div class="row"><button id="mk" class="pri">إنشاء رقم التسجيل</button><button id="test">اختبار التوكن على المستودع</button></div>
+    <div id="testMsg" class="msg"></div>
+    <label for="out">رقم التسجيل</label>
+    <textarea id="out" rows="6" readonly></textarea>
+    <div class="row"><button id="copy">نسخ</button></div>
+    <div id="outMsg" class="msg note"></div>
+  </div>
+
+  <div class="card">
+    <b>فحص رقم تسجيل موجود</b>
+    <textarea id="chk" rows="4" spellcheck="false"></textarea>
+    <button id="chkGo">فحص</button>
+    <div id="chkMsg" class="msg"></div>
+  </div>
+</div>
+<script>
+const REPO={owner:'sysorapro',repo:'warehouse-scanner-Data',branch:'main'}; // must match the program
+/* ---- registration number core (same code in the program and in the generator) ----
+   The "registration number" is the GitHub token sealed with AES-256-GCM. The key lives only inside the program, so the
+   number alone (or the program alone) reveals nothing. NOTE: this hides the token from the person using the program;
+   it cannot stop a determined developer who has BOTH the program and a number from digging the token out. */
+const REG_A='3a9384930f4e05ffaf407fdb5645ca61ff0a472e528269ad85bef2a513094397',REG_B='b40711f85c7601d68e044cc6d2caa85d52de9505d4362989101b3f38fcb2a114';
+const REG_AAD='PO-Monitor/reg/v1',B32='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+const regSecret=()=>{const o=new Uint8Array(32);for(let i=0;i<32;i++)o[i]=parseInt(REG_A.substr(i*2,2),16)^parseInt(REG_B.substr(i*2,2),16);return o;};
+async function regKey(){return crypto.subtle.importKey('raw',await crypto.subtle.digest('SHA-256',regSecret()),'AES-GCM',false,['encrypt','decrypt']);}
+function b32enc(bytes){let bits=0,val=0,out='';for(let i=0;i<bytes.length;i++){val=((val<<8)|bytes[i])&0xFFFF;bits+=8;while(bits>=5){out+=B32[(val>>>(bits-5))&31];bits-=5;}}if(bits>0)out+=B32[(val<<(5-bits))&31];return out;}
+function b32dec(str){let bits=0,val=0;const out=[];for(let i=0;i<str.length;i++){const k=B32.indexOf(str[i]);if(k<0)return null;val=((val<<5)|k)&0xFFFF;bits+=5;if(bits>=8){out.push((val>>>(bits-8))&255);bits-=8;}}return new Uint8Array(out);}
+/* what the person pastes -> the canonical text kept on the device (spaces, line breaks, case and dashes do not matter) */
+function regNormalize(text){let t=String(text||'').replace(/\s+/g,'').toUpperCase();if(t.startsWith('PM-'))t=t.slice(3);return t.replace(/-/g,'');}
+function regPretty(b32){return 'PM-'+(b32.match(/.{1,8}/g)||[]).join('-');}
+async function regOpen(text){
+  const raw=regNormalize(text);if(!/^[A-Z2-7]{60,}$/.test(raw))throw new Error('bad');
+  let plain=null;
+  // the "PM" prefix may survive when the dashes were dropped while copying: try with and without it
+  for(const cand of [raw,raw.startsWith('PM')?raw.slice(2):null]){
+    if(!cand)continue;const b=b32dec(cand);if(!b||b.length<30||b[0]!==1)continue;
+    try{plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:b.slice(1,13),additionalData:new TextEncoder().encode(REG_AAD)},await regKey(),b.slice(13));break;}catch(e){}
+  }
+  if(!plain)throw new Error('bad');
+  let p;try{p=JSON.parse(new TextDecoder().decode(plain));}catch(e){throw new Error('bad');}
+  if(!p||typeof p.t!=='string'||!p.t)throw new Error('bad');
+  return{token:p.t,label:String(p.l||''),exp:Number(p.e)||0};
+}
+/* ---- generator only ---- */
+async function regMake(token,label,exp){
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:new TextEncoder().encode(REG_AAD)},await regKey(),new TextEncoder().encode(JSON.stringify({t:token,l:label||'',e:exp||0}))));
+  const all=new Uint8Array(1+12+ct.length);all[0]=1;all.set(iv,1);all.set(ct,13);
+  return regPretty(b32enc(all));
+}
+
+const $=id=>document.getElementById(id);
+const fmtDate=ms=>ms?new Date(ms).toLocaleDateString('en-GB'):'بدون تاريخ انتهاء';
+function tokenHint(t){
+  if(!t)return'';
+  if(t.startsWith('github_pat_'))return'✓ توكن Fine-grained';
+  if(t.startsWith('ghp_'))return'⚠ ده توكن Classic — صلاحياته أوسع من اللازم. الأفضل Fine-grained للقراءة فقط.';
+  return'⚠ شكل التوكن غير معتاد — تأكد إنه نُسخ كامل.';
+}
+$('tok').oninput=()=>{const h=tokenHint($('tok').value.trim());$('tokMsg').textContent=h;$('tokMsg').className='msg '+(h.startsWith('✓')?'ok':'bad');};
+$('eye').onclick=()=>{$('tok').type=$('tok').type==='password'?'text':'password';};
+$('mk').onclick=async()=>{
+  const t=$('tok').value.trim();$('outMsg').className='msg note';
+  if(t.length<20){$('tokMsg').textContent='أدخل التوكن الأول';$('tokMsg').className='msg bad';return;}
+  let exp=0;if($('exp').value){const p=$('exp').value.split('-').map(Number);exp=new Date(p[0],p[1]-1,p[2],23,59,59).getTime();if(exp<Date.now()){$('outMsg').textContent='تاريخ الانتهاء في الماضي';$('outMsg').className='msg bad';return;}}
+  try{
+    const code=await regMake(t,$('lbl').value.trim(),exp);
+    $('out').value=code;$('outMsg').textContent='تم — '+code.length+' حرف · '+($('lbl').value.trim()||'بدون اسم')+' · '+fmtDate(exp)+' · ابعته للمستخدم كـ «رقم التسجيل» (كل مرة بيتولّد رقم مختلف وكلهم صالحين).';
+  }catch(e){$('outMsg').textContent='تعذر الإنشاء: '+e.message;$('outMsg').className='msg bad';}
+};
+$('copy').onclick=async()=>{const v=$('out').value;if(!v)return;try{await navigator.clipboard.writeText(v);$('outMsg').textContent='تم النسخ';}catch(e){$('out').select();document.execCommand('copy');$('outMsg').textContent='تم النسخ';}};
+$('chkGo').onclick=async()=>{
+  const m=$('chkMsg');
+  try{
+    const r=await regOpen($('chk').value);
+    const mask=r.token.slice(0,6)+'…'+r.token.slice(-4);
+    const expired=r.exp&&Date.now()>r.exp;
+    m.textContent='صحيح ✓ — الاسم: '+(r.label||'—')+' · '+(expired?'منتهي في ':'ينتهي: ')+fmtDate(r.exp)+' · التوكن: '+mask;m.className='msg '+(expired?'bad':'ok');
+  }catch(e){m.textContent='رقم التسجيل غير صحيح (أو اتعمل بمفتاح تاني)';m.className='msg bad';}
+};
+$('test').onclick=async()=>{
+  const t=$('tok').value.trim(),m=$('testMsg');if(!t){m.textContent='أدخل التوكن الأول';m.className='msg bad';return;}
+  m.textContent='جاري الاختبار…';m.className='msg note';
+  try{
+    const res=await fetch('https://api.github.com/repos/'+REPO.owner+'/'+REPO.repo+'/contents/users.csv?ref='+REPO.branch,{headers:{Accept:'application/vnd.github.raw+json','X-GitHub-Api-Version':'2022-11-28',Authorization:'Bearer '+t},cache:'no-store'});
+    if(res.status===200){
+      const scopes=res.headers.get('x-oauth-scopes')||'';
+      const wide=/(^|,\s*)(repo|public_repo|workflow|delete_repo)(,|$)/.test(scopes);
+      m.textContent=wide?'يعمل ✓ — لكن ⚠ التوكن ده Classic وعنده صلاحيات ('+scopes+') تسمح بالكتابة. استبدله بـ Fine-grained للقراءة فقط.':'يعمل ✓ — قدر يقرأ users.csv. (اتأكد من صفحة التوكن في GitHub إن الصلاحية Read-only.)';
+      m.className='msg '+(wide?'bad':'ok');
+    }else if(res.status===401){m.textContent='GitHub رفض التوكن (غير صالح أو منتهي)';m.className='msg bad';}
+    else if(res.status===404){m.textContent='التوكن مالوش صلاحية على المستودع '+REPO.owner+'/'+REPO.repo+' (أو الملف مش موجود)';m.className='msg bad';}
+    else{m.textContent='رد غير متوقع من GitHub: '+res.status;m.className='msg bad';}
+  }catch(e){m.textContent='تعذر الاتصال: '+e.message;m.className='msg bad';}
+};
+</script>
+</body>
+</html>
