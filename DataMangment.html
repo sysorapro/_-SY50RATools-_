@@ -67,6 +67,14 @@
   .tag.new{ background:#EAF7F0; color:var(--mint-fg); }
   .tag.update{ background:#FFF3E0; color:var(--amber-fg); }
   summary{ cursor:pointer; font-size:12.5px; color:var(--muted); }
+
+/* paste tables of the PoOrders / PrivateFile tabs (same look as #pasteTable) */
+.pasteTbl{width:100%;border-collapse:collapse;font-size:12.5px;min-width:480px;table-layout:auto}
+.pasteTbl th{background:var(--surface-2);padding:6px;font-weight:700;color:var(--muted);font-size:11.5px;border-bottom:1.5px solid var(--border);white-space:nowrap}
+.pasteTbl td{border-bottom:1px solid var(--border);padding:3px;white-space:nowrap}
+.pasteTbl input{width:100%;box-sizing:border-box;min-width:90px;border:1px solid transparent;background:transparent;padding:6px 7px;border-radius:6px;font-size:12.5px;color:var(--text);font-family:inherit}
+.pasteTbl input:focus{outline:none;border-color:var(--amber);background:var(--surface-2)}
+.pasteTbl .rowDelBtn{background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;padding:4px}
 </style>
 <style>
 .data-table-wrap{overflow:auto;max-height:520px;border:1px solid var(--border);border-radius:9px;margin-top:12px}
@@ -418,12 +426,15 @@ html,body{background:var(--bg)!important}
 </div>
 
 <div class="status" id="actionStatus" style="margin:10px 0"></div>
+<div id="tempCodeCard" style="display:none;margin:0 0 12px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--surface-2)"></div>
 
 <div class="card">
   <div class="tabs">
     <button class="tab-btn active" data-main="users" onclick="mainTab('users')">👤 Users</button>
     <button class="tab-btn" data-main="poorders" onclick="mainTab('poorders')">🧾 PoOrders</button>
     <button class="tab-btn" data-main="privatefile" onclick="mainTab('privatefile')">🔒 PrivateFile</button>
+    <button class="tab-btn" data-main="archiveall" onclick="mainTab('archiveall')">🗄 ArchiveAllData</button>
+    <button class="tab-btn" data-main="zwhc" onclick="mainTab('zwhc')">📑 ZWHC</button>
     <button class="tab-btn" data-main="file" onclick="mainTab('file')">📄 FileUploade</button>
     <button class="tab-btn" data-main="backup" onclick="mainTab('backup')">📦 FileUploadeBackup</button>
   </div>
@@ -581,10 +592,28 @@ html,body{background:var(--bg)!important}
 
   <div id="poordersSection" class="main-panel" style="display:none">
     <div class="tabs">
-      <button class="tab-btn active" onclick="subTab('poordersEdit',this)">✏️ تعديل / حذف</button>
+      <button class="tab-btn active" onclick="subTab('poordersPaste',this)">📋 لصق من إكسل</button>
+      <button class="tab-btn" onclick="subTab('poordersEdit',this)">✏️ تعديل / حذف</button>
       <button class="tab-btn" onclick="subTab('poordersBulkEdit',this)">🧮 تعديل بالفلتر</button>
     </div>
-    <div id="poordersEdit" class="tab-panel active">
+    <div id="poordersPaste" class="tab-panel active">
+      <div class="hint">كل عملية لصق تعتبر <b>أمرًا واحدًا</b>. أدخل Department وPoNo مرة واحدة، ثم الصق الأسطر أسفلها، وسيتم وضعهما على كل السطور. حقول الإرسال والتعيين (EmpNo.Send … AssignDate) بتتحط فاضية.</div>
+      <div class="paste-meta">
+        <div class="hint-title">بيانات الأمر</div>
+        <div class="uniform-form-grid compact-meta">
+          <div class="field-card"><label>Department</label><select id="poPasteDepartment"><option value="">اختر القسم</option><option value="NonPharma">NonPharma</option><option value="Pharma">Pharma</option></select></div>
+          <div class="field-card"><label>PoNo</label><input type="text" id="poPastePoNo"></div>
+        </div>
+      </div>
+      <div class="hint" style="margin-top:10px">الصق من Excel بالترتيب: <b>ActionType</b> ثم <b>ShelfNo</b> ثم <b>Item Code</b> ثم <b>Item Name</b> ثم <b>Emp.No</b> ثم <b>Emp.Name</b> ثم <b>Scan.Date</b>. لا تحتاج إلى نسخ Department أو PoNo.</div>
+      <div style="overflow-x:auto;margin-top:12px">
+        <table id="poPasteTable" class="pasteTbl"><thead><tr><th>#</th><th>ActionType</th><th>ShelfNo</th><th>Item Code</th><th>Item Name</th><th>Emp.No</th><th>Emp.Name</th><th>Scan.Date</th><th></th></tr></thead><tbody id="poPasteBody"></tbody></table>
+      </div>
+      <div class="row" style="margin-top:10px"><button class="btn-secondary" style="margin-top:0" onclick="addManagedPasteRow('poorders')">➕ سطر جديد</button><button class="btn-secondary" style="margin-top:0" onclick="clearManagedPaste('poorders')">🗑 مسح الكل</button></div>
+      <button class="btn-primary" onclick="saveManagedPaste('poorders')">💾 حفظ على PoOrders.csv</button>
+      <div class="status" id="poPasteStatus"></div>
+    </div>
+    <div id="poordersEdit" class="tab-panel">
       <div class="uniform-form-grid filter-grid">
         <div class="field-card"><label>Department</label><input type="text" id="poqDepartment" list="poqDepartment_dl" placeholder="الكل" oninput="renderManaged('poorders')"><datalist id="poqDepartment_dl"></datalist></div>
         <div class="field-card"><label>ActionType</label><input type="text" id="poqActionType" list="poqActionType_dl" placeholder="الكل" oninput="renderManaged('poorders')"><datalist id="poqActionType_dl"></datalist></div>
@@ -623,10 +652,29 @@ html,body{background:var(--bg)!important}
 
   <div id="privatefileSection" class="main-panel" style="display:none">
     <div class="tabs">
-      <button class="tab-btn active" onclick="subTab('privatefileEdit',this)">✏️ تعديل / حذف</button>
+      <button class="tab-btn active" onclick="subTab('privatefilePaste',this)">📋 لصق من إكسل</button>
+      <button class="tab-btn" onclick="subTab('privatefileEdit',this)">✏️ تعديل / حذف</button>
       <button class="tab-btn" onclick="subTab('privatefileBulkEdit',this)">🧮 تعديل بالفلتر</button>
     </div>
-    <div id="privatefileEdit" class="tab-panel active">
+    <div id="privatefilePaste" class="tab-panel active">
+      <div class="hint">كل عملية لصق تعتبر <b>شيتًا واحدًا</b>. أدخل Department وSheetName مرة واحدة، ثم الصق الأسطر أسفلها. SheetNo يُترك فارغًا ليُولَّد تلقائيًا (10 أحرف/أرقام بدون تكرار)، أو اكتب كود شيت موجود لإضافة أسطر عليه. حقول الإرسال والتعيين (EmpNo.Send … AssignDate) بتتحط فاضية.</div>
+      <div class="paste-meta">
+        <div class="hint-title">بيانات الشيت</div>
+        <div class="uniform-form-grid compact-meta">
+          <div class="field-card"><label>Department</label><select id="pfPasteDepartment"><option value="">اختر القسم</option><option value="NonPharma">NonPharma</option><option value="Pharma">Pharma</option></select></div>
+          <div class="field-card"><label>SheetNo</label><input type="text" id="pfPasteSheetNo" placeholder="اتركه فارغًا للتوليد التلقائي"></div>
+          <div class="field-card"><label>SheetName</label><input type="text" id="pfPasteSheetName"></div>
+        </div>
+      </div>
+      <div class="hint" style="margin-top:10px">الصق من Excel بالترتيب: <b>ActionType</b> ثم <b>ShelfNo</b> ثم <b>Item Code</b> ثم <b>Item Name</b> ثم <b>Emp.No</b> ثم <b>Emp.Name</b> ثم <b>Scan.Date</b>. لا تحتاج إلى نسخ Department أو SheetNo أو SheetName.</div>
+      <div style="overflow-x:auto;margin-top:12px">
+        <table id="pfPasteTable" class="pasteTbl"><thead><tr><th>#</th><th>ActionType</th><th>ShelfNo</th><th>Item Code</th><th>Item Name</th><th>Emp.No</th><th>Emp.Name</th><th>Scan.Date</th><th></th></tr></thead><tbody id="pfPasteBody"></tbody></table>
+      </div>
+      <div class="row" style="margin-top:10px"><button class="btn-secondary" style="margin-top:0" onclick="addManagedPasteRow('privatefile')">➕ سطر جديد</button><button class="btn-secondary" style="margin-top:0" onclick="clearManagedPaste('privatefile')">🗑 مسح الكل</button></div>
+      <button class="btn-primary" onclick="saveManagedPaste('privatefile')">💾 حفظ على PrivateFile.csv</button>
+      <div class="status" id="pfPasteStatus"></div>
+    </div>
+    <div id="privatefileEdit" class="tab-panel">
       <div class="uniform-form-grid filter-grid">
         <div class="field-card"><label>Department</label><input type="text" id="pfqDepartment" list="pfqDepartment_dl" placeholder="الكل" oninput="renderManaged('privatefile')"><datalist id="pfqDepartment_dl"></datalist></div>
         <div class="field-card"><label>SheetNo.</label><input type="text" id="pfqSheetNo" list="pfqSheetNo_dl" placeholder="الكل" oninput="renderManaged('privatefile')"><datalist id="pfqSheetNo_dl"></datalist></div>
@@ -661,6 +709,142 @@ html,body{background:var(--bg)!important}
         <button class="btn-primary" style="margin-top:0" type="button" onclick="applyBulkEdit('privatefile')">💾 تطبيق التعديل على GitHub</button>
       </div>
       <div id="pfPreview"></div><div class="status" id="pfStatus"></div>
+    </div>
+  </div>
+
+  <div id="archiveallSection" class="main-panel" style="display:none">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="subTab('archiveallPaste',this)">📋 لصق من إكسل</button>
+      <button class="tab-btn" onclick="subTab('archiveallEdit',this)">✏️ تعديل / حذف</button>
+      <button class="tab-btn" onclick="subTab('archiveallBulkEdit',this)">🧮 تعديل بالفلتر</button>
+    </div>
+    <div id="archiveallPaste" class="tab-panel active">
+      <div class="hint">ArchiveAllData.csv هو أرشيف أسطر PoOrders وPrivateFile (بيتكتب من برنامج المستودع عند الأرشفة). الصق من Excel الأسطر <b>كاملة بنفس ترتيب الأعمدة</b>: FileType ثم Department ثم Sheet/PONo ثم SheetName ثم ActionType ثم ShelfNo ثم Item Code ثم Item Name ثم Emp.No ثم Emp.Name ثم Scan.Date، وبعدها أعمدة الإرسال والتعيين (EmpNo.Send … AssignDate) لو عندك قيم لها وإلا اتركها فاضية. <b>FileType وSheet/PONo وItem Code مطلوبين</b> لكل سطر (FileType المعتاد: PoOrders أو PrivateFile). صف عناوين Excel بيتخطّى تلقائيًا.</div>
+      <div style="overflow-x:auto;margin-top:12px">
+        <table id="aaPasteTable" class="pasteTbl"><thead><tr><th>#</th><th>FileType</th><th>Department</th><th>Sheet/PONo</th><th>SheetName</th><th>ActionType</th><th>ShelfNo</th><th>Item Code</th><th>Item Name</th><th>Emp.No</th><th>Emp.Name</th><th>Scan.Date</th><th>EmpNo.Send</th><th>EmpNameSend</th><th>SendDate</th><th>EmpNo.Assign</th><th>EmpNameAssign</th><th>AssignDate</th><th></th></tr></thead><tbody id="aaPasteBody"></tbody></table>
+      </div>
+      <div class="row" style="margin-top:10px"><button class="btn-secondary" style="margin-top:0" onclick="addManagedPasteRow('archiveall')">➕ سطر جديد</button><button class="btn-secondary" style="margin-top:0" onclick="clearManagedPaste('archiveall')">🗑 مسح الكل</button></div>
+      <button class="btn-primary" onclick="saveManagedPaste('archiveall')">💾 حفظ على ArchiveAllData.csv</button>
+      <div class="status" id="aaPasteStatus"></div>
+    </div>
+    <div id="archiveallEdit" class="tab-panel">
+      <div class="uniform-form-grid filter-grid">
+        <div class="field-card"><label>FileType</label><input type="text" id="aaqFileType" list="aaqFileType_dl" placeholder="الكل" oninput="renderManaged('archiveall')"><datalist id="aaqFileType_dl"></datalist></div>
+        <div class="field-card"><label>Department</label><input type="text" id="aaqDepartment" list="aaqDepartment_dl" placeholder="الكل" oninput="renderManaged('archiveall')"><datalist id="aaqDepartment_dl"></datalist></div>
+        <div class="field-card"><label>Sheet/PONo</label><input type="text" id="aaqSheetPONo" list="aaqSheetPONo_dl" placeholder="الكل" oninput="renderManaged('archiveall')"><datalist id="aaqSheetPONo_dl"></datalist></div>
+        <div class="field-card"><label>SheetName</label><input type="text" id="aaqSheetName" list="aaqSheetName_dl" placeholder="الكل" oninput="renderManaged('archiveall')"><datalist id="aaqSheetName_dl"></datalist></div>
+        <div class="field-card"><label>ActionType</label><input type="text" id="aaqActionType" list="aaqActionType_dl" placeholder="الكل" oninput="renderManaged('archiveall')"><datalist id="aaqActionType_dl"></datalist></div>
+        <div class="field-card"><label>ShelfNo</label><input type="text" id="aaqShelfNo" list="aaqShelfNo_dl" placeholder="الكل" oninput="renderManaged('archiveall')"><datalist id="aaqShelfNo_dl"></datalist></div>
+        <div class="field-card"><label>Item Code</label><input type="text" id="aaqItemCode" list="aaqItemCode_dl" placeholder="الكل" oninput="renderManaged('archiveall')"><datalist id="aaqItemCode_dl"></datalist></div>
+        <div class="field-card"><label>Emp.No</label><input type="text" id="aaqEmpNo" list="aaqEmpNo_dl" placeholder="الكل" oninput="renderManaged('archiveall')"><datalist id="aaqEmpNo_dl"></datalist></div>
+        <div class="field-card"><label>Emp.Name</label><input type="text" id="aaqEmpName" list="aaqEmpName_dl" placeholder="الكل" oninput="renderManaged('archiveall')"><datalist id="aaqEmpName_dl"></datalist></div>
+        <div class="field-card"><label>Scan.Date</label><input type="text" id="aaqScanDate" list="aaqScanDate_dl" placeholder="الكل" oninput="renderManaged('archiveall')"><datalist id="aaqScanDate_dl"></datalist></div>
+      </div>
+      <div class="action-row"><button class="btn-secondary" onclick="loadManaged('archiveall')">🔄 تحميل البيانات</button><button class="btn-secondary" onclick="selectAll('archiveall')">☑️ تحديد الكل</button></div>
+      <button class="btn-primary" style="background:var(--red);color:#fff" onclick="deleteSelected('archiveall')">🗑 حذف المحدد</button>
+      <div id="archiveallTable" class="data-table-wrap"></div>
+      <div class="status" id="archiveallStatus"></div>
+    </div>
+    <div id="archiveallBulkEdit" class="tab-panel">
+      <div class="hint">استخدم أكثر من شرط لتحديد السجلات المطلوبة، ثم اختر الحقل الذي تريد تغيير قيمته.</div>
+      <div style="overflow-x:auto;margin-top:12px">
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+          <thead><tr><th style="text-align:right;padding:6px;color:var(--muted);font-size:11.5px">الحقل (شرط)</th><th style="text-align:right;padding:6px;color:var(--muted);font-size:11.5px">القيمة المطلوبة</th><th></th></tr></thead>
+          <tbody id="aaConditionsBody"></tbody>
+        </table>
+      </div>
+      <button class="btn-secondary" type="button" style="margin-top:8px;width:auto" onclick="addBulkFilterRow('archiveall')">➕ إضافة شرط</button>
+      <div class="uniform-form-grid compact-meta" style="margin-top:14px">
+        <div class="field-card"><label>الحقل المطلوب تعديله</label><select id="aaTargetField"></select></div>
+        <div class="field-card"><label>القيمة الجديدة</label><input type="text" id="aaNewValue"></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn-secondary" style="margin-top:0" type="button" onclick="previewBulkEdit('archiveall')">🔍 معاينة السجلات المطابقة</button>
+        <button class="btn-primary" style="margin-top:0" type="button" onclick="applyBulkEdit('archiveall')">💾 تطبيق التعديل على GitHub</button>
+      </div>
+      <div id="aaPreview"></div><div class="status" id="aaStatus"></div>
+    </div>
+  </div>
+
+  <div id="zwhcSection" class="main-panel" style="display:none">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="subTab('zwhcSingle',this)">➕ سجل واحد</button>
+      <button class="tab-btn" onclick="subTab('zwhcPaste',this)">📋 لصق من إكسل</button>
+      <button class="tab-btn" onclick="subTab('zwhcFile',this)">📄 رفع ملف</button>
+      <button class="tab-btn" onclick="subTab('zwhcEdit',this)">✏️ تعديل / حذف</button>
+      <button class="tab-btn" onclick="subTab('zwhcBulkEdit',this)">🧮 تعديل بالفلتر</button>
+    </div>
+    <div id="zwhcSingle" class="tab-panel active">
+      <div class="uniform-form-grid users-form-grid">
+        <div class="field-card"><label>Material</label><input type="text" data-zw="Material"></div>
+        <div class="field-card"><label>Material Number</label><input type="text" data-zw="Material Number"></div>
+        <div class="field-card"><label>Typ</label><input type="text" data-zw="Typ"></div>
+        <div class="field-card"><label>SecIn</label><input type="text" data-zw="SecIn"></div>
+        <div class="field-card"><label>SR</label><input type="text" data-zw="SR"></div>
+        <div class="field-card"><label>SP</label><input type="text" data-zw="SP"></div>
+        <div class="field-card"><label>ESLoc</label><input type="text" data-zw="ESLoc"></div>
+        <div class="field-card"><label>Stor. Bin</label><input type="text" data-zw="Stor. Bin"></div>
+        <div class="field-card"><label>Bin</label><input type="text" data-zw="Bin"></div>
+        <div class="field-card"><label>GROUP_ID</label><input type="text" data-zw="GROUP_ID"></div>
+        <div class="field-card"><label>GROUP_DESC</label><input type="text" data-zw="GROUP_DESC"></div>
+      </div>
+      <div class="hint">السجل بيتحدد بـ <b>Material Number + Stor. Bin</b>: لو نفس الزوج موجود بيسألك قبل ما يحدّثه، ولو جديد بيتضاف. لو كتبت فاصلة (,) جوه أي قيمة بتتحوّل لمسافة تلقائيًا (التطبيق بيقرا الملف بطريقة بسيطة).</div>
+      <button class="btn-primary" onclick="zwAddSingle()">💾 إضافة ورفع على GitHub</button>
+      <div class="status" id="zwSingleStatus"></div>
+    </div>
+    <div id="zwhcPaste" class="tab-panel">
+      <div class="hint">انسخ الأعمدة من إكسل <b>بنفس الترتيب</b> (Material ثم Material Number ثم Typ ثم SecIn ثم SR ثم SP ثم ESLoc ثم Stor. Bin ثم Bin ثم GROUP_ID ثم GROUP_DESC) واضغط في أي خانة تحت والصق (Ctrl+V) — هتتوزع تلقائي. صف عناوين Excel بيتخطّى. لحد 2000 سطر؛ للأكبر استخدم 📄 رفع ملف. <b>Material Number مطلوب</b> لكل سطر.</div>
+      <div style="overflow-x:auto;margin-top:12px"><table id="zwPasteTable" class="pasteTbl"><thead><tr><th>#</th><th>Material</th><th>Material Number</th><th>Typ</th><th>SecIn</th><th>SR</th><th>SP</th><th>ESLoc</th><th>Stor. Bin</th><th>Bin</th><th>GROUP_ID</th><th>GROUP_DESC</th><th></th></tr></thead><tbody id="zwPasteBody"></tbody></table></div>
+      <div class="field-card" style="margin-top:12px;max-width:260px"><label>عدد السطور المطلوبة</label><input type="text" id="zwPasteRows" inputmode="numeric" placeholder="مثال: 50"></div>
+      <div class="row" style="margin-top:8px"><button class="btn-secondary" style="margin-top:0" onclick="zwSetRowCount()">🔢 إنشاء السطور</button><button class="btn-secondary" style="margin-top:0" onclick="addManagedPasteRow('zwhc')">➕ سطر جديد</button><button class="btn-secondary" style="margin-top:0" onclick="clearManagedPaste('zwhc')">🗑 مسح الكل</button></div>
+      <button class="btn-primary" onclick="zwPreviewPaste()">💾 معاينة وحفظ</button>
+      <div id="zwPastePreviewWrap" style="display:none"><div class="hint" id="zwPasteSummary" style="margin-top:12px;font-weight:700"></div><div id="zwPastePreview"></div><button class="btn-primary" id="zwPasteConfirmBtn" onclick="zwCommit('paste')">✅ تأكيد الحفظ على GitHub</button></div>
+      <div class="status" id="zwPasteStatus"></div>
+    </div>
+    <div id="zwhcFile" class="tab-panel">
+      <div class="hint">ارفع ملف CSV فيه سطر عنوان بأسماء الأعمدة (Material Number لازم يكون موجود؛ الحروف الكبيرة والصغيرة والمسافات مش فارقة). أي سجل (Material Number + Stor. Bin) موجود بالفعل <b>بيتحدّث</b>، وأي سجل جديد <b>بيتضاف</b> — الملف الأصلي مش بيتمسح ولا بيتستبدل. الأعمدة اللي مش في ملفك مش بتتغير في السجلات الموجودة. بتشتغل مع الملفات الكبيرة كمان.</div>
+      <label style="margin-top:12px">اختر ملف CSV</label><input accept=".csv,text/csv" id="zwFile" onchange="zwPreviewFile()" type="file">
+      <div id="zwFilePreviewWrap" style="display:none"><div class="hint" id="zwFileSummary" style="margin-top:12px;font-weight:700"></div><div id="zwFilePreview"></div><button class="btn-primary" id="zwFileConfirmBtn" onclick="zwCommit('file')">💾 تأكيد الدمج ورفع على GitHub</button></div>
+      <div class="status" id="zwFileStatus"></div>
+    </div>
+    <div id="zwhcEdit" class="tab-panel">
+      <div class="uniform-form-grid filter-grid">
+        <div class="field-card"><label>Material</label><input type="text" id="zwqMaterial" list="zwqMaterial_dl" placeholder="الكل" oninput="renderManaged('zwhc')"><datalist id="zwqMaterial_dl"></datalist></div>
+        <div class="field-card"><label>Material Number</label><input type="text" id="zwqMaterialNumber" list="zwqMaterialNumber_dl" placeholder="الكل" oninput="renderManaged('zwhc')"><datalist id="zwqMaterialNumber_dl"></datalist></div>
+        <div class="field-card"><label>Typ</label><input type="text" id="zwqTyp" list="zwqTyp_dl" placeholder="الكل" oninput="renderManaged('zwhc')"><datalist id="zwqTyp_dl"></datalist></div>
+        <div class="field-card"><label>SecIn</label><input type="text" id="zwqSecIn" list="zwqSecIn_dl" placeholder="الكل" oninput="renderManaged('zwhc')"><datalist id="zwqSecIn_dl"></datalist></div>
+        <div class="field-card"><label>SR</label><input type="text" id="zwqSR" list="zwqSR_dl" placeholder="الكل" oninput="renderManaged('zwhc')"><datalist id="zwqSR_dl"></datalist></div>
+        <div class="field-card"><label>SP</label><input type="text" id="zwqSP" list="zwqSP_dl" placeholder="الكل" oninput="renderManaged('zwhc')"><datalist id="zwqSP_dl"></datalist></div>
+        <div class="field-card"><label>ESLoc</label><input type="text" id="zwqESLoc" list="zwqESLoc_dl" placeholder="الكل" oninput="renderManaged('zwhc')"><datalist id="zwqESLoc_dl"></datalist></div>
+        <div class="field-card"><label>Stor. Bin</label><input type="text" id="zwqStorBin" list="zwqStorBin_dl" placeholder="الكل" oninput="renderManaged('zwhc')"><datalist id="zwqStorBin_dl"></datalist></div>
+        <div class="field-card"><label>Bin</label><input type="text" id="zwqBin" list="zwqBin_dl" placeholder="الكل" oninput="renderManaged('zwhc')"><datalist id="zwqBin_dl"></datalist></div>
+        <div class="field-card"><label>GROUP_ID</label><input type="text" id="zwqGroupId" list="zwqGroupId_dl" placeholder="الكل" oninput="renderManaged('zwhc')"><datalist id="zwqGroupId_dl"></datalist></div>
+        <div class="field-card"><label>GROUP_DESC</label><input type="text" id="zwqGroupDesc" list="zwqGroupDesc_dl" placeholder="الكل" oninput="renderManaged('zwhc')"><datalist id="zwqGroupDesc_dl"></datalist></div>
+      </div>
+      <div class="hint">الفلاتر هنا بتدوّر بجزء من القيمة (مش لازم تطابقها كاملة). الجدول بيعرض أول 300 سجل مطابق، و«تحديد الكل» بيحدد المعروض بس.</div>
+      <div class="action-row"><button class="btn-secondary" onclick="loadManaged('zwhc')">🔄 تحميل البيانات</button><button class="btn-secondary" onclick="selectAll('zwhc')">☑️ تحديد الكل</button></div>
+      <button class="btn-primary" style="background:var(--red);color:#fff" onclick="deleteSelected('zwhc')">🗑 حذف المحدد</button>
+      <div id="zwhcTable" class="data-table-wrap"></div>
+      <div class="status" id="zwhcStatus"></div>
+    </div>
+    <div id="zwhcBulkEdit" class="tab-panel">
+      <div class="hint">استخدم أكثر من شرط لتحديد السجلات المطلوبة، ثم اختر الحقل الذي تريد تغيير قيمته.</div>
+      <div style="overflow-x:auto;margin-top:12px">
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+          <thead><tr><th style="text-align:right;padding:6px;color:var(--muted);font-size:11.5px">الحقل (شرط)</th><th style="text-align:right;padding:6px;color:var(--muted);font-size:11.5px">القيمة المطلوبة</th><th></th></tr></thead>
+          <tbody id="zwConditionsBody"></tbody>
+        </table>
+      </div>
+      <button class="btn-secondary" type="button" style="margin-top:8px;width:auto" onclick="addBulkFilterRow('zwhc')">➕ إضافة شرط</button>
+      <div class="uniform-form-grid compact-meta" style="margin-top:14px">
+        <div class="field-card"><label>الحقل المطلوب تعديله</label><select id="zwTargetField"></select></div>
+        <div class="field-card"><label>القيمة الجديدة</label><input type="text" id="zwNewValue"></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn-secondary" style="margin-top:0" type="button" onclick="previewBulkEdit('zwhc')">🔍 معاينة السجلات المطابقة</button>
+        <button class="btn-primary" style="margin-top:0" type="button" onclick="applyBulkEdit('zwhc')">💾 تطبيق التعديل على GitHub</button>
+      </div>
+      <div id="zwPreview"></div><div class="status" id="zwStatus"></div>
     </div>
   </div>
 
@@ -718,14 +902,17 @@ html,body{background:var(--bg)!important}
         <div class="field-card"><label>Employee Name</label><input type="text" id="uEmployee"></div>
         <div class="field-card"><label>Department</label><select id="uDepartment"><option value="">اختر القسم</option><option value="NonPharma">NonPharma</option><option value="Pharma">Pharma</option></select></div>
         <div class="field-card"><label>Job Titel</label><input type="text" id="uJob"></div>
-        <div class="field-card"><label>Password</label><input type="password" id="uPassword" value="00000" readonly></div>
+        <div class="field-card"><label>Password</label><input type="text" id="uPassword" value="كود عشوائي (6 أحرف وأرقام) — يُشفَّر تلقائيًا" readonly></div>
         <div class="field-card"><label>Status</label><input type="text" id="uStatus"></div>
         <div class="field-card"><label>Type</label><input type="text" id="uType"></div>
         <div class="field-card"><label>Mob.No</label><input type="text" id="uMobNo"></div>
         <div class="field-card"><label>Emp.Email</label><input type="text" id="uEmpEmail"></div>
+        <div class="field-card"><label>FirstLogin</label><input type="text" id="uFirstLogin" value="TRUE" readonly></div>
+        <div class="field-card"><label>Countlogin</label><input type="text" id="uCountlogin" value="0" readonly></div>
       </div>
       <button class="btn-primary" onclick="addUser()">💾 إضافة ورفع على GitHub</button>
       <div class="status" id="userAddStatus"></div>
+      <div id="userAddSend" style="display:none;margin-top:12px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--surface-2)"></div>
     </div>
     <div id="userEdit" class="tab-panel">
       <div class="uniform-form-grid filter-grid users-filter-grid">
@@ -747,12 +934,23 @@ html,body{background:var(--bg)!important}
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
-const FILE='FileUploade.csv', BACKUP='FileUploadeBackup.csv', USERS='users.csv', POORDERS='PoOrders.csv', PRIVATEFILE='PrivateFile.csv';
+const FILE='FileUploade.csv', BACKUP='FileUploadeBackup.csv', USERS='users.csv', POORDERS='PoOrders.csv', PRIVATEFILE='PrivateFile.csv', ARCHIVEALL='ArchiveAllData.csv', ZWHC='ZWHC.csv';
 const FH=['Department','SheetNo.','SheetName','ActionType','Item Code','Item Name','Upload date','Trans.Status','PersonalName','Trans.Date','Scanned','ShelfNo','Scan.Date','Deletion','Deletion date'];
-const UH=['UserName','Employee Name','Department','Job Titel','Password','Status','Type','Mob.No','Emp.Email'];
-const POH=['Department','ActionType','PoNo','ShelfNo','Item Code','Item Name','Emp.No','Emp.Name','Scan.Date'];
-const PFH=['Department','SheetNo','SheetName','ActionType','ShelfNo','Item Code','Item Name','Emp.No','Emp.Name','Scan.Date'];
-let fr=[],ur=[],br=[],por=[],pfr=[],fsha='',usha='',bsha='',posha='',pfsha='';
+const UH=['UserName','Employee Name','Department','Job Titel','Password','Status','Type','Mob.No','Emp.Email','FirstLogin','Countlogin'];
+const POH=['Department','ActionType','PoNo','ShelfNo','Item Code','Item Name','Emp.No','Emp.Name','Scan.Date','EmpNo.Send','EmpNameSend','SendDate','EmpNo.Assign','EmpNameAssign','AssignDate'];
+// ArchiveAllData.csv (written by the warehouse scanner's archive run): the same 17 columns the scanner uses (FileType says whether a line came from PoOrders or PrivateFile)
+const AAH=['FileType','Department','Sheet/PONo','SheetName','ActionType','ShelfNo','Item Code','Item Name','Emp.No','Emp.Name','Scan.Date','EmpNo.Send','EmpNameSend','SendDate','EmpNo.Assign','EmpNameAssign','AssignDate'];
+const AANORM=x=>String(x==null?'':x).replace(/^\uFEFF/,'').toLowerCase().replace(/[^a-z0-9]+/g,'');
+const AAIDX=Object.fromEntries(AAH.map(h=>[AANORM(h),h]));
+// ZWHC.csv columns (defined up here because the file configs below read them while the page loads)
+const ZWH=['Material','Material Number','Typ','SecIn','SR','SP','ESLoc','Stor. Bin','Bin','GROUP_ID','GROUP_DESC'];
+const ZWIDX=Object.fromEntries(ZWH.map(h=>[AANORM(h),h]));
+function canonArchiveRows(path,rows){ // header names are matched like the scanner does (case / spaces / dots ignored) so a slightly different header cannot lose data
+  const IDX=path===ARCHIVEALL?AAIDX:(path===ZWHC?ZWIDX:null);if(!IDX)return rows;
+  return rows.map(r=>{const o={};Object.keys(r).forEach(k=>{const c=IDX[AANORM(k)];if(c){if(o[c]===undefined||String(o[c])==='')o[c]=r[k]}else o[k]=r[k]});return o});
+}
+const PFH=['Department','SheetNo','SheetName','ActionType','ShelfNo','Item Code','Item Name','Emp.No','Emp.Name','Scan.Date','EmpNo.Send','EmpNameSend','SendDate','EmpNo.Assign','EmpNameAssign','AssignDate'];
+let fr=[],ur=[],br=[],por=[],pfr=[],aar=[],fsha='',usha='',bsha='',posha='',pfsha='',aasha='';
 
 document.addEventListener('DOMContentLoaded',()=>{
   // قسم الاتصال بـ GitHub يكون مقفول تلقائيًا عند فتح الصفحة، ويمكن فتحه يدويًا بالضغط على العنوان.
@@ -774,14 +972,18 @@ function mainTab(x){
   fileSection.style.display=x==='file'?'block':'none';
   poordersSection.style.display=x==='poorders'?'block':'none';
   privatefileSection.style.display=x==='privatefile'?'block':'none';
+  archiveallSection.style.display=x==='archiveall'?'block':'none';
+  zwhcSection.style.display=x==='zwhc'?'block':'none';
   backupSection.style.display=x==='backup'?'block':'none';
   usersSection.style.display=x==='users'?'block':'none';
   const p=document.getElementById('ghPath');
-  if(p)p.value=x==='users'?USERS:(x==='backup'?BACKUP:(x==='poorders'?POORDERS:(x==='privatefile'?PRIVATEFILE:FILE)));
+  if(p)p.value=x==='users'?USERS:(x==='backup'?BACKUP:(x==='poorders'?POORDERS:(x==='privatefile'?PRIVATEFILE:(x==='archiveall'?ARCHIVEALL:(x==='zwhc'?ZWHC:FILE)))));
   saveSettings(false);
   if(x==='backup')loadBackup();
   if(x==='poorders')loadManaged('poorders');
   if(x==='privatefile')loadManaged('privatefile');
+  if(x==='archiveall')loadManaged('archiveall');
+  if(x==='zwhc')loadManaged('zwhc');
 }
 function subTab(id,btn){const p=btn.closest('.main-panel');p.querySelectorAll('.tabs .tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');p.querySelectorAll(':scope>.tab-panel').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active')}
 const SETTINGS_KEY='warehouse_scanner_admin_settings_v1';
@@ -856,8 +1058,16 @@ async function get(path){
     const text=await r.text();
     if(!r.ok)throw Error(text||('HTTP '+r.status));
     const j=JSON.parse(text);
-    if(!j.content||!j.sha)throw Error('لم يتم استلام بيانات الملف أو SHA من GitHub');
-    return{rows:parseCSV(dec(j.content)),sha:j.sha};
+    if(!j.sha)throw Error('لم يتم استلام بيانات الملف أو SHA من GitHub');
+    let b64=j.content;
+    if(!b64){
+      if(j.size===0)return{rows:[],sha:j.sha};   // an empty file
+      // bigger than 1 MB: the contents API sends an empty body, the real content comes from the Git Blobs API with the same sha (like Items Management does)
+      const br=await fetch(`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/git/blobs/${j.sha}`,{method:'GET',headers:H(),cache:'no-store'});
+      const bt=await br.text();if(!br.ok)throw Error(bt||('HTTP '+br.status));
+      b64=JSON.parse(bt).content;if(!b64)throw Error('لم يتم استلام بيانات الملف أو SHA من GitHub');
+    }
+    return{rows:canonArchiveRows(path,parseCSV(dec(b64))),sha:j.sha};
   }catch(e){throw apiError(e,'قراءة الملف')}
 }
 async function put(path,rows,h,sha,message){
@@ -904,23 +1114,133 @@ const MANAGED_CFG={
     path:PRIVATEFILE,label:'PrivateFile.csv',headers:PFH,prefix:'pf',tableId:'privatefileTable',
     filters:[['Department','pfqDepartment'],['SheetNo','pfqSheetNo'],['SheetName','pfqSheetName'],['ActionType','pfqActionType'],['ShelfNo','pfqShelfNo'],['Item Code','pfqItemCode'],['Emp.No','pfqEmpNo'],['Emp.Name','pfqEmpName'],['Scan.Date','pfqScanDate']],
     rowsGetter:()=>pfr,setRows:v=>{pfr=v},sha:()=>pfsha,setSha:v=>{pfsha=v}
+  },
+  archiveall:{
+    path:ARCHIVEALL,label:'ArchiveAllData.csv',headers:AAH,prefix:'aa',tableId:'archiveallTable',allowMissing:true,
+    filters:[['FileType','aaqFileType'],['Department','aaqDepartment'],['Sheet/PONo','aaqSheetPONo'],['SheetName','aaqSheetName'],['ActionType','aaqActionType'],['ShelfNo','aaqShelfNo'],['Item Code','aaqItemCode'],['Emp.No','aaqEmpNo'],['Emp.Name','aaqEmpName'],['Scan.Date','aaqScanDate']],
+    rowsGetter:()=>aar,setRows:v=>{aar=v},sha:()=>aasha,setSha:v=>{aasha=v}
+  },
+  zwhc:{
+    path:ZWHC,label:'ZWHC.csv',headers:ZWH,prefix:'zw',tableId:'zwhcTable',allowMissing:true,contains:true,maxRows:300,
+    filters:[['Material','zwqMaterial'],['Material Number','zwqMaterialNumber'],['Typ','zwqTyp'],['SecIn','zwqSecIn'],['SR','zwqSR'],['SP','zwqSP'],['ESLoc','zwqESLoc'],['Stor. Bin','zwqStorBin'],['Bin','zwqBin'],['GROUP_ID','zwqGroupId'],['GROUP_DESC','zwqGroupDesc']],
+    rowsGetter:()=>zwr,setRows:v=>{zwr=v},sha:()=>zwsha,setSha:v=>{zwsha=v}
   }
 };
+// ===== Paste from Excel into PoOrders.csv / PrivateFile.csv (same idea as the FileUploade paste tab) =====
+const PASTE_CFG={
+  poorders:{p:'poPaste',path:POORDERS,headers:POH,label:'PoOrders.csv',keyLabel:'PoNo',
+    meta:()=>({Department:pasteVal('poPasteDepartment'),PoNo:pasteVal('poPastePoNo')}),
+    need:m=>!m.Department?'Department مطلوب':(!m.PoNo?'PoNo مطلوب':''),key:r=>[r.PoNo,r['Item Code']]},
+  privatefile:{p:'pfPaste',path:PRIVATEFILE,headers:PFH,label:'PrivateFile.csv',keyLabel:'SheetNo',
+    meta:()=>({Department:pasteVal('pfPasteDepartment'),SheetNo:pasteVal('pfPasteSheetNo'),SheetName:pasteVal('pfPasteSheetName')}),
+    need:m=>!m.Department?'Department مطلوب':(!m.SheetName?'SheetName مطلوب':''),key:r=>[r.SheetNo,r['Item Code']]},
+  archiveall:{p:'aaPaste',path:ARCHIVEALL,headers:AAH,label:'ArchiveAllData.csv',keyLabel:'FileType وSheet/PONo',cols:AAH,allowMissing:true,
+    meta:()=>({}),need:()=>'',key:r=>[r.FileType,r['Sheet/PONo'],r['Item Code']], // the same line = same FileType + file code + Item Code (the scanner's rule)
+    rowCheck:rows=>{
+      const bad=rows.findIndex(r=>!r.FileType||!r['Sheet/PONo']);
+      if(bad>=0)return 'السطر '+(bad+1)+': FileType وSheet/PONo مطلوبين لكل سطر (الأرشيف بيتطابق بيهم مع Item Code)';
+      rows.forEach(r=>{const k=String(r.FileType).trim().toLowerCase();if(k==='poorders')r.FileType='PoOrders';else if(k==='privatefile')r.FileType='PrivateFile';});
+      const odd=[...new Set(rows.map(r=>r.FileType).filter(t=>t!=='PoOrders'&&t!=='PrivateFile'))];
+      if(odd.length&&!confirm('FileType غير معتاد: '+odd.join(', ')+'\nالمعتاد PoOrders أو PrivateFile (برنامج المستودع وPO Monitor بيعتمدوا عليهم). تكمل برضه؟'))return 'لم يتم الحفظ';
+      return '';
+    }},
+  zwhc:{p:'zwPaste',path:ZWHC,headers:ZWH,label:'ZWHC.csv',cols:ZWH,maxPaste:2000} // the grid only; saving goes through zwPreviewPaste / zwCommit (preview first)
+};
+const PASTE_COLS=['ActionType','ShelfNo','Item Code','Item Name','Emp.No','Emp.Name','Scan.Date'];
+function pasteVal(id){const e=document.getElementById(id);return e?e.value.trim():''}
+function pasteEsc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+function addManagedPasteRow(type,data){
+  const c=PASTE_CFG[type];if(!c)return;
+  const tb=document.getElementById(c.p+'Body'),tr=document.createElement('tr');
+  tr.innerHTML='<td>'+(tb.children.length+1)+'</td>'+(c.cols||PASTE_COLS).map(h=>'<td><input data-h="'+h+'" value="'+pasteEsc(data&&data[h])+'"></td>').join('')+'<td><button class="rowDelBtn" onclick="this.closest(\'tr\').remove()">✕</button></td>';
+  tb.appendChild(tr);
+}
+function clearManagedPaste(type){const c=PASTE_CFG[type];if(c)document.getElementById(c.p+'Body').innerHTML=''}
+Object.keys(PASTE_CFG).forEach(type=>{
+  document.getElementById(PASTE_CFG[type].p+'Table').addEventListener('paste',e=>{
+    const txt=e.clipboardData.getData('text/plain');
+    if(!txt.includes('\t'))return;            // a plain value: normal paste into the cell
+    e.preventDefault();
+    const cols=PASTE_CFG[type].cols||PASTE_COLS,lines=txt.replace(/\s+$/,'').split(/\r?\n/);
+    if(PASTE_CFG[type].maxPaste&&lines.length>PASTE_CFG[type].maxPaste)return alert('اللصق هنا لحد '+PASTE_CFG[type].maxPaste+' سطر ('+lines.length+' سطر في اللي نسخته). للأكبر استخدم 📄 رفع ملف.');
+    clearManagedPaste(type);
+    lines.forEach((line,i)=>{
+      const cells=line.split('\t'),o={};
+      if(i===0&&String(cells[0]||'').trim().toLowerCase()===cols[0].toLowerCase())return; // the Excel header row is skipped
+      cols.forEach((h,k)=>o[h]=(cells[k]||'').trim());
+      addManagedPasteRow(type,o);
+    });
+  });
+});
+function genPrivateSheetNo(existingRows){
+  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';let v;
+  do{v='';for(let i=0;i<10;i++)v+=chars[Math.floor(Math.random()*chars.length)];}
+  while((existingRows||[]).some(r=>String(r.SheetNo??'')===v)||fr.some(r=>String(r['SheetNo.']??'')===v));
+  return v;
+}
+async function saveManagedPaste(type){
+  const c=PASTE_CFG[type],cfg=MANAGED_CFG[type],st=c.p+'Status';
+  const m=c.meta(),err=c.need(m);if(err)return alert(err);
+  const input=[...document.querySelectorAll('#'+c.p+'Body tr')].map(tr=>{const o={};tr.querySelectorAll('input').forEach(i=>o[i.dataset.h]=i.value.trim());return o}).filter(o=>o['Item Code']);
+  if(!input.length)return alert('لا توجد بيانات (Item Code مطلوب لكل سطر)');
+  if(c.rowCheck){const e2=c.rowCheck(input);if(e2)return alert(e2);}
+  try{
+    show(st,'جاري حفظ البيانات...','info');
+    let lastErr=null,asked=false;
+    for(let attempt=1;attempt<=4;attempt++){
+      const latest=await getManaged(c.path,c.allowMissing),remote=latest.rows||[];
+      const meta=Object.assign({},m);
+      if(type==='privatefile'&&!meta.SheetNo)meta.SheetNo=genPrivateSheetNo(remote);
+      // every column of the file is written; the six Send / Assign columns of the new lines stay empty
+      const rows=input.map(r=>{const o={};c.headers.forEach(h=>o[h]='');return Object.assign(o,r,meta)});
+      if(!asked){
+        asked=true;
+        const keyOf=r=>c.key(r).map(v=>String(v==null?'':v).trim().toLowerCase()).join('\u241F');
+        const have=new Set(remote.map(keyOf));
+        const dup=rows.filter(r=>have.has(keyOf(r))).length;
+        if(dup&&!confirm(dup+' سطر من اللي الصقتها موجود بالفعل في '+c.label+' بنفس '+c.keyLabel+' ونفس Item Code.\nموافق = يتضاف كسطر جديد، إلغاء = لا يتم الحفظ.')){show(st,'تم الإلغاء — لم يتم حفظ شيء','info');return}
+      }
+      const newRows=remote.concat(rows);
+      try{
+        const x=latest.sha?await put(c.path,newRows,c.headers,latest.sha,'Paste data into '+c.label):await putCreateOrUpdate(c.path,newRows,c.headers,'','Paste data into '+c.label);
+        cfg.setRows(newRows);cfg.setSha(x.content.sha);renderManaged(type);
+        show(st,'تم الحفظ على GitHub بنجاح — '+rows.length+' سطر'+(type==='privatefile'&&!m.SheetNo?(' (SheetNo: '+meta.SheetNo+')'):''),'ok');
+        clearManagedPaste(type);
+        return;
+      }catch(e){
+        lastErr=e;
+        const msg=String(e&&e.message||e);
+        if(!/409|does not match|supplied|already exists/i.test(msg)||attempt===4)throw e;
+        await new Promise(r=>setTimeout(r,400*attempt));
+      }
+    }
+    throw lastErr||Error('فشل الحفظ');
+  }catch(e){show(st,'خطأ: '+e.message,'err')}
+}
+async function getManaged(path,allowMissing){ // like get(), but a file that does not exist yet (404) can be treated as empty
+  try{return await get(path)}
+  catch(e){if(allowMissing&&/404|Not Found/i.test(String(e&&e.message||e)))return{rows:[],sha:'',missing:true};throw e}
+}
 async function loadManaged(type){
   const cfg=MANAGED_CFG[type];if(!cfg)return;
   try{
-    const x=await get(cfg.path);
+    const x=await getManaged(cfg.path,cfg.allowMissing);
     x.rows.forEach(r=>cfg.headers.forEach(h=>{if(r[h]===undefined)r[h]='';}));
     cfg.setRows(x.rows);cfg.setSha(x.sha);renderManaged(type);
-    show(type==='poorders'?'poordersStatus':'privatefileStatus','تم تحميل '+cfg.label+' — '+x.rows.length+' سجل','ok');
-  }catch(e){show(type==='poorders'?'poordersStatus':'privatefileStatus','خطأ: '+e.message,'err')}
+    const extra=((type==='archiveall'||type==='zwhc')&&x.rows.length)?Object.keys(x.rows[0]).filter(k=>cfg.headers.indexOf(k)<0):[];
+    if(x.missing)show(type+'Status',cfg.label+' غير موجود لسه على GitHub — هيتعمل أول ما تلصق بيانات (أو لما برنامج المستودع يشغّل الأرشفة)','info');
+    else if(extra.length)show(type+'Status','تم تحميل '+cfg.label+' — '+x.rows.length+' سجل. ⚠ فيه أعمدة مش معروفة ('+extra.join(', ')+') وهتتشال عند أي حفظ — راجع الملف قبل التعديل','err');
+    else show(type+'Status','تم تحميل '+cfg.label+' — '+x.rows.length+' سجل','ok');
+  }catch(e){show(type+'Status','خطأ: '+e.message,'err')}
 }
 function refreshManagedFilters(type){
   const cfg=MANAGED_CFG[type];if(!cfg)return;
   cfg.filters.forEach(([field,id])=>{
     const el=document.getElementById(id);if(!el)return;
     const dl=document.getElementById(id+'_dl');if(!dl)return;
-    const vals=[...new Set(cfg.rowsGetter().map(r=>String(r[field]??'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'en',{numeric:true}));
+    const rr=cfg.rowsGetter(),sig=rr.length+'|'+(cfg.maxRows?rr:'');if(cfg.maxRows&&dl._sig&&dl._sig[0]===rr&&dl._sig[1]===rr.length)return; // big table: rebuild the suggestions only when the data changed
+    dl._sig=[rr,rr.length];
+    let vals=[...new Set(rr.map(r=>String(r[field]??'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'en',{numeric:true}));if(cfg.maxRows)vals=vals.slice(0,500);
     dl.innerHTML=vals.map(v=>'<option value="'+v.replace(/"/g,'&quot;')+'"></option>').join('');
   });
 }
@@ -930,10 +1250,13 @@ function renderManaged(type){
   refreshManagedFilters(type);
   const filtered=rows.map((r,i)=>[r,i]).filter(([r])=>cfg.filters.every(([field,id])=>{
     const el=document.getElementById(id);const v=el?el.value.trim():'';
-    return !v||String(r[field]??'').trim()===v;
+    if(!v)return true;
+    const cell=String(r[field]??'').trim();
+    return cfg.contains?cell.toLowerCase().includes(v.toLowerCase()):cell===v;
   }));
+  const shown=cfg.maxRows?filtered.slice(0,cfg.maxRows):filtered;
   const wrap=document.getElementById(cfg.tableId);
-  if(wrap)wrap.innerHTML=table(filtered,cfg.headers,type);
+  if(wrap)wrap.innerHTML=(cfg.maxRows&&filtered.length>cfg.maxRows?'<div class="hint">بيتعرض أول '+cfg.maxRows+' من '+filtered.length+' سجل مطابق — ضيّق النتيجة بالفلاتر</div>':'')+table(shown,cfg.headers,type);
 }
 function managedRowEqual(a,b,headers){
   return headers.every(h=>String(a?.[h]??'')===String(b?.[h]??''));
@@ -1047,8 +1370,184 @@ async function saveFile(m,s){
     show(s,'خطأ: '+e.message,'err');
   }
 }
-function addUser(){let ids=['uUser','uEmployee','uDepartment','uJob','uPassword','uStatus','uType','uMobNo','uEmpEmail'],o={};UH.forEach((h,i)=>o[h]=document.getElementById(ids[i]).value.trim());o.Password='00000';document.getElementById('uPassword').value='00000';if(!o.UserName)return alert('UserName مطلوب');ur.push(o);saveUsers('إضافة مستخدم إلى users.csv','userAddStatus')}
-async function saveUsers(m,s){try{const latest=await get(USERS);const latestRows=latest.rows||[];const newUser=ur[ur.length-1];if(!newUser)throw Error('بيانات المستخدم غير موجودة');const key=v=>String(v??'').trim().toLowerCase();const idx=latestRows.findIndex(r=>key(r.UserName)===key(newUser.UserName));if(idx>=0)latestRows[idx]=newUser;else latestRows.push(newUser);const x=await put(USERS,latestRows,UH,latest.sha,m);ur=latestRows;usha=x.content.sha;renderUsers();show(s,'تم الحفظ على GitHub بنجاح','ok')}catch(e){show(s,'خطأ: '+e.message,'err')}}
+// ===== Temporary password: random 6 characters (letters + digits), stored ONLY as a salted PBKDF2 verifier in users.csv =====
+// The plain code exists only in this page's memory (tempCodes) from the moment it is generated until the page is closed:
+// it is what the WhatsApp message carries. The verifier format is the one the scanner app already verifies:  pbkdf2$210000$<salt hex>$<hash hex>
+const TEMP_CODE_ALPHABET='abcdefghjkmnpqrstuvwxyz23456789'; // no 0/o/1/l/i: nothing to mix up when it is typed on a phone
+const DEFAULT_COUNTRY_CODE='20';                              // a mobile written as 01xxxxxxxxx becomes 201xxxxxxxxx for wa.me
+const tempCodes={};                                           // userName(lowercase) -> plain code, memory only
+function genTempCode(){
+  for(;;){
+    const r=crypto.getRandomValues(new Uint8Array(6));
+    let c='';r.forEach(v=>{c+=TEMP_CODE_ALPHABET[v%TEMP_CODE_ALPHABET.length]});
+    if(/[a-z]/.test(c)&&/[0-9]/.test(c))return c; // always a mix of letters and digits
+  }
+}
+async function makeVerifier(password){
+  const hex=b=>Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('');
+  const salt=crypto.getRandomValues(new Uint8Array(16)),iter=210000;
+  const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(String(password).normalize('NFC')),'PBKDF2',false,['deriveBits']);
+  const bits=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt,iterations:iter},key,256);
+  return 'pbkdf2$'+iter+'$'+hex(salt)+'$'+hex(new Uint8Array(bits));
+}
+function waNumber(m){
+  let d=String(m||'').replace(/\D/g,'');
+  if(d.startsWith('00'))d=d.slice(2);
+  else if(d.startsWith('0'))d=DEFAULT_COUNTRY_CODE+d.slice(1);
+  return d;
+}
+function waText(u,code){
+  const name=String(u['Employee Name']||u.UserName||'').trim();
+  return 'مرحبًا '+name+'،\nتم إنشاء حسابك على برنامج سكانر المستودع.\n\nاسم المستخدم: '+u.UserName+'\nكلمة المرور المؤقتة: '+code+'\n\nعند أول دخول سيُطلب منك اختيار كلمة مرور جديدة (8 أحرف أو أرقام على الأقل).\nبرجاء عدم مشاركة كلمة المرور مع أي شخص.';
+}
+function showTempCard(u,code){
+  const el=document.getElementById('tempCodeCard');if(!el)return;
+  const k=String(u.UserName||'').trim();
+  el.style.display='block';
+  el.innerHTML='<div style="font-weight:800;margin-bottom:8px">🔑 كلمة المرور المؤقتة للمستخدم '+k.replace(/</g,'&lt;')+'</div>'+
+    '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><code id="tempCodeValue" style="font-size:22px;letter-spacing:3px;padding:6px 12px;border:1px dashed var(--border);border-radius:8px;direction:ltr">'+code+'</code>'+
+    '<button class="btn-secondary" style="margin:0" onclick="navigator.clipboard&&navigator.clipboard.writeText(document.getElementById(\'tempCodeValue\').textContent)">📋 نسخ</button>'+
+    '<button class="btn-primary" style="margin:0" onclick="sendTempWhatsApp(\''+k.replace(/'/g,"\\'")+'\')">📲 إرسال بالواتس</button></div>'+
+    '<div style="margin-top:8px;font-size:12px;opacity:.85">الكود يظهر هنا مرة واحدة فقط (محفوظ مشفّرًا في الجدول). لو الصفحة اتقفلت قبل الإرسال اضغط Reset لتوليد كود جديد.</div>';
+}
+function sendTempWhatsApp(userName){
+  const key=String(userName||'').trim().toLowerCase();
+  const u=ur.find(r=>String(r.UserName||'').trim().toLowerCase()===key);
+  const code=tempCodes[key];
+  if(!u)return alert('المستخدم غير موجود في الجدول');
+  if(!code)return alert('كلمة المرور المؤقتة غير متاحة (مشفّرة في الجدول ولا يمكن استرجاعها).\nاضغط ↻ Reset لتوليد كود جديد ثم أرسله.');
+  const n=waNumber(u['Mob.No']);
+  if(!n)return alert('لا يوجد رقم موبايل للمستخدم (Mob.No)');
+  window.open('https://wa.me/'+n+'?text='+encodeURIComponent(waText(u,code)),'_blank');
+}
+// ===================== ZWHC.csv =====================
+// Same three ways of adding data as the items.csv tab of Items Management (one record / paste from Excel with a preview / upload a file that is MERGED, never replaces the file)
+// + the Edit / Delete and Edit-by-filter tabs of PrivateFile. A record is identified by Material Number + Stor. Bin (ZW_KEY): the same pair = update, a new pair = new record.
+let zwr=[],zwsha='';const zwPending={};
+const zwEsc=x=>String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const zwClean=v=>String(v==null?'':v).replace(/[\r\n]+/g,' ').replace(/,/g,' ').replace(/\s+/g,' ').trim(); // like items.csv: a comma typed inside a value becomes a space (the scanner reads the file in a simple way)
+const zwKey=r=>String(r['Material Number']||'').trim().toLowerCase()+'|'+String(r['Stor. Bin']||'').trim().toLowerCase();
+const zwSanitize=r=>{const o={};ZWH.forEach(h=>{o[h]=zwClean(r&&r[h]);});return o;};
+const zwRead=f=>new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(String(fr.result));fr.onerror=()=>rej(fr.error||Error('تعذر قراءة الملف'));fr.readAsText(f,'utf-8');});
+function zwMerge(existing,incoming,cols){ // incoming rows are merged into the existing ones; only the columns in `cols` are touched; the same key twice in the input: the last one wins
+  const at=new Map();existing.forEach((r,i)=>{const k=zwKey(r);if(!at.has(k))at.set(k,i);});
+  const out=existing.map(r=>Object.assign({},r)),res={added:[],updated:[],same:[],dupInInput:0};
+  const last=new Map();incoming.forEach(r=>{const k=zwKey(r);if(last.has(k))res.dupInInput++;last.set(k,r);});
+  last.forEach((r,k)=>{
+    if(at.has(k)){const i=at.get(k),old=out[i];
+      if(cols.some(h=>String(old[h]??'')!==String(r[h]??''))){const nu=Object.assign({},old);cols.forEach(h=>{nu[h]=r[h];});res.updated.push({before:Object.assign({},old),after:nu});out[i]=nu;}
+      else res.same.push(r);}
+    else{const nu={};ZWH.forEach(h=>{nu[h]=cols.includes(h)?r[h]:'';});res.added.push(nu);out.push(Object.assign({},nu));at.set(k,out.length-1);}
+  });
+  res.rows=out;return res;
+}
+async function zwSave(incoming,cols,opts){ // read the NEWEST file, merge, write (retry if somebody wrote in between); a missing file is created
+  opts=opts||{};
+  for(let attempt=0;attempt<5;attempt++){
+    const latest=await getManaged(ZWHC,true),rows=latest.rows||[];
+    const extra=rows.length?Object.keys(rows[0]).filter(k=>ZWH.indexOf(k)<0):[];
+    if(extra.length&&!opts.extraOk){if(!confirm('الملف على GitHub فيه أعمدة مش معروفة ('+extra.join(', ')+') وهتتشال عند الحفظ.\nتكمل برضه؟'))return{cancelled:true};opts.extraOk=true;}
+    const res=zwMerge(rows,incoming,cols);
+    if(!res.added.length&&!res.updated.length)return{res,saved:false,total:res.rows.length};
+    if(opts.confirmUpdate&&res.updated.length&&!opts.confirmed){if(!confirm('السجل موجود بالفعل (نفس Material Number و Stor. Bin).\nتحديث بياناته؟'))return{cancelled:true};opts.confirmed=true;}
+    try{
+      const msg='ZWHC: +'+res.added.length+' new / '+res.updated.length+' updated';
+      const x=latest.sha?await put(ZWHC,res.rows,ZWH,latest.sha,msg):await putCreateOrUpdate(ZWHC,res.rows,ZWH,'',msg);
+      zwr=res.rows;zwsha=x.content.sha;if(document.getElementById('zwhcTable'))renderManaged('zwhc');
+      return{res,saved:true,total:res.rows.length};
+    }catch(e){const m=String(e&&e.message||e);if(!/409|does not match|supplied|already exists/i.test(m)||attempt===4)throw e;await new Promise(r=>setTimeout(r,400*(attempt+1)));}
+  }
+}
+const zwDone=(r)=>'تم الحفظ على ZWHC.csv — جديد '+r.res.added.length+' · تحديث '+r.res.updated.length+(r.res.same.length?' · بدون تغيير '+r.res.same.length:'')+' · الإجمالي '+r.total+' سجل';
+async function zwAddSingle(){
+  const rec={};document.querySelectorAll('#zwhcSingle [data-zw]').forEach(i=>{rec[i.dataset.zw]=i.value;});
+  const r=zwSanitize(rec);if(!r['Material Number'])return alert('Material Number مطلوب');
+  show('zwSingleStatus','جاري الحفظ على GitHub...','info');
+  try{
+    const out=await zwSave([r],ZWH,{confirmUpdate:true});
+    if(out.cancelled)return show('zwSingleStatus','تم الإلغاء — لم يتغير شيء','info');
+    show('zwSingleStatus',out.saved?zwDone(out):'السجل موجود بنفس البيانات — لا يوجد تغيير',out.saved?'ok':'info');
+    if(out.saved)document.querySelectorAll('#zwhcSingle [data-zw]').forEach(i=>{i.value='';});
+  }catch(e){show('zwSingleStatus','خطأ: '+e.message,'err');}
+}
+function zwSetRowCount(){const n=parseInt(String(document.getElementById('zwPasteRows').value||'').replace(/\D/g,''),10);
+  if(!n||n<1||n>1000)return alert('اكتب عدد سطور من 1 إلى 1000');
+  clearManagedPaste('zwhc');for(let i=0;i<n;i++)addManagedPasteRow('zwhc');}
+async function zwPreview(kind,rows,cols,notes){ // shows what WOULD happen (new / updated / unchanged), nothing is written yet
+  const pre='zw'+(kind==='paste'?'Paste':'File'),st=pre+'Status',wrap=document.getElementById(pre+'PreviewWrap');
+  show(st,'جاري مقارنة البيانات بالملف على GitHub...','info');
+  try{
+    const latest=await getManaged(ZWHC,true),res=zwMerge(latest.rows||[],rows,cols);
+    zwPending[kind]={rows,cols};
+    const sum='جديد: '+res.added.length+' · تحديث: '+res.updated.length+' · بدون تغيير: '+res.same.length+(res.dupInInput?' · مكرر داخل المُدخل (آخر واحد بيتاخد): '+res.dupInInput:'')+' · ملف GitHub الحالي: '+(latest.rows||[]).length+' سجل';
+    const row=(tag,cls,r,b)=>'<tr><td><b class="'+cls+'">'+tag+'</b></td>'+ZWH.map(h=>'<td>'+(b&&String(b[h]??'')!==String(r[h]??'')&&cols.includes(h)?'<s style="opacity:.55">'+zwEsc(b[h])+'</s> ':'')+zwEsc(r[h])+'</td>').join('')+'</tr>';
+    const items=res.added.slice(0,25).map(r=>row('جديد','ok',r)).concat(res.updated.slice(0,25).map(u=>row('تحديث','info',u.after,u.before)));
+    document.getElementById(pre+'Summary').textContent=sum;
+    document.getElementById(pre+'Preview').innerHTML=items.length?'<div style="overflow-x:auto"><table class="data-table"><thead><tr><th></th>'+ZWH.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+items.join('')+'</tbody></table></div>'+((res.added.length>25||res.updated.length>25)?'<div class="hint">المعاينة بتعرض أول 25 من كل نوع</div>':''):'<div class="hint">مفيش أي تغيير — كل السجلات موجودة بنفس البيانات.</div>';
+    const note=(notes&&notes.length?' — '+notes.join(' — '):'');
+    wrap.style.display='block';document.getElementById(pre+'ConfirmBtn').style.display=(res.added.length||res.updated.length)?'':'none';
+    show(st,'راجع المعاينة ثم اضغط تأكيد الحفظ'+note,'info');
+  }catch(e){show(st,'خطأ: '+e.message,'err');}
+}
+async function zwPreviewPaste(){
+  const trs=[...document.querySelectorAll('#zwPasteBody tr')],rows=[];
+  for(let i=0;i<trs.length;i++){const o={};trs[i].querySelectorAll('input').forEach(x=>{o[x.dataset.h]=x.value;});const r=zwSanitize(o);
+    if(!ZWH.some(h=>r[h]))continue;if(!r['Material Number'])return alert('السطر '+(i+1)+': Material Number مطلوب');rows.push(r);}
+  if(!rows.length)return alert('لا توجد بيانات للمعاينة');
+  await zwPreview('paste',rows,ZWH);
+}
+async function zwPreviewFile(){
+  const f=document.getElementById('zwFile').files[0],wrap=document.getElementById('zwFilePreviewWrap');wrap.style.display='none';if(!f)return;
+  try{
+    const parsed=parseCSV(await zwRead(f));
+    if(!parsed.length)return show('zwFileStatus','الملف فاضي أو مش CSV صحيح (لازم سطر عنوان في الأول)','err');
+    const map={};Object.keys(parsed[0]).forEach(k=>{const c=ZWIDX[AANORM(k)];if(c&&!Object.values(map).includes(c))map[k]=c;});
+    const cols=ZWH.filter(h=>Object.values(map).includes(h));
+    if(!cols.includes('Material Number'))return show('zwFileStatus','الملف لازم يحتوي على عمود Material Number (مع سطر عنوان)','err');
+    const rows=parsed.map(r=>{const o={};Object.keys(map).forEach(k=>{o[map[k]]=r[k];});return zwSanitize(o);}).filter(r=>r['Material Number']);
+    const notes=[];const unknown=Object.keys(parsed[0]).filter(k=>!map[k]),skipped=parsed.length-rows.length,absent=ZWH.filter(h=>!cols.includes(h));
+    if(skipped)notes.push('اتجاهل '+skipped+' سطر من غير Material Number');
+    if(unknown.length)notes.push('أعمدة مش معروفة اتجاهلت: '+unknown.join(', '));
+    if(absent.length)notes.push('أعمدة مش في الملف (مش هتتغير في السجلات الموجودة): '+absent.join(', '));
+    await zwPreview('file',rows,cols,notes);
+  }catch(e){show('zwFileStatus','خطأ: '+e.message,'err');}
+}
+async function zwCommit(kind){
+  const p=zwPending[kind];if(!p||!p.rows.length)return alert('اعمل معاينة الأول');
+  const pre='zw'+(kind==='paste'?'Paste':'File'),st=pre+'Status';
+  show(st,'جاري الحفظ على GitHub...','info');
+  try{
+    const out=await zwSave(p.rows,p.cols,{});
+    if(out.cancelled)return show(st,'تم الإلغاء — لم يتغير شيء','info');
+    show(st,out.saved?zwDone(out):'مفيش تغيير — كل السجلات موجودة بنفس البيانات',out.saved?'ok':'info');
+    if(out.saved){delete zwPending[kind];document.getElementById(pre+'PreviewWrap').style.display='none';if(kind==='paste')clearManagedPaste('zwhc');else document.getElementById('zwFile').value='';}
+  }catch(e){show(st,'خطأ: '+e.message,'err');}
+}
+function showAddSend(u,code){ // right after a user is added: the temporary password + the send button, inside the Add panel
+  const el=document.getElementById('userAddSend');if(!el)return;
+  const k=String(u.UserName||'').trim(),esc=x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'),hasMob=!!waNumber(u['Mob.No']);
+  el.style.display='block';
+  el.innerHTML='<div style="font-weight:800;margin-bottom:8px">✅ تم إضافة المستخدم '+esc(k)+' — ابعتله بياناته:</div>'+
+    '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span>كلمة المرور المؤقتة:</span><code id="addSendCode" style="font-size:20px;letter-spacing:3px;padding:6px 12px;border:1px dashed var(--border);border-radius:8px;direction:ltr">'+esc(code)+'</code>'+
+    '<button class="btn-secondary" style="margin:0" type="button" id="addSendCopy">📋 نسخ</button>'+
+    '<button class="btn-primary" style="margin:0" type="button" id="addSendWa">📲 إرسال رسالة (واتس)</button></div>'+
+    '<div style="margin-top:8px;font-size:12px;opacity:.9">'+(hasMob?'الرسالة بتتفتح في واتساب على الرقم '+esc(u['Mob.No'])+' وفيها اسم المستخدم وكلمة المرور المؤقتة. ':'<b style="color:var(--red)">⚠ مفيش رقم موبايل (Mob.No) للمستخدم — انسخ الكود وابعته بطريقة تانية.</b> ')+'الكود بيظهر مرة واحدة بس (محفوظ مشفّرًا في الجدول)، ولو اتقفلت الصفحة قبل الإرسال اعمل ↻ Reset من تعديل / حذف.</div>';
+  el.querySelector('#addSendWa').onclick=()=>sendTempWhatsApp(k);
+  el.querySelector('#addSendCopy').onclick=function(){const b=this;const done=()=>{b.textContent='✔ اتنسخ';setTimeout(()=>{b.textContent='📋 نسخ';},1500);};
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(code).then(done,()=>alert(code));else{alert(code);}};
+}
+async function addUser(){
+  const sendBox=document.getElementById('userAddSend');if(sendBox)sendBox.style.display='none'; // a new attempt starts: the previous user's box goes away
+  const ids=['uUser','uEmployee','uDepartment','uJob','uPassword','uStatus','uType','uMobNo','uEmpEmail','uFirstLogin','uCountlogin'],o={};
+  UH.forEach((h,i)=>o[h]=document.getElementById(ids[i]).value.trim());
+  if(!o.UserName)return alert('UserName مطلوب');
+  if(ur.some(r=>String(r.UserName||'').trim().toLowerCase()===o.UserName.toLowerCase())&&!confirm('المستخدم '+o.UserName+' موجود بالفعل. سيتم استبدال بياناته وكلمة مروره بكود جديد. متابعة؟'))return;
+  const code=genTempCode();
+  o.Password=await makeVerifier(code);o.FirstLogin='TRUE';o.Countlogin='0';
+  ur.push(o);
+  if(await saveUsers('إضافة مستخدم إلى users.csv','userAddStatus')){tempCodes[o.UserName.toLowerCase()]=code;showTempCard(o,code);showAddSend(o,code);}
+}
+async function saveUsers(m,s){try{const latest=await get(USERS);const latestRows=latest.rows||[];const newUser=ur[ur.length-1];if(!newUser)throw Error('بيانات المستخدم غير موجودة');const key=v=>String(v??'').trim().toLowerCase();const idx=latestRows.findIndex(r=>key(r.UserName)===key(newUser.UserName));if(idx>=0)latestRows[idx]=newUser;else latestRows.push(newUser);const x=await put(USERS,latestRows,UH,latest.sha,m);ur=latestRows;usha=x.content.sha;renderUsers();show(s,'تم الحفظ على GitHub بنجاح','ok');return true}catch(e){show(s,'خطأ: '+e.message,'err');return false}}
 function addPasteRow(data={}){
   let tr=document.createElement('tr');
   let n=document.querySelectorAll('#pasteBody tr').length+1;
@@ -1269,7 +1768,9 @@ const BULK_CFG={
   file:{prefix:'bf',path:FILE,label:'FileUploade.csv',headers:FH,rowsGetter:()=>fr,setRows:v=>{fr=v},sha:()=>fsha,setSha:v=>{fsha=v},render:()=>renderFile()},
   backup:{prefix:'bb',path:BACKUP,label:'FileUploadeBackup.csv',headers:FH,rowsGetter:()=>br,setRows:v=>{br=v},sha:()=>bsha,setSha:v=>{bsha=v},render:()=>renderBackup()},
   poorders:{prefix:'po',path:POORDERS,label:'PoOrders.csv',headers:POH,rowsGetter:()=>por,setRows:v=>{por=v},sha:()=>posha,setSha:v=>{posha=v},render:()=>renderManaged('poorders')},
-  privatefile:{prefix:'pf',path:PRIVATEFILE,label:'PrivateFile.csv',headers:PFH,rowsGetter:()=>pfr,setRows:v=>{pfr=v},sha:()=>pfsha,setSha:v=>{pfsha=v},render:()=>renderManaged('privatefile')}
+  privatefile:{prefix:'pf',path:PRIVATEFILE,label:'PrivateFile.csv',headers:PFH,rowsGetter:()=>pfr,setRows:v=>{pfr=v},sha:()=>pfsha,setSha:v=>{pfsha=v},render:()=>renderManaged('privatefile')},
+  archiveall:{prefix:'aa',path:ARCHIVEALL,label:'ArchiveAllData.csv',headers:AAH,rowsGetter:()=>aar,setRows:v=>{aar=v},sha:()=>aasha,setSha:v=>{aasha=v},render:()=>renderManaged('archiveall')},
+  zwhc:{prefix:'zw',path:ZWHC,label:'ZWHC.csv',headers:ZWH,rowsGetter:()=>zwr,setRows:v=>{zwr=v},sha:()=>zwsha,setSha:v=>{zwsha=v},render:()=>renderManaged('zwhc')}
 };
 function addBulkFilterRow(type,field,value){
   const cfg=BULK_CFG[type];if(!cfg)return;
@@ -1358,36 +1859,29 @@ function renderUsers(){
   const rows=ur.map((r,i)=>[r,i]).filter(([r])=>Object.keys(f).every(k=>!f[k]||String(r[k]??'')===f[k]));
   userTable.innerHTML=table(rows,UH,'users')
 }
-function table(rows,h,type){let s='<table class="data-table"><thead><tr><th><input class="check" type="checkbox" onclick="toggleVisible(\''+type+'\',this)"></th>'+h.map(x=>'<th>'+x+'</th>').join('')+'<th>حفظ</th></tr></thead><tbody>';rows.forEach(([r,i])=>{s+='<tr><td><input class="check sel-'+type+'" data-i="'+i+'" type="checkbox"></td>'+h.map(x=>{if(type==='users'&&x==='Password')return '<td><input type="password" value="********" readonly autocomplete="new-password"></td>';if(type==='file'&&x==='ActionType'){const v=String(r[x]??'');const opt=o=>'<option value="'+o+'"'+(v===o?' selected':'')+'>'+(o||'—')+'</option>';return '<td><select data-i="'+i+'" data-h="ActionType">'+opt('')+opt('New')+opt('Edit')+'</select></td>';}return '<td><input data-i="'+i+'" data-h="'+x.replace(/"/g,'&quot;')+'" value="'+String(r[x]??'').replace(/"/g,'&quot;')+'"></td>';}).join('')+'<td><div class="user-row-actions"><button class="btn-secondary" style="margin:0;padding:6px 9px" onclick="saveOne(\''+type+'\','+i+')">💾 حفظ</button>'+(type==='users'?'<button type="button" class="reset-password-btn" onclick="resetUserPassword('+i+')">↻ Reset</button>':(type==='file'?'<button type="button" class="reset-password-btn" onclick="resetFileRow('+i+')">↻ Reset</button>':''))+'</div></td></tr>'});return s+'</tbody></table>'}
+function table(rows,h,type){let s='<table class="data-table"><thead><tr><th><input class="check" type="checkbox" onclick="toggleVisible(\''+type+'\',this)"></th>'+h.map(x=>'<th>'+x+'</th>').join('')+'<th>حفظ</th></tr></thead><tbody>';rows.forEach(([r,i])=>{s+='<tr><td><input class="check sel-'+type+'" data-i="'+i+'" type="checkbox"></td>'+h.map(x=>{if(type==='users'&&x==='Password')return '<td><input type="password" value="********" readonly autocomplete="new-password"></td>';if(type==='file'&&x==='ActionType'){const v=String(r[x]??'');const opt=o=>'<option value="'+o+'"'+(v===o?' selected':'')+'>'+(o||'—')+'</option>';return '<td><select data-i="'+i+'" data-h="ActionType">'+opt('')+opt('New')+opt('Edit')+'</select></td>';}return '<td><input data-i="'+i+'" data-h="'+x.replace(/"/g,'&quot;')+'" value="'+String(r[x]??'').replace(/"/g,'&quot;')+'"></td>';}).join('')+'<td><div class="user-row-actions"><button class="btn-secondary" style="margin:0;padding:6px 9px" onclick="saveOne(\''+type+'\','+i+')">💾 حفظ</button>'+(type==='users'?'<button type="button" class="reset-password-btn" onclick="resetUserPassword('+i+')">↻ Reset</button><button type="button" class="reset-password-btn" onclick="sendTempWhatsApp(ur['+i+'].UserName)">📲 واتس</button>':(type==='file'?'<button type="button" class="reset-password-btn" onclick="resetFileRow('+i+')">↻ Reset</button>':''))+'</div></td></tr>'});return s+'</tbody></table>'}
 function sync(type,i){let a=type==='file'?fr:ur;document.querySelectorAll('[data-i="'+i+'"][data-h]').forEach(x=>a[i][x.dataset.h]=x.value.trim())}
 async function resetUserPassword(i){
   const u=ur[i];
   if(!u)return;
   const userName=String(u.UserName||'').trim();
   if(!userName)return alert('لا يمكن عمل Reset بدون UserName');
-  if(!confirm('هل تريد عمل Reset لكلمة مرور المستخدم '+userName+' إلى 00000؟'))return;
-
+  if(!confirm('هل تريد توليد كلمة مرور مؤقتة جديدة للمستخدم '+userName+'؟\nسيُطلب منه تغييرها عند أول دخول.'))return;
   try{
     show('actionStatus','جاري تحديث كلمة المرور على users.csv...','info');
-
-    // نقرأ آخر نسخة من GitHub أولاً حتى لا نعتمد على SHA قديم.
     const latest=await get(USERS);
     const rows=latest.rows;
     const idx=rows.findIndex(r=>String(r.UserName||'').trim()===userName);
-
     if(idx<0)throw Error('المستخدم غير موجود في users.csv على GitHub');
-
-    rows[idx].Password='00000';
-
-    // تحديث users.csv مباشرة من زر Reset.
+    const code=genTempCode();
+    rows[idx].Password=await makeVerifier(code);rows[idx].FirstLogin='TRUE';rows[idx].Countlogin='0';
     const result=await put(USERS,rows,UH,latest.sha,'Reset password for '+userName);
     usha=result.content.sha;
-
-    // تحديث البيانات المحلية من النسخة التي تم حفظها.
     ur=rows;
+    tempCodes[userName.toLowerCase()]=code;
     renderUsers();
-
-    show('actionStatus','تم Reset كلمة مرور المستخدم '+userName+' إلى 00000 وتحديث users.csv مباشرة على GitHub.','ok');
+    showTempCard(rows[idx],code);
+    show('actionStatus','تم توليد كلمة مرور مؤقتة جديدة للمستخدم '+userName+' وتحديث users.csv (مشفّرة).','ok');
   }catch(e){
     show('actionStatus','خطأ في Reset: '+e.message,'err');
     alert('فشل Reset\n\n'+e.message);
@@ -1409,11 +1903,11 @@ async function saveOne(type,i){
         latest.rows[idx]=edited;
         try{
           const x=await put(cfg.path,latest.rows,cfg.headers,latest.sha,'Update '+cfg.label);
-          cfg.setRows(latest.rows);cfg.setSha(x.content.sha);renderManaged(type);show(type==='poorders'?'poordersStatus':'privatefileStatus','تم حفظ التعديل بنجاح','ok');return;
+          cfg.setRows(latest.rows);cfg.setSha(x.content.sha);renderManaged(type);show(type+'Status','تم حفظ التعديل بنجاح','ok');return;
         }catch(e){lastErr=e;if(!String(e.message||e).includes('409')||attempt===4)throw e;await new Promise(r=>setTimeout(r,400*attempt));}
       }
       throw lastErr||Error('فشل الحفظ');
-    }catch(e){show(type==='poorders'?'poordersStatus':'privatefileStatus','خطأ: '+e.message,'err')}
+    }catch(e){show(type+'Status','خطأ: '+e.message,'err')}
     return;
   }
   if(type==='file'){
@@ -1669,7 +2163,7 @@ async function deleteSelected(type){
         });
         try{
           const x=await put(cfg.path,remaining,cfg.headers,latest.sha,'Delete records from '+cfg.label);
-          cfg.setRows(remaining);cfg.setSha(x.content.sha);renderManaged(type);show(type==='poorders'?'poordersStatus':'privatefileStatus','تم الحذف بنجاح','ok');return;
+          cfg.setRows(remaining);cfg.setSha(x.content.sha);renderManaged(type);show(type+'Status','تم الحذف بنجاح','ok');return;
         }catch(e){lastErr=e;if(!String(e.message||e).includes('409')||attempt===4)throw e;await new Promise(r=>setTimeout(r,400*attempt));}
       }
       throw lastErr||Error('فشل الحذف');
@@ -1723,6 +2217,8 @@ addBulkFilterRow('backup','SheetNo.');
 addBulkFilterRow('backup','Item Code');
 addBulkFilterRow('poorders','Department');
 addBulkFilterRow('privatefile','Department');
+addBulkFilterRow('archiveall','FileType');
+addBulkFilterRow('zwhc','Material Number');
 refreshGeneratedSheetNo();
 refreshGeneratedDates();
 setUploadFileMeta();
