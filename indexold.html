@@ -374,6 +374,7 @@ setLanguage(localStorage.getItem('sy50ra-lang') || 'en');
       setTimeout(closePanel,80);
     });
   });
+  
 
   document.addEventListener('click',function(e){
     if(!handle.contains(e.target) && !panel.contains(e.target)) closePanel();
